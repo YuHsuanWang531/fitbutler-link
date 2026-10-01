@@ -7,11 +7,13 @@ import { newsArticles } from "@/lib/member-news"
 import { venues } from "@/lib/member-venues"
 
 // Mock content from the Figma design; replace with API data.
-const banners: PromoBanner[] = Array.from({ length: 6 }, (_, i) =>
-  i % 2 === 0
-    ? { id: `banner-${i}`, image: "/images/banner-1.png", alt: "增肌冬令營 15 堂教練課｜60 天增肌挑戰" }
-    : { id: `banner-${i}`, image: "/images/banner-2.png", alt: "中山旗艦館盛大開幕 開幕月入會首月 $0" }
-)
+const banners: PromoBanner[] = [
+  { id: "zhongshan-grand-opening", image: "/images/banner-2.png", alt: "中山旗艦館盛大開幕 開幕月入會首月 $0" },
+  { id: "monthly-plan-888", image: "/images/banner-3.jpg", alt: "月費訂閱制免綁約，每月只要 $888" },
+  { id: "small-group-class-450", image: "/images/banner-4.jpg", alt: "3 人就開班，小班精緻團課一堂只要 $450" },
+  { id: "pt-zone-rules", image: "/images/banner-5.jpg", alt: "市府館 PT 專用區使用新制，10/10 起" },
+  { id: "city-hall-equipment-upgrade", image: "/images/banner-6.jpg", alt: "市府館重訓區器材全面升級，8/7 重新開放" },
+]
 
 const news: NewsItem[] = newsArticles.map((article) => {
   const [, month, day] = article.date.split("-")
@@ -36,9 +38,9 @@ export default function MemberHomePage() {
 
       <button
         type="button"
-        className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] left-1/2 z-10 flex -translate-x-1/2 items-center gap-1 rounded-full border border-neutral-200 bg-white p-3 text-sm font-medium leading-5 text-black shadow-[0_4px_6px_-1px_rgb(0_0_0/0.1)] md:hidden"
+        className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] left-1/2 z-10 flex -translate-x-1/2 items-center gap-1 rounded-full border border-(--brand-accent) bg-(--brand-accent) px-5 py-4 text-sm font-medium leading-5 text-(--brand-on-accent) shadow-[0_4px_6px_-1px_rgb(0_0_0/0.1)] md:hidden"
       >
-        <ScanLine className="size-5 text-neutral-950" strokeWidth={1.5} />
+        <ScanLine className="size-5" strokeWidth={1.5} />
         進出場條碼
       </button>
     </div>

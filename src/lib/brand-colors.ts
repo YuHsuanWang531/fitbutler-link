@@ -71,3 +71,8 @@ export function getTabColors(accent: string) {
   }
   return { tint, onTint }
 }
+
+/** Black or white, whichever reads better on a solid `accent` fill (e.g. the barcode button). */
+export function getOnAccent(accent: string) {
+  return contrastRatio("#ffffff", accent) >= contrastRatio("#000000", accent) ? "#ffffff" : "#000000"
+}

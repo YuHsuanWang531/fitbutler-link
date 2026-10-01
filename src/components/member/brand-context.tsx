@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useMemo, useState, type CSSProperties } from "react"
 
-import { getTabColors } from "@/lib/brand-colors"
+import { getOnAccent, getTabColors } from "@/lib/brand-colors"
 
 export type Brand = {
   id: string
@@ -52,17 +52,26 @@ const BrandContext = createContext<BrandContextValue | null>(null)
 
 /**
  * Provides the active brand and exposes its colors as CSS variables:
- * `--brand-accent`, plus `--brand-tint` / `--brand-on-tint` for the tab bar (contrast-adjusted).
+ * `--brand-accent` with `--brand-on-accent` (black or white text on it),
+ * plus `--brand-tint` / `--brand-on-tint` for the tab bar (contrast-adjusted).
  */
 export function BrandProvider({ className, children }: { className?: string; children: React.ReactNode }) {
   const [index, setIndex] = useState(0)
   const cycleBrand = useCallback(() => setIndex((i) => (i + 1) % brands.length), [])
   const brand = brands[index]
   const { tint, onTint } = useMemo(() => getTabColors(brand.accent), [brand.accent])
+  const onAccent = getOnAccent(brand.accent)
 
   return (
     <BrandContext.Provider value={{ brand, cycleBrand }}>
-      <div className={className} style={{ "--brand-accent": brand.accent, "--brand-tint": tint, "--brand-on-tint": onTint } as CSSProperties}>
+      <div className={className} style={
+          {
+            "--brand-accent": brand.accent,
+            "--brand-on-accent": onAccent,
+            "--brand-tint": tint,
+            "--brand-on-tint": onTint,
+          } as CSSProperties
+        }>
         {children}
       </div>
     </BrandContext.Provider>
