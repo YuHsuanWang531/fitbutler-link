@@ -6,8 +6,6 @@ export type NewsArticle = {
   date: string
   tag: "促銷" | "活動" | "公告"
   title: string
-  /** One- or two-line teaser shown in the home list. */
-  summary: string
   thumbnail: string
   gallery: { src: string; alt: string }[]
   /** Bold opening paragraph. */
@@ -22,7 +20,6 @@ export const newsArticles: NewsArticle[] = [
     date: "2025-10-22",
     tag: "促銷",
     title: "月費訂閱制優惠 $888 再贈教練課體驗1堂",
-    summary: "免綁約、免手續費、全日自由進出！再贈教練課程體驗已堂，歡迎洽詢預約喔，",
     thumbnail: "/images/news-1.png",
     gallery: [
       { src: "/images/news-1-photo.jpg", alt: "教練在腿推機旁指導會員訓練" },
@@ -43,7 +40,6 @@ export const newsArticles: NewsArticle[] = [
     date: "2025-09-15",
     tag: "活動",
     title: "3 人就開班，小班精緻團課一堂$450",
-    summary: "壺鈴、TRX 全身肌力訓練，增肌減脂維持行動力！",
     thumbnail: "/images/news-2.png",
     gallery: [
       { src: "/images/news-2-photo.jpg", alt: "壺鈴與 TRX 精緻團課，一堂只要 $450" },
@@ -64,7 +60,6 @@ export const newsArticles: NewsArticle[] = [
     date: "2025-09-06",
     tag: "公告",
     title: "PT 專用區使用規範調整",
-    summary: "為提供更專業與安全的教學環境，市府館自 2025 年 10 月 10 日起",
     thumbnail: "/images/news-3.png",
     gallery: [
       { src: "/images/news-3-photo.jpg", alt: "會員使用戰繩訓練" },
@@ -84,7 +79,6 @@ export const newsArticles: NewsArticle[] = [
     date: "2025-08-28",
     tag: "活動",
     title: "增肌冬令營開跑，60 天挑戰萬元獎品帶回家",
-    summary: "15 堂教練課搭配飲食追蹤，完成 60 天挑戰就有機會把萬元獎品帶回家！",
     thumbnail: "/images/banner-1.png",
     gallery: [
       { src: "/images/banner-1.png", alt: "增肌冬令營 15 堂教練課｜60 天增肌挑戰" },
@@ -105,7 +99,6 @@ export const newsArticles: NewsArticle[] = [
     date: "2025-08-12",
     tag: "促銷",
     title: "中山旗艦館開幕月入會，首月 $0",
-    summary: "中山旗艦館盛大開幕，開幕月加入會員首月免費，名額有限、額滿為止。",
     thumbnail: "/images/banner-2.png",
     gallery: [
       { src: "/images/banner-2.png", alt: "中山旗艦館盛大開幕，開幕月入會首月 $0" },
@@ -126,7 +119,6 @@ export const newsArticles: NewsArticle[] = [
     date: "2025-07-30",
     tag: "公告",
     title: "市府館重訓區器材汰換，暫停開放三天",
-    summary: "市府館重訓區將於 8 月 4 日至 8 月 6 日汰換器材，期間請改至中山旗艦館使用。",
     thumbnail: "/images/venue.png",
     gallery: [
       { src: "/images/venue.png", alt: "市府館重訓區" },

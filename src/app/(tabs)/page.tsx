@@ -21,7 +21,8 @@ const news: NewsItem[] = newsArticles.map((article) => {
     month: `${Number(month)} 月`,
     tag: article.tag,
     title: article.title,
-    description: article.summary,
+    // Article text runs long enough to fill the two-line teaser at every width.
+    description: article.lead + article.body.join(""),
     image: article.thumbnail,
   }
 })

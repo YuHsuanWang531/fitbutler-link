@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils"
 /**
  * Page body. Mobile: flush, the window scrolls.
  * md+: a fixed, centered bordered card filling the space under the header; only its content scrolls.
+ * lg: stays centered but keeps 24px clear of the 150px side nav on narrow desktops.
  */
 export function MemberMain({ className, children }: { className?: string; children: React.ReactNode }) {
   const ref = useRef<HTMLElement>(null)
@@ -22,7 +23,7 @@ export function MemberMain({ className, children }: { className?: string; childr
     <main
       ref={ref}
       className={cn(
-        "flex-1 md:mx-auto md:mb-6 md:min-h-0 md:w-[500px] md:overflow-x-hidden md:overflow-y-auto md:overscroll-contain md:rounded-[14px] md:border md:border-neutral-200 lg:w-[680px]",
+        "flex-1 md:mx-auto md:mb-6 md:min-h-0 md:w-[500px] md:overflow-x-hidden md:overflow-y-auto md:overscroll-contain md:rounded-[14px] md:border md:border-neutral-200 lg:mr-auto lg:ml-[max(174px,calc((100%-740px)/2))] lg:w-[740px]",
         className
       )}
     >

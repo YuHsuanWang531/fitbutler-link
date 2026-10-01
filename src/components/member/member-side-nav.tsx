@@ -14,8 +14,8 @@ export function MemberSideNav() {
   const pathname = usePathname()
 
   return (
-    // On desktop, sits 24px left of the centered 680px content card (150px nav + 24px gap), clamped to the viewport edge.
-    <nav className="fixed inset-y-0 left-0 z-20 hidden lg:left-[max(0px,calc((100%-680px)/2-174px))] w-[134px] flex-col justify-center gap-1 px-3 py-6 md:flex lg:w-[150px] lg:px-4">
+    // On desktop, sits 24px left of the centered 740px content card (150px nav + 24px gap), clamped to the viewport edge.
+    <nav className="fixed inset-y-0 left-0 z-20 hidden lg:left-[max(0px,calc((100%-740px)/2-174px))] w-[134px] flex-col justify-center gap-1 px-3 py-6 md:flex lg:w-[150px] lg:px-4">
       <button type="button" className={cn(itemClassName, "hover:bg-neutral-100")}>
         <BellRing className="size-[22px]" strokeWidth={1.5} />
         通知

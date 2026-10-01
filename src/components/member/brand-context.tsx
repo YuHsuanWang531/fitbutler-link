@@ -7,7 +7,8 @@ import { getTabColors } from "@/lib/brand-colors"
 export type Brand = {
   id: string
   name: string
-  logo: { src: string; width: number; height: number }
+  /** Image path; scaled to fit the header logo box. */
+  logo: string
   /** Highlight for the active nav item. */
   accent: string
 }
@@ -16,31 +17,31 @@ export const brands: Brand[] = [
   {
     id: "den-yoga",
     name: "DEN YOGA",
-    logo: { src: "/images/logo.png", width: 120, height: 33 },
+    logo: "/images/logo.png",
     accent: "#000000",
   },
   {
     id: "sofit",
     name: "SoFit",
-    logo: { src: "/images/logo-sofit.png", width: 120, height: 45 },
+    logo: "/images/logo-sofit.png",
     accent: "#ebbe2a",
   },
   {
     id: "mountain-strong",
     name: "山·健身",
-    logo: { src: "/images/logo-mountain.png", width: 416, height: 90 },
+    logo: "/images/logo-mountain.png",
     accent: "#6c8966",
   },
   {
     id: "pilatique",
     name: "PILATIQUE",
-    logo: { src: "/images/logo-pilatique.png", width: 400, height: 48 },
+    logo: "/images/logo-pilatique.png",
     accent: "#ccb69d",
   },
   {
     id: "gymneration",
     name: "健身時代",
-    logo: { src: "/images/logo-gymneration.png", width: 777, height: 260 },
+    logo: "/images/logo-gymneration.png",
     accent: "#004290",
   },
 ]
