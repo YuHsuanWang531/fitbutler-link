@@ -26,7 +26,7 @@ export const brands: Brand[] = [
     id: "sofit",
     name: "SoFit",
     logo: "/images/logo-sofit.png",
-    accent: "#ebbe2a",
+    accent: "#ebbe2b",
   },
   {
     id: "mountain-strong",
@@ -39,7 +39,7 @@ export const brands: Brand[] = [
     id: "pilatique",
     name: "PILATIQUE",
     logo: "/images/logo-pilatique.png",
-    accent: "#ccb69d",
+    accent: "#c6ae9b",
   },
   {
     id: "gymneration",
