@@ -36,11 +36,11 @@ export default function MemberHomePage() {
       <NewsSection items={news} />
       <VenueCarousel venues={venues} />
 
-      {/* Floats 16px above the floating tab bar (8px gap + 82px bar) and from the right edge. */}
+      {/* Floats 16px above the floating tab bar (8px gap + 68px bar) and from the right edge. */}
       <button
         type="button"
         aria-label="進出場條碼"
-        className="fixed right-4 bottom-[calc(106px+env(safe-area-inset-bottom))] z-10 flex size-16 items-center justify-center rounded-full bg-(--brand-accent) text-(--brand-on-accent) shadow-[0_4px_6px_-1px_rgb(0_0_0/0.1)] md:hidden"
+        className="fixed right-4 bottom-[calc(92px+env(safe-area-inset-bottom))] z-10 flex size-16 items-center justify-center rounded-full bg-(--brand-accent) text-(--brand-on-accent) shadow-[0_4px_6px_-1px_rgb(0_0_0/0.1)] md:hidden"
       >
         <ScanLine className="size-6" strokeWidth={1.5} />
       </button>
