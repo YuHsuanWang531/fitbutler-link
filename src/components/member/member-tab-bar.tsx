@@ -7,12 +7,13 @@ import { cn } from "@/lib/utils"
 import { MemberNavIcon } from "@/components/member/member-nav-icon"
 import { isNavItemActive, memberNavItems } from "@/components/member/member-nav-items"
 
+// Floating pill bar: 16px from the screen sides and bottom (plus the home-indicator inset).
 export function MemberTabBar() {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-[#e4e4e4] bg-white pb-[env(safe-area-inset-bottom)] md:hidden">
-      <ul className="flex h-20">
+    <nav className="fixed inset-x-4 bottom-[calc(16px+env(safe-area-inset-bottom))] z-20 rounded-full border border-[#e4e4e4] bg-white md:hidden">
+      <ul className="flex h-20 px-2.5">
         {memberNavItems.map(({ href, label, icon }) => {
           const active = isNavItemActive(href, pathname)
           return (
@@ -20,11 +21,12 @@ export function MemberTabBar() {
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className="flex h-full items-center justify-center font-sans text-xs leading-[18px]"
+                className="group flex h-full items-center justify-center font-sans text-xs leading-[18px] outline-none"
               >
                 <span
                   className={cn(
-                    "flex h-15 w-14 flex-col items-center justify-center gap-0.5 rounded-[10px]",
+                    // 10px inset on every side keeps the pill clear of the bar's rounded border; it narrows on small screens.
+                    "flex h-15 w-full max-w-20 flex-col items-center justify-center gap-0.5 rounded-full group-focus-visible:ring-2 group-focus-visible:ring-ring/50",
                     active ? "bg-(--brand-tint) text-(--brand-on-tint)" : "text-[#bebebe]"
                   )}
                 >
