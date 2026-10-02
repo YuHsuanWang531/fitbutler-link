@@ -11,6 +11,8 @@ export type Brand = {
   logo: string
   /** Highlight for the active nav item. */
   accent: string
+  /** Text on a solid accent fill; defaults to whichever of black/white contrasts more. */
+  onAccent?: string
 }
 
 export const brands: Brand[] = [
@@ -31,6 +33,7 @@ export const brands: Brand[] = [
     name: "山·健身",
     logo: "/images/logo-mountain.png",
     accent: "#6c8966",
+    onAccent: "#ffffff",
   },
   {
     id: "pilatique",
@@ -60,7 +63,7 @@ export function BrandProvider({ className, children }: { className?: string; chi
   const cycleBrand = useCallback(() => setIndex((i) => (i + 1) % brands.length), [])
   const brand = brands[index]
   const { tint, onTint } = useMemo(() => getTabColors(brand.accent), [brand.accent])
-  const onAccent = getOnAccent(brand.accent)
+  const onAccent = brand.onAccent ?? getOnAccent(brand.accent)
 
   return (
     <BrandContext.Provider value={{ brand, cycleBrand }}>

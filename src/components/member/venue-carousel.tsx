@@ -41,7 +41,7 @@ export function VenueCarousel({ venues }: { venues: Venue[] }) {
                     <span className="truncate">{venue.address}</span>
                   </p>
                 </div>
-                <VenueSocialLinks socials={venue.socials} website={venue.website} className="relative z-10 w-fit" />
+                <VenueSocialLinks socials={venue.socials} website={venue.website} size="lg" className="relative z-10 w-fit" />
               </div>
             </article>
           ))}

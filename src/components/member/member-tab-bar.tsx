@@ -24,7 +24,7 @@ export function MemberTabBar() {
               >
                 <span
                   className={cn(
-                    "flex h-15 w-17 flex-col items-center justify-center gap-0.5 rounded-[10px]",
+                    "flex h-15 w-14 flex-col items-center justify-center gap-0.5 rounded-[10px]",
                     active ? "bg-(--brand-tint) text-(--brand-on-tint)" : "text-[#bebebe]"
                   )}
                 >

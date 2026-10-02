@@ -54,12 +54,12 @@ export function contrastRatio(a: string, b: string) {
 /** WCAG AA for normal-size text (the 12px tab label). */
 const MIN_CONTRAST = 4.5
 /** Every brand's tint shares this lightness so the blocks look equally pale. */
-const TINT_LIGHTNESS = 0.95
+const TINT_LIGHTNESS = 0.97 // #f5f5f5 for a neutral accent, as in the design
 const TINT_MAX_CHROMA = 0.04
 
 /**
  * `tint`: pale block behind the active tab.
- * `onTint`: the accent, darkened only as much as needed to reach 4.5:1 against `tint`.
+ * `onTint`: the accent, darkened only as much as needed to reach 4.5:1 against `tint` — used for the icon and label.
  */
 export function getTabColors(accent: string) {
   const base = rgbToOklch(hexToRgb(accent))

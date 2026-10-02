@@ -36,12 +36,13 @@ export default function MemberHomePage() {
       <NewsSection items={news} />
       <VenueCarousel venues={venues} />
 
+      {/* Floats 18px above the tab bar (80px + 1px border) and from the right edge. */}
       <button
         type="button"
-        className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] left-1/2 z-10 flex -translate-x-1/2 items-center gap-1 rounded-full border border-(--brand-accent) bg-(--brand-accent) px-5 py-4 text-sm font-medium leading-5 text-(--brand-on-accent) shadow-[0_4px_6px_-1px_rgb(0_0_0/0.1)] md:hidden"
+        aria-label="進出場條碼"
+        className="fixed right-[18px] bottom-[calc(99px+env(safe-area-inset-bottom))] z-10 flex size-14 items-center justify-center rounded-full bg-(--brand-accent) text-(--brand-on-accent) shadow-[0_4px_6px_-1px_rgb(0_0_0/0.1)] md:hidden"
       >
-        <ScanLine className="size-5" strokeWidth={1.5} />
-        進出場條碼
+        <ScanLine className="size-6" strokeWidth={1.5} />
       </button>
     </div>
   )
