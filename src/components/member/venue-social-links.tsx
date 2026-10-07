@@ -12,24 +12,19 @@ const socialLabels: Record<SocialPlatform, string> = {
   threads: "Threads",
 }
 
-type VenueSocialLinksProps = Pick<Venue, "socials" | "website"> & {
-  /** "lg" = 28px icons, used on the home venue cards. */
-  size?: "md" | "lg"
-  className?: string
-}
+type VenueSocialLinksProps = Pick<Venue, "socials" | "website"> & { className?: string }
 
-export function VenueSocialLinks({ socials, website, size = "md", className }: VenueSocialLinksProps) {
-  const iconSize = size === "lg" ? 28 : 24
+export function VenueSocialLinks({ socials, website, className }: VenueSocialLinksProps) {
   return (
-    <div className={cn("flex items-center gap-2", size === "lg" ? "h-7" : "h-6", className)}>
+    <div className={cn("flex h-6 items-center gap-2", className)}>
       {socials.map(({ platform, url }) => (
         <a key={platform} href={url} target="_blank" rel="noopener noreferrer" aria-label={socialLabels[platform]}>
-          <Image src={`/images/${platform}.svg`} alt="" width={iconSize} height={iconSize} />
+          <Image src={`/images/${platform}.svg`} alt="" width={24} height={24} />
         </a>
       ))}
       {website && (
         <a href={website} target="_blank" rel="noopener noreferrer" aria-label="官方網站" className="text-neutral-950">
-          <LinkIcon className={size === "lg" ? "size-[22px]" : "size-5"} strokeWidth={1.5} />
+          <LinkIcon className="size-[22px]" strokeWidth={1.5} />
         </a>
       )}
     </div>

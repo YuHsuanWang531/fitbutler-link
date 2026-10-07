@@ -18,7 +18,7 @@ export function VenueCarousel({ venues }: { venues: Venue[] }) {
       <div className="flex flex-col gap-4">
         <div
           ref={ref}
-          className="relative flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 lg:scroll-px-6 lg:px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="relative flex snap-x snap-mandatory scroll-px-4 gap-2 overflow-x-auto px-4 lg:scroll-px-6 lg:px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {venues.map((venue) => (
             <article
@@ -36,12 +36,12 @@ export function VenueCarousel({ venues }: { venues: Venue[] }) {
                       {venue.name}
                     </Link>
                   </h3>
-                  <p className="flex items-center gap-0.5 text-sm leading-5 text-muted-foreground">
+                  <p className="flex items-center gap-1 text-sm leading-5 text-muted-foreground">
                     <MapPin className="size-3.5 shrink-0" />
                     <span className="truncate">{venue.address}</span>
                   </p>
                 </div>
-                <VenueSocialLinks socials={venue.socials} website={venue.website} size="lg" className="relative z-10 w-fit" />
+                <VenueSocialLinks socials={venue.socials} website={venue.website} className="relative z-10 w-fit" />
               </div>
             </article>
           ))}

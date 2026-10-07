@@ -13,11 +13,11 @@ export function MemberTabBar() {
 
   return (
     <nav className="fixed inset-x-4 bottom-[calc(8px+env(safe-area-inset-bottom))] z-20 rounded-full border border-[#e4e4e4] bg-white shadow-[0_4px_16px_-2px_rgb(0_0_0/0.12)] md:hidden">
-      <ul className="flex h-[66px]">
+      <ul className="flex h-[70px] p-[5px]">
         {memberNavItems.map(({ href, label, icon }) => {
           const active = isNavItemActive(href, pathname)
           return (
-            <li key={href} className="flex-1 px-1 py-[3px]">
+            <li key={href} className="flex-1">
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
@@ -25,12 +25,12 @@ export function MemberTabBar() {
               >
                 <span
                   className={cn(
-                    // Fills its slot, 4px inside the 68px bar's border.
+                    // Fills its slot, 6px inside the 72px bar's outer edge.
                     "flex h-15 w-full flex-col items-center justify-center gap-0.5 rounded-full group-focus-visible:ring-2 group-focus-visible:ring-ring/50",
-                    active ? "bg-(--brand-tint) text-(--brand-on-tint)" : "text-[#a3a3a3]"
+                    active ? "bg-(--brand-tint) text-(--brand-on-tint)" : "text-[#bebebe]"
                   )}
                 >
-                  <MemberNavIcon name={icon} active={active} className="size-6" />
+                  <MemberNavIcon name={icon} active={active} className={cn("size-6", !active && "text-[#a3a3a3]")} />
                   {label}
                 </span>
               </Link>

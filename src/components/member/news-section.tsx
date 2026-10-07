@@ -58,7 +58,7 @@ export function NewsSection({ items }: { items: NewsItem[] }) {
           <li key={item.id}>
             <Link href={`/news/${item.id}`} className="flex items-center gap-3">
               <div className="flex w-8 shrink-0 flex-col items-center self-start">
-                <span className="text-2xl font-medium leading-8 text-black">{item.day}</span>
+                <span className="text-xl font-medium leading-7 text-black">{item.day}</span>
                 <span className="text-xs leading-4 text-muted-foreground">{item.month}</span>
               </div>
               <div className="h-23 w-px shrink-0 bg-neutral-200" />
@@ -74,9 +74,9 @@ export function NewsSection({ items }: { items: NewsItem[] }) {
               <Image
                 src={item.image}
                 alt=""
-                width={92}
-                height={92}
-                className="size-23 shrink-0 rounded-[10px] object-cover"
+                width={85}
+                height={85}
+                className="size-[85px] shrink-0 rounded-[8px] object-cover"
               />
             </Link>
           </li>
