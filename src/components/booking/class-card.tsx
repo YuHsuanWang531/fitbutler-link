@@ -45,7 +45,7 @@ export function ClassCard({ gymClass, action, pending, onAction }: ClassCardProp
         <p className="truncate text-sm leading-5 text-muted-foreground">
           {gymClass.venue}｜{gymClass.room}
         </p>
-        <p className="truncate text-lg leading-7 font-medium">{gymClass.title}</p>
+        <p className="truncate text-xl leading-7 font-medium">{gymClass.title}</p>
         <p className="text-sm leading-5">
           {gymClass.start}-{classEndTime(gymClass)}
         </p>
