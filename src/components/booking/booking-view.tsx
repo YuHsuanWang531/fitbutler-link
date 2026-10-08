@@ -157,8 +157,27 @@ function BookingScreen() {
   const step = (direction: 1 | -1) =>
     mode === "month" ? showRange("month", addMonths(anchor, direction)) : showRange("week", addDays(anchor, 7 * direction))
 
-  // Week view: swipe the calendar row left/right for the next/previous week.
-  useHorizontalSwipe(swipeTrack, { enabled: mode === "week", onSwipe: step })
+  /**
+   * Collapsed month: the visible row is one week, so a swipe moves the timeline a week. Lands on today if that
+   * week has it, else the week's first day in this month; a week entirely in another month switches months.
+   */
+  const swipeCollapsedWeek = (direction: 1 | -1) => {
+    const selected = days.find((d) => toKey(d) === selectedKey) ?? days[0]
+    const weekStart = addDays(startOfWeek(selected), 7 * direction)
+    const week = eachDay(weekStart, addDays(weekStart, 6))
+    const inMonth = week.filter((d) => dayKeys.has(toKey(d)))
+    const today = week.find((d) => toKey(d) === todayKey)
+    if (inMonth.length === 0) return showRange("month", startOfMonth(weekStart), toKey(today ?? weekStart))
+    const target = toKey(today && dayKeys.has(todayKey) ? today : inMonth[0])
+    setSelectedKey(target)
+    scrollToDay(target, { smooth: true })
+  }
+
+  // Swipe the single calendar row (week view, or the collapsed month) left/right for the next/previous week.
+  useHorizontalSwipe(swipeTrack, {
+    enabled: mode === "week" || collapsed,
+    onSwipe: (direction) => (mode === "week" ? step(direction) : swipeCollapsedWeek(direction)),
+  })
 
   const selectDay = (day: Date) => {
     const key = toKey(day)
