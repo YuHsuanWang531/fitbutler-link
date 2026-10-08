@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react"
 import { usePathname } from "next/navigation"
 
 import { cn } from "@/lib/utils"
+import { MemberMainContext } from "@/components/member/scroll-container"
 
 /**
  * Page body. Mobile: flush, the window scrolls.
@@ -27,7 +28,7 @@ export function MemberMain({ className, children }: { className?: string; childr
         className
       )}
     >
-      {children}
+      <MemberMainContext.Provider value={ref}>{children}</MemberMainContext.Provider>
     </main>
   )
 }

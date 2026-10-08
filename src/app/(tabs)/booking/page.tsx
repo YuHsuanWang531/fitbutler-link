@@ -1,8 +1,9 @@
+import type { Metadata } from "next"
+
+import { BookingView } from "@/components/booking/booking-view"
+
+export const metadata: Metadata = { title: "預約" }
+
 export default function MemberBookingPage() {
-  return (
-    <div className="flex min-h-[60dvh] flex-col items-center justify-center gap-1 px-4 text-center">
-      <h1 className="text-xl font-medium leading-7">預約</h1>
-      <p className="text-sm text-muted-foreground">此頁面尚在規劃中</p>
-    </div>
-  )
+  return <BookingView />
 }
