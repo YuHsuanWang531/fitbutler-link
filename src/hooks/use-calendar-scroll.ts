@@ -54,6 +54,8 @@ type Metrics = {
 }
 
 const SCROLL_END_FALLBACK_MS = 150
+/** A scroll that stops part-way settles in the direction it was going once it has covered this much of the fold. */
+const SNAP_THRESHOLD = 0.15
 
 const clamp = (v: number) => Math.min(1, Math.max(0, v))
 
@@ -238,11 +240,14 @@ export function useCalendarScroll(options: Options) {
     let frame = 0
     let endTimer: number | undefined
     const supportsScrollEnd = "onscrollend" in window
+    /** Progress when the current scroll began, to tell which way it's going when it stops. */
+    let startProgress: number | null = null
 
     const isOurs = (e: Event) => e.target === (getTarget().el ?? document)
 
     const onScrollEnd = () => {
       if (programmatic.current) {
+        startProgress = null
         // Drop the frame queued during our own scroll; it would recompute the active day we just set.
         cancelAnimationFrame(frame)
         return endProgrammatic()
@@ -252,14 +257,21 @@ export function useCalendarScroll(options: Options) {
       apply(getTarget().scrollTop)
       const m = metrics.current
       const p = progress.current
-      // Never leave the calendar half-collapsed: settle on whichever end is nearer.
+      const from = startProgress ?? p
+      startProgress = null
+      // Never leave the calendar half-collapsed. Settle the way the scroll was heading, so even a slow, short
+      // drag folds (or unfolds) the month once it has moved a little; with no clear direction, the nearer end.
       const origin = collapseOrigin.current ?? m?.stuckAt ?? 0
-      if (m?.collapseDistance && p > 0 && p < 1) scrollTo(origin + (p < 0.5 ? 0 : m.collapseDistance), true)
+      if (m?.collapseDistance && p > 0 && p < 1) {
+        const collapse = p > from ? p >= SNAP_THRESHOLD : p < from ? p > 1 - SNAP_THRESHOLD : p >= 0.5
+        scrollTo(origin + (collapse ? m.collapseDistance : 0), true)
+      }
     }
 
     const onScroll = (e: Event) => {
       if (!isOurs(e)) return
       if (!programmatic.current) {
+        startProgress ??= progress.current
         heldKey.current = null
         opts.current.onUserScroll()
       }
