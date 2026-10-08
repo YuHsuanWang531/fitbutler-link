@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 import { useCalendarScroll } from "@/hooks/use-calendar-scroll"
 import { useHorizontalSwipe } from "@/hooks/use-horizontal-swipe"
 import { bookingApi } from "@/lib/booking/api"
-import { classAction, countActiveFilters, matchesFilters, type ClassAction } from "@/lib/booking/classes"
+import { classAction, countActiveFilters, formatTimeFilter, matchesFilters, type ClassAction } from "@/lib/booking/classes"
 import {
   WEEKDAY_LABELS,
   addDays,
@@ -21,7 +21,7 @@ import {
   toKey,
 } from "@/lib/booking/dates"
 import { NO_FILTERS, type ClassCategory, type ClassFilters, type GymClass, type Teacher } from "@/lib/booking/types"
-import { AppliedFilters } from "@/components/booking/applied-filters"
+import { AppliedFilters, type FilterChip } from "@/components/booking/applied-filters"
 import { BookingToolbar, type BookingMode } from "@/components/booking/booking-toolbar"
 import { CalendarGrid } from "@/components/booking/calendar-grid"
 import { FilterPanel } from "@/components/booking/filter-panel"
@@ -97,10 +97,6 @@ function BookingScreen() {
     }
     return map
   }, [allClasses, filters])
-  const dotKeys = useMemo(
-    () => new Set([...byDay].filter(([, e]) => e.visible.length > 0).map(([key]) => key)),
-    [byDay]
-  )
 
   const activeFilterCount = countActiveFilters(filters)
   const weekIndex = Math.max(0, weeks.findIndex((week) => week.some((d) => toKey(d) === selectedKey)))
@@ -123,7 +119,7 @@ function BookingScreen() {
     spacer,
     collapsible: mode === "month",
     weekIndex,
-    layoutKey: `${mode}|${span}|${loaded}|${filters.category}|${filters.teacherId}`,
+    layoutKey: `${mode}|${span}|${loaded}|${filters.category}|${filters.teacherId}|${filters.timeFrom}|${filters.timeTo}`,
     onActiveDayChange: setSelectedKey,
     onUserScroll: closeOverlay,
   })
@@ -222,11 +218,14 @@ function BookingScreen() {
     }
   }
 
-  const chips: { key: keyof ClassFilters; label: string }[] = []
-  if (filters.category) chips.push({ key: "category", label: filters.category })
+  const chips: FilterChip[] = []
+  if (filters.category) chips.push({ id: "category", label: filters.category, clear: { category: null } })
   if (filters.teacherId) {
-    chips.push({ key: "teacherId", label: options.teachers.find((t) => t.id === filters.teacherId)?.name ?? "" })
+    const name = options.teachers.find((t) => t.id === filters.teacherId)?.name ?? ""
+    chips.push({ id: "teacher", label: name, clear: { teacherId: null } })
   }
+  const timeLabel = formatTimeFilter(filters)
+  if (timeLabel) chips.push({ id: "time", label: timeLabel, clear: { timeFrom: null, timeTo: null } })
 
   const title = mode === "month" ? formatMonthTitle(anchor) : formatWeekTitle(anchor)
   const nextLabel = mode === "month" ? `看 ${addMonths(anchor, 1).getMonth() + 1} 月` : "看下一週"
@@ -234,7 +233,6 @@ function BookingScreen() {
     month: mode === "month" ? anchor : null,
     todayKey,
     selectedKey,
-    dotKeys,
     onSelect: selectDay,
   }
 
@@ -257,7 +255,7 @@ function BookingScreen() {
         />
         <AppliedFilters
           chips={chips}
-          onRemove={(key) => applyFilters({ ...filters, [key]: null })}
+          onRemove={(clear) => applyFilters({ ...filters, ...clear })}
           onClearAll={() => applyFilters(NO_FILTERS)}
         />
         <div className="grid h-7 grid-cols-7 px-2 text-center text-xs leading-7 text-muted-foreground">
@@ -318,7 +316,6 @@ function BookingScreen() {
             <TimelineDay
               key={key}
               day={day}
-              isToday={key === todayKey}
               classes={(entry?.visible ?? []).map((gymClass) => ({ gymClass, action: classAction(gymClass, now) }))}
               emptyText={entry?.all && activeFilterCount ? "沒有符合篩選的課程" : "沒有排課"}
               pendingId={pendingId}
@@ -328,11 +325,12 @@ function BookingScreen() {
         })}
       </div>
 
-      <div className="flex h-20 items-start justify-center pt-6">
+      {/* 24px above and below the button: the last day already ends with 20px (card pb-3 + list pb-2), so pt-1 tops it up. */}
+      <div className="flex justify-center pt-1 pb-6">
         <button
           type="button"
           onClick={() => step(1)}
-          className="h-10 self-start rounded-full border border-neutral-300 px-5 text-sm font-medium"
+          className="h-10 rounded-full border border-neutral-300 px-5 text-sm font-medium hover:bg-neutral-100"
         >
           {nextLabel}
         </button>
@@ -370,7 +368,7 @@ function CollapseHandle({ label, onClick, onSwipe }: CollapseHandleProps) {
     <button
       type="button"
       aria-label={label}
-      className="flex h-8 w-full touch-none items-center justify-center"
+      className="group flex h-8 w-full touch-none items-center justify-center"
       onPointerDown={(e) => {
         drag.current = { id: e.pointerId, y: e.clientY }
         swallowClick.current = false
@@ -395,7 +393,7 @@ function CollapseHandle({ label, onClick, onSwipe }: CollapseHandleProps) {
         else onClick()
       }}
     >
-      <span className="h-1 w-9 rounded-full bg-neutral-300" />
+      <span className="h-1 w-9 rounded-full bg-neutral-300 group-hover:bg-neutral-400" />
     </button>
   )
 }

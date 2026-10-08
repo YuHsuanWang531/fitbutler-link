@@ -1,13 +1,14 @@
 "use client"
 
 import { useState } from "react"
+import { ChevronDown } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet"
-import { matchesFilters } from "@/lib/booking/classes"
+import { matchesFilters, TIME_FILTER_OPTIONS } from "@/lib/booking/classes"
 import { NO_FILTERS, type ClassCategory, type ClassFilters, type GymClass, type Teacher } from "@/lib/booking/types"
 
 type FilterPanelProps = {
@@ -73,6 +74,11 @@ function FilterForm({ applied, categories, teachers, rangeClasses, onApply, Head
           value={draft.teacherId}
           onChange={(teacherId) => setDraft((d) => ({ ...d, teacherId }))}
         />
+        <TimeRange
+          from={draft.timeFrom}
+          to={draft.timeTo}
+          onChange={(timeFrom, timeTo) => setDraft((d) => ({ ...d, timeFrom, timeTo }))}
+        />
       </div>
       <Footer className="flex-row gap-2 px-4 pt-4 pb-4">
         <Button variant="ghost" className="h-10 px-4" onClick={() => setDraft(NO_FILTERS)}>
@@ -113,7 +119,7 @@ function OptionGroup({ label, options, value, onChange }: OptionGroupProps) {
               onClick={() => onChange(option.value)}
               className={cn(
                 "h-8 rounded-full border px-3.5 text-sm",
-                selected ? "border-black bg-black text-white" : "border-neutral-200 text-black"
+                selected ? "border-black bg-black text-white" : "border-neutral-200 text-black hover:bg-neutral-100"
               )}
             >
               {option.label}
@@ -121,6 +127,78 @@ function OptionGroup({ label, options, value, onChange }: OptionGroupProps) {
           )
         })}
       </div>
+    </div>
+  )
+}
+
+type TimeRangeProps = {
+  from: string | null
+  to: string | null
+  onChange(from: string | null, to: string | null): void
+}
+
+/**
+ * 上課時間: classes starting between two half-hour marks; either end can stay 不限.
+ * Picking a start at or after the end (or vice versa) clears the other end instead of leaving an empty range.
+ */
+function TimeRange({ from, to, onChange }: TimeRangeProps) {
+  return (
+    <div>
+      <p id="filter-time" className="mb-2 text-sm font-medium">
+        上課時間
+      </p>
+      <div role="group" aria-labelledby="filter-time" className="flex items-center gap-2">
+        <TimeSelect
+          label="開始時間"
+          value={from}
+          options={TIME_FILTER_OPTIONS.slice(0, -1)}
+          onChange={(next) => onChange(next, next && to && to <= next ? null : to)}
+        />
+        <span aria-hidden className="text-sm text-muted-foreground">
+          –
+        </span>
+        <TimeSelect
+          label="結束時間"
+          value={to}
+          options={TIME_FILTER_OPTIONS.slice(1)}
+          onChange={(next) => onChange(next && from && from >= next ? null : from, next)}
+        />
+      </div>
+    </div>
+  )
+}
+
+type TimeSelectProps = {
+  label: string
+  value: string | null
+  options: string[]
+  onChange(value: string | null): void
+}
+
+/** Native select (the phone's own picker), styled like the option chips. */
+function TimeSelect({ label, value, options, onChange }: TimeSelectProps) {
+  return (
+    <div className="relative flex-1">
+      <select
+        aria-label={label}
+        value={value ?? ""}
+        onChange={(e) => onChange(e.target.value || null)}
+        className={cn(
+          "h-10 w-full cursor-pointer appearance-none rounded-full border bg-white pr-9 pl-4 text-sm hover:bg-neutral-100",
+          value ? "border-black" : "border-neutral-200 text-muted-foreground"
+        )}
+      >
+        <option value="">不限</option>
+        {options.map((time) => (
+          <option key={time} value={time}>
+            {time}
+          </option>
+        ))}
+      </select>
+      <ChevronDown
+        aria-hidden
+        className="pointer-events-none absolute top-1/2 right-3.5 size-4 -translate-y-1/2 text-neutral-500"
+      />
     </div>
   )
 }

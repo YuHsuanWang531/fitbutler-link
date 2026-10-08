@@ -1,6 +1,7 @@
 export type ClassCategory = "瑜伽" | "皮拉提斯" | "重訓" | "TRX" | "壺鈴"
 
-export type Teacher = { id: string; name: string }
+/** `avatar`: image path; without one the card shows the first character of the name. */
+export type Teacher = { id: string; name: string; avatar?: string }
 
 /** The signed-in member's relation to a class. */
 export type MyStatus = "none" | "booked" | "waitlisted"
@@ -23,7 +24,15 @@ export type GymClass = {
   myStatus: MyStatus
 }
 
-/** `null` means 全部. */
-export type ClassFilters = { category: ClassCategory | null; teacherId: string | null }
+/**
+ * `null` means 全部 / 不限. `timeFrom`/`timeTo` (`HH:mm`, half-hour steps) bound the class's start time:
+ * from is inclusive, to is exclusive; either side can be open.
+ */
+export type ClassFilters = {
+  category: ClassCategory | null
+  teacherId: string | null
+  timeFrom: string | null
+  timeTo: string | null
+}
 
-export const NO_FILTERS: ClassFilters = { category: null, teacherId: null }
+export const NO_FILTERS: ClassFilters = { category: null, teacherId: null, timeFrom: null, timeTo: null }

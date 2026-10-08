@@ -5,6 +5,8 @@ import { mockBookingApi } from "@/lib/booking/mock-api"
 export interface BookingApi {
   /** Classes whose date falls in `[from, to]` (`YYYY-MM-DD`, inclusive). */
   fetchClasses(from: string, to: string): Promise<GymClass[]>
+  /** One class by id, or `null` if there's no such class. */
+  fetchClass(classId: string): Promise<GymClass | null>
   /** Filter options for the booking page. */
   fetchFilterOptions(): Promise<{ categories: ClassCategory[]; teachers: Teacher[] }>
   book(classId: string): Promise<GymClass>

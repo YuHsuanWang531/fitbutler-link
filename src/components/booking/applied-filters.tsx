@@ -2,9 +2,12 @@ import { X } from "lucide-react"
 
 import type { ClassFilters } from "@/lib/booking/types"
 
+/** `clear`: the filter fields that removing this chip resets. */
+export type FilterChip = { id: string; label: string; clear: Partial<ClassFilters> }
+
 type AppliedFiltersProps = {
-  chips: { key: keyof ClassFilters; label: string }[]
-  onRemove(key: keyof ClassFilters): void
+  chips: FilterChip[]
+  onRemove(clear: Partial<ClassFilters>): void
   onClearAll(): void
 }
 
@@ -15,18 +18,18 @@ export function AppliedFilters({ chips, onRemove, onClearAll }: AppliedFiltersPr
     <div className="flex items-center gap-2 overflow-x-auto px-4 pb-2 [scrollbar-width:none] lg:px-6 [&::-webkit-scrollbar]:hidden">
       {chips.map((chip) => (
         <button
-          key={chip.key}
+          key={chip.id}
           type="button"
-          onClick={() => onRemove(chip.key)}
+          onClick={() => onRemove(chip.clear)}
           aria-label={`移除篩選：${chip.label}`}
-          className="flex h-7 shrink-0 items-center gap-1 rounded-full bg-neutral-100 pr-2 pl-3 text-xs"
+          className="flex h-7 shrink-0 items-center gap-1 rounded-full bg-neutral-100 pr-2 pl-3 text-xs hover:bg-neutral-200"
         >
           {chip.label}
           <X className="size-3.5" />
         </button>
       ))}
       {chips.length >= 2 && (
-        <button type="button" onClick={onClearAll} className="h-7 shrink-0 px-1 text-xs text-neutral-500 underline">
+        <button type="button" onClick={onClearAll} className="h-7 shrink-0 px-1 text-xs text-neutral-500 underline hover:text-black">
           清除全部
         </button>
       )}
