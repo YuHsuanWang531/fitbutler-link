@@ -74,13 +74,20 @@ export function useCalendarScroll(options: Options) {
   const programmaticTimer = useRef<number | undefined>(undefined)
   /** A day the user picked that sits too low to reach the calendar; it stays active at the bottom until they scroll. */
   const heldKey = useRef<string | null>(null)
+  /**
+   * Scroll offset where collapsing starts. Normally the stuck point; `scrollToDayExpanded` moves it so the month
+   * can be fully open with any day under it. Resets once the user is back at the top or picks a date.
+   */
+  const collapseOrigin = useRef<number | null>(null)
 
   const apply = useCallback((scrollTop: number, { skipActiveDay = false } = {}) => {
     const m = metrics.current
     const { root, calendarViewport, calendarRows, spacer } = opts.current
     if (!m || !root.current || !calendarViewport.current || !calendarRows.current || !spacer.current) return
 
-    const p = m.collapseDistance ? clamp((scrollTop - m.stuckAt) / m.collapseDistance) : 0
+    if (scrollTop <= m.stuckAt) collapseOrigin.current = null
+    const origin = collapseOrigin.current ?? m.stuckAt
+    const p = m.collapseDistance ? clamp((scrollTop - origin) / m.collapseDistance) : 0
     const lost = p * m.collapseDistance
     progress.current = p
     calendarViewport.current.style.height = `${m.rows * m.rowHeight - lost}px`
@@ -173,6 +180,7 @@ export function useCalendarScroll(options: Options) {
       const day = m?.days.find((d) => d.key === key)
       if (!m || !day) return
       activeKey.current = key
+      collapseOrigin.current = null
       opts.current.onActiveDayChange(key)
       const top = Math.max(0, day.top - m.zoneTop - (m.zoneFullHeight - m.collapseDistance))
       // Late days can't reach the calendar; stop at the bottom but keep the day that was asked for.
@@ -189,8 +197,30 @@ export function useCalendarScroll(options: Options) {
     if (!m) return
     activeKey.current = null
     heldKey.current = null
+    collapseOrigin.current = null
     scrollTo(Math.max(0, m.stuckAt), false)
   }, [measure, scrollTo])
+
+  /**
+   * Show `key` right under the fully open month: collapsing then starts from here, so scrolling down still
+   * folds the month away 1:1 and scrolling up keeps it open.
+   */
+  const scrollToDayExpanded = useCallback(
+    (key: string) => {
+      measure({ skipActiveDay: true })
+      const m = metrics.current
+      const day = m?.days.find((d) => d.key === key)
+      if (!m || !day) return
+      const top = Math.max(m.stuckAt, day.top - m.zoneTop - m.zoneFullHeight)
+      const reachable = Math.min(top, m.maxScroll)
+      collapseOrigin.current = reachable > m.stuckAt ? reachable : null
+      heldKey.current = top > m.maxScroll ? key : null
+      activeKey.current = key
+      opts.current.onActiveDayChange(key)
+      scrollTo(reachable, false, true)
+    },
+    [measure, scrollTo]
+  )
 
   // Re-measure whenever the content changes…
   useLayoutEffect(() => {
@@ -223,7 +253,8 @@ export function useCalendarScroll(options: Options) {
       const m = metrics.current
       const p = progress.current
       // Never leave the calendar half-collapsed: settle on whichever end is nearer.
-      if (m?.collapseDistance && p > 0 && p < 1) scrollTo(m.stuckAt + (p < 0.5 ? 0 : m.collapseDistance), true)
+      const origin = collapseOrigin.current ?? m?.stuckAt ?? 0
+      if (m?.collapseDistance && p > 0 && p < 1) scrollTo(origin + (p < 0.5 ? 0 : m.collapseDistance), true)
     }
 
     const onScroll = (e: Event) => {
@@ -260,5 +291,5 @@ export function useCalendarScroll(options: Options) {
     }
   }, [apply, endProgrammatic, getTarget, measure, scrollTo])
 
-  return { collapsed, scrollToDay, scrollToTop, measure }
+  return { collapsed, scrollToDay, scrollToDayExpanded, scrollToTop, measure }
 }

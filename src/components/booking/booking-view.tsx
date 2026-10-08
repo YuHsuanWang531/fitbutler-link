@@ -4,6 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, use
 
 import { cn } from "@/lib/utils"
 import { useCalendarScroll } from "@/hooks/use-calendar-scroll"
+import { useHorizontalSwipe } from "@/hooks/use-horizontal-swipe"
 import { bookingApi } from "@/lib/booking/api"
 import { classAction, countActiveFilters, matchesFilters, type ClassAction } from "@/lib/booking/classes"
 import {
@@ -34,7 +35,8 @@ export function BookingView() {
   return hydrated ? <BookingScreen /> : <div className="min-h-dvh" />
 }
 
-type PendingScroll = { type: "day"; key: string } | { type: "top" }
+/** `expanded`: show the day under the fully open month instead of the collapsed one. */
+type PendingScroll = { type: "day"; key: string; expanded?: boolean } | { type: "top" }
 
 function BookingScreen() {
   const [today] = useState(() => new Date())
@@ -55,8 +57,8 @@ function BookingScreen() {
   const [pendingId, setPendingId] = useState<string | null>(null)
   const [options, setOptions] = useState<{ categories: ClassCategory[]; teachers: Teacher[] }>({ categories: [], teachers: [] })
   const [data, setData] = useState<{ span: string; classes: GymClass[] }>({ span: "", classes: [] })
-  /** Where to scroll once the next range has rendered. Starts on today. */
-  const pendingScroll = useRef<PendingScroll | null>({ type: "day", key: todayKey })
+  /** Where to scroll once the next range has rendered. Opens on today, under the fully open month. */
+  const pendingScroll = useRef<PendingScroll | null>({ type: "day", key: todayKey, expanded: true })
 
   const weeks = useMemo(
     () => (mode === "month" ? monthWeeks(anchor) : [eachDay(anchor, addDays(anchor, 6))]),
@@ -109,9 +111,11 @@ function BookingScreen() {
   const calendarViewport = useRef<HTMLDivElement>(null)
   const calendarRows = useRef<HTMLDivElement>(null)
   const spacer = useRef<HTMLDivElement>(null)
+  /** Wraps the calendar rows; slides sideways while swiping between weeks. */
+  const swipeTrack = useRef<HTMLDivElement>(null)
   const closeOverlay = useCallback(() => setOverlayOpen(false), [])
 
-  const { collapsed, scrollToDay, scrollToTop } = useCalendarScroll({
+  const { collapsed, scrollToDay, scrollToDayExpanded, scrollToTop } = useCalendarScroll({
     root,
     zone,
     calendarViewport,
@@ -130,8 +134,9 @@ function BookingScreen() {
     if (!loaded || !pending) return
     pendingScroll.current = null
     if (pending.type === "top") scrollToTop()
+    else if (pending.expanded) scrollToDayExpanded(pending.key)
     else scrollToDay(pending.key, { smooth: false })
-  }, [loaded, span, filters, scrollToDay, scrollToTop])
+  }, [loaded, span, filters, scrollToDay, scrollToDayExpanded, scrollToTop])
 
   /**
    * Switch month/week or move to another range. Lands on `focusKey`, else today if it's in range, else the top.
@@ -142,7 +147,8 @@ function BookingScreen() {
     const target =
       focusKey !== undefined ? focusKey : nextDays.some((d) => toKey(d) === todayKey) ? todayKey : null
     setSelectedKey(target ?? toKey(nextDays[0]))
-    pendingScroll.current = target ? { type: "day", key: target } : { type: "top" }
+    // A new month always opens fully expanded, with the target day (if any) right under it.
+    pendingScroll.current = target ? { type: "day", key: target, expanded: nextMode === "month" } : { type: "top" }
     setOverlayOpen(false)
     setMode(nextMode)
     setAnchor(nextAnchor)
@@ -150,6 +156,9 @@ function BookingScreen() {
 
   const step = (direction: 1 | -1) =>
     mode === "month" ? showRange("month", addMonths(anchor, direction)) : showRange("week", addDays(anchor, 7 * direction))
+
+  // Week view: swipe the calendar row left/right for the next/previous week.
+  useHorizontalSwipe(swipeTrack, { enabled: mode === "week", onSwipe: step })
 
   const selectDay = (day: Date) => {
     const key = toKey(day)
@@ -162,9 +171,8 @@ function BookingScreen() {
   const changeMode = (next: BookingMode) => {
     if (next === mode) return
     const selected = days.find((d) => toKey(d) === selectedKey) ?? days[0]
-    // Month view always opens at the top, fully expanded; week view keeps the selected day.
-    if (next === "month") showRange("month", startOfMonth(selected), null)
-    else showRange("week", startOfWeek(selected), toKey(selected))
+    if (next === "week") return showRange("week", startOfWeek(selected), toKey(selected))
+    showRange("month", startOfMonth(selected), toKey(selected))
   }
 
   /** Re-anchor on the selected day after the timeline's content changes. */
@@ -237,7 +245,9 @@ function BookingScreen() {
 
         <div className="relative">
           <div ref={calendarViewport} className="overflow-hidden">
-            <CalendarGrid ref={calendarRows} weeks={weeks} {...gridProps} />
+            <div ref={swipeTrack}>
+              <CalendarGrid ref={calendarRows} weeks={weeks} {...gridProps} />
+            </div>
           </div>
           {/* Collapsed: the whole month opens over the timeline without moving it. */}
           {overlayOpen && (
