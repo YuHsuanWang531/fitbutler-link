@@ -140,15 +140,18 @@ function BookingScreen() {
 
   /**
    * Switch month/week or move to another range. Lands on `focusKey`, else today if it's in range, else the top.
-   * `focusKey: null` forces the top (month fully open).
+   * `focusKey: null` forces the top (month fully open). `keepCollapsed` lands a month on `focusKey` with the
+   * calendar still collapsed (a week swipe that crossed into another month).
    */
-  const showRange = (nextMode: BookingMode, nextAnchor: Date, focusKey?: string | null) => {
+  const showRange = (nextMode: BookingMode, nextAnchor: Date, focusKey?: string | null, keepCollapsed = false) => {
     const nextDays = nextMode === "month" ? monthDays(nextAnchor) : eachDay(nextAnchor, addDays(nextAnchor, 6))
     const target =
       focusKey !== undefined ? focusKey : nextDays.some((d) => toKey(d) === todayKey) ? todayKey : null
     setSelectedKey(target ?? toKey(nextDays[0]))
-    // A new month always opens fully expanded, with the target day (if any) right under it.
-    pendingScroll.current = target ? { type: "day", key: target, expanded: nextMode === "month" } : { type: "top" }
+    // A new month opens fully expanded (unless swiped into while collapsed), with the target day right under it.
+    pendingScroll.current = target
+      ? { type: "day", key: target, expanded: nextMode === "month" && !keepCollapsed }
+      : { type: "top" }
     setOverlayOpen(false)
     setMode(nextMode)
     setAnchor(nextAnchor)
@@ -159,7 +162,8 @@ function BookingScreen() {
 
   /**
    * Collapsed month: the visible row is one week, so a swipe moves the timeline a week. Lands on today if that
-   * week has it, else the week's first day in this month; a week entirely in another month switches months.
+   * week has it, else the week's first day in this month; a week entirely in another month switches months,
+   * keeping the calendar collapsed.
    */
   const swipeCollapsedWeek = (direction: 1 | -1) => {
     const selected = days.find((d) => toKey(d) === selectedKey) ?? days[0]
@@ -167,7 +171,7 @@ function BookingScreen() {
     const week = eachDay(weekStart, addDays(weekStart, 6))
     const inMonth = week.filter((d) => dayKeys.has(toKey(d)))
     const today = week.find((d) => toKey(d) === todayKey)
-    if (inMonth.length === 0) return showRange("month", startOfMonth(weekStart), toKey(today ?? weekStart))
+    if (inMonth.length === 0) return showRange("month", startOfMonth(weekStart), toKey(today ?? weekStart), true)
     const target = toKey(today && dayKeys.has(todayKey) ? today : inMonth[0])
     setSelectedKey(target)
     scrollToDay(target, { smooth: true })
@@ -272,7 +276,7 @@ function BookingScreen() {
           {overlayOpen && (
             <div className="absolute inset-x-0 top-0 z-20 bg-white shadow-[0_8px_16px_-8px_rgb(0_0_0/0.2)]">
               <CalendarGrid weeks={weeks} {...gridProps} />
-              <CollapseHandle label="收合月曆" onClick={closeOverlay} />
+              <CollapseHandle label="收合月曆" onClick={closeOverlay} onSwipe={(dir) => dir === "up" && closeOverlay()} />
             </div>
           )}
         </div>
@@ -285,7 +289,11 @@ function BookingScreen() {
             style={{ opacity: "var(--collapse, 0)" }}
             aria-hidden={!collapsed}
           >
-            <CollapseHandle label="展開月曆" onClick={() => setOverlayOpen((open) => !open)} />
+            <CollapseHandle
+              label="展開月曆"
+              onClick={() => setOverlayOpen((open) => !open)}
+              onSwipe={(dir) => setOverlayOpen(dir === "down")}
+            />
           </div>
         )}
 
@@ -343,10 +351,50 @@ function BookingScreen() {
   )
 }
 
-function CollapseHandle({ label, onClick }: { label: string; onClick(): void }) {
+/** Vertical drag (px) on a handle that counts as a swipe instead of a tap. */
+const HANDLE_SWIPE_DISTANCE = 16
+
+type CollapseHandleProps = {
+  label: string
+  onClick(): void
+  /** A drag down/up that started on the handle. */
+  onSwipe(direction: "down" | "up"): void
+}
+
+function CollapseHandle({ label, onClick, onSwipe }: CollapseHandleProps) {
+  const drag = useRef<{ id: number; y: number } | null>(null)
+  const swallowClick = useRef(false)
   return (
-    // Full-width 32px row: the bar is small, the tap target isn't.
-    <button type="button" onClick={onClick} aria-label={label} className="flex h-8 w-full items-center justify-center">
+    // Full-width 32px row: the bar is small, the tap target isn't. Tap toggles; swiping down opens, up closes.
+    // touch-action: none — a drag here is ours, not the page's scroll.
+    <button
+      type="button"
+      aria-label={label}
+      className="flex h-8 w-full touch-none items-center justify-center"
+      onPointerDown={(e) => {
+        drag.current = { id: e.pointerId, y: e.clientY }
+        swallowClick.current = false
+        try {
+          e.currentTarget.setPointerCapture(e.pointerId) // keep the release on the handle if the finger leaves it
+        } catch {
+          // Pointer already gone; the tap/swipe still resolves from pointerup.
+        }
+      }}
+      onPointerUp={(e) => {
+        const start = drag.current
+        drag.current = null
+        if (!start || start.id !== e.pointerId) return
+        const dy = e.clientY - start.y
+        if (Math.abs(dy) < HANDLE_SWIPE_DISTANCE) return
+        swallowClick.current = true
+        onSwipe(dy > 0 ? "down" : "up")
+      }}
+      onPointerCancel={() => (drag.current = null)}
+      onClick={() => {
+        if (swallowClick.current) swallowClick.current = false
+        else onClick()
+      }}
+    >
       <span className="h-1 w-9 rounded-full bg-neutral-300" />
     </button>
   )

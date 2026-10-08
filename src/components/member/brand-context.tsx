@@ -55,7 +55,8 @@ const BrandContext = createContext<BrandContextValue | null>(null)
 
 /**
  * Provides the active brand and exposes its colors as CSS variables:
- * `--brand-accent` with `--brand-on-accent` (black or white text on it),
+ * `--brand-accent` with `--brand-on-accent` (icons on it, may be overridden per brand) and
+ * `--brand-on-accent-text` (always the higher-contrast black/white, for text on it),
  * plus `--brand-tint` / `--brand-on-tint` for the tab bar (contrast-adjusted).
  */
 export function BrandProvider({ className, children }: { className?: string; children: React.ReactNode }) {
@@ -71,6 +72,7 @@ export function BrandProvider({ className, children }: { className?: string; chi
           {
             "--brand-accent": brand.accent,
             "--brand-on-accent": onAccent,
+            "--brand-on-accent-text": getOnAccent(brand.accent),
             "--brand-tint": tint,
             "--brand-on-tint": onTint,
           } as CSSProperties

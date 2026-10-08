@@ -38,7 +38,7 @@ export function CalendarGrid({ weeks, month, todayKey, selectedKey, dotKeys, onS
                   className={cn(
                     "flex size-8 items-center justify-center rounded-full text-sm",
                     selected
-                      ? "bg-black font-medium text-white"
+                      ? "bg-(--brand-accent) font-medium text-(--brand-on-accent-text)"
                       : cn(key === todayKey && "ring-1 ring-black ring-inset", outside && "text-neutral-300")
                   )}
                 >
