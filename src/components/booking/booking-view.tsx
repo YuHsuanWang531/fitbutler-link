@@ -133,10 +133,14 @@ function BookingScreen() {
     else scrollToDay(pending.key, { smooth: false })
   }, [loaded, span, filters, scrollToDay, scrollToTop])
 
-  /** Switch month/week or move to another range. Lands on `focusKey`, else today if it's in range, else the top. */
-  const showRange = (nextMode: BookingMode, nextAnchor: Date, focusKey?: string) => {
+  /**
+   * Switch month/week or move to another range. Lands on `focusKey`, else today if it's in range, else the top.
+   * `focusKey: null` forces the top (month fully open).
+   */
+  const showRange = (nextMode: BookingMode, nextAnchor: Date, focusKey?: string | null) => {
     const nextDays = nextMode === "month" ? monthDays(nextAnchor) : eachDay(nextAnchor, addDays(nextAnchor, 6))
-    const target = focusKey ?? (nextDays.some((d) => toKey(d) === todayKey) ? todayKey : null)
+    const target =
+      focusKey !== undefined ? focusKey : nextDays.some((d) => toKey(d) === todayKey) ? todayKey : null
     setSelectedKey(target ?? toKey(nextDays[0]))
     pendingScroll.current = target ? { type: "day", key: target } : { type: "top" }
     setOverlayOpen(false)
@@ -158,7 +162,9 @@ function BookingScreen() {
   const changeMode = (next: BookingMode) => {
     if (next === mode) return
     const selected = days.find((d) => toKey(d) === selectedKey) ?? days[0]
-    showRange(next, next === "month" ? startOfMonth(selected) : startOfWeek(selected), toKey(selected))
+    // Month view always opens at the top, fully expanded; week view keeps the selected day.
+    if (next === "month") showRange("month", startOfMonth(selected), null)
+    else showRange("week", startOfWeek(selected), toKey(selected))
   }
 
   /** Re-anchor on the selected day after the timeline's content changes. */
