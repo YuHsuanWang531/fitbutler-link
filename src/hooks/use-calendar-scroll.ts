@@ -26,8 +26,6 @@ type Elements = {
   calendarRows: RefObject<HTMLDivElement | null>
   /** Compensates for the zone's lost height. */
   spacer: RefObject<HTMLDivElement | null>
-  /** Space after the last day so it can still reach the calendar. */
-  tail: RefObject<HTMLDivElement | null>
 }
 
 type Options = Elements & {
@@ -52,10 +50,9 @@ type Metrics = {
   stuckAt: number
   /** Day sections in document order, with their (collapse-independent) scroll position. */
   days: { key: string; top: number }[]
+  maxScroll: number
 }
 
-/** Room under the last day for the 「看 11 月」 button. */
-const MIN_TAIL = 112
 const SCROLL_END_FALLBACK_MS = 150
 
 const clamp = (v: number) => Math.min(1, Math.max(0, v))
@@ -75,6 +72,8 @@ export function useCalendarScroll(options: Options) {
   /** True while a scroll we started is animating: the active day is already set, don't recompute it. */
   const programmatic = useRef(false)
   const programmaticTimer = useRef<number | undefined>(undefined)
+  /** A day the user picked that sits too low to reach the calendar; it stays active at the bottom until they scroll. */
+  const heldKey = useRef<string | null>(null)
 
   const apply = useCallback((scrollTop: number, { skipActiveDay = false } = {}) => {
     const m = metrics.current
@@ -97,12 +96,16 @@ export function useCalendarScroll(options: Options) {
     }
 
     if (programmatic.current || skipActiveDay) return
-    // The active day is the last one whose title has reached the bottom of the sticky zone.
+    // The active day is the last one whose title has reached the bottom of the sticky zone. The last few
+    // days may never get there (the tail is only as tall as its button), so at the very bottom it's the last day.
     const line = scrollTop + m.zoneTop + m.zoneFullHeight - lost + 1
     let key = m.days[0]?.key
-    for (const day of m.days) {
-      if (day.top > line) break
-      key = day.key
+    if (scrollTop >= m.maxScroll - 1) key = heldKey.current ?? m.days[m.days.length - 1]?.key
+    else {
+      for (const day of m.days) {
+        if (day.top > line) break
+        key = day.key
+      }
     }
     if (key && key !== activeKey.current) {
       activeKey.current = key
@@ -111,8 +114,8 @@ export function useCalendarScroll(options: Options) {
   }, [])
 
   const measure = useCallback(({ skipActiveDay = false } = {}) => {
-    const { root, zone, calendarViewport, calendarRows, tail, collapsible } = opts.current
-    if (!root.current || !zone.current || !calendarViewport.current || !calendarRows.current || !tail.current) return
+    const { root, zone, calendarViewport, calendarRows, collapsible } = opts.current
+    if (!root.current || !zone.current || !calendarViewport.current || !calendarRows.current) return
     const target = getTarget()
 
     const zoneTop = parseFloat(getComputedStyle(zone.current).top) || 0
@@ -123,6 +126,7 @@ export function useCalendarScroll(options: Options) {
     const zoneFullHeight = zone.current.offsetHeight - calendarViewport.current.offsetHeight + rows * rowHeight
     const rootTop = root.current.getBoundingClientRect().top - target.viewportTop + target.scrollTop
     const sections = Array.from(root.current.querySelectorAll<HTMLElement>("[data-day]"))
+    const scrollHeight = target.el ? target.el.scrollHeight : document.documentElement.scrollHeight
 
     metrics.current = {
       zoneTop,
@@ -132,15 +136,8 @@ export function useCalendarScroll(options: Options) {
       collapseDistance,
       stuckAt: rootTop - zoneTop,
       days: sections.map((el) => ({ key: el.dataset.day!, top: rootTop + el.offsetTop })),
+      maxScroll: scrollHeight - target.viewportHeight,
     }
-
-    // Tail: enough room that the last day can scroll up under the collapsed calendar.
-    const last = sections[sections.length - 1]
-    const scrollHeight = target.el ? target.el.scrollHeight : document.documentElement.scrollHeight
-    const below = scrollHeight - (rootTop + root.current.offsetHeight)
-    const needed = target.viewportHeight - zoneTop - (zoneFullHeight - collapseDistance) - (last?.offsetHeight ?? 0) - below
-    const tailHeight = Math.max(MIN_TAIL, Math.ceil(needed))
-    if (Math.abs(tail.current.offsetHeight - tailHeight) > 1) tail.current.style.height = `${tailHeight}px`
 
     apply(target.scrollTop, { skipActiveDay })
   }, [apply, getTarget])
@@ -150,18 +147,19 @@ export function useCalendarScroll(options: Options) {
     window.clearTimeout(programmaticTimer.current)
   }, [])
 
+  /** `hold`: keep the caller's active day even for an instant scroll (e.g. one clamped at the bottom). */
   const scrollTo = useCallback(
-    (top: number, smooth: boolean) => {
+    (top: number, smooth: boolean, hold = false) => {
       const target = getTarget()
       const behavior: ScrollBehavior = smooth && !prefersReducedMotion() ? "smooth" : "instant"
-      if (Math.abs(target.scrollTop - top) < 1) return apply(target.scrollTop)
-      if (behavior === "smooth") {
+      if (Math.abs(target.scrollTop - top) < 1) return apply(target.scrollTop, { skipActiveDay: hold })
+      if (behavior === "smooth" || hold) {
         programmatic.current = true
         window.clearTimeout(programmaticTimer.current)
         programmaticTimer.current = window.setTimeout(endProgrammatic, 1500)
       }
       target.scrollTo(top, behavior)
-      if (behavior === "instant") apply(getTarget().scrollTop)
+      if (behavior === "instant") apply(getTarget().scrollTop, { skipActiveDay: hold })
     },
     [apply, endProgrammatic, getTarget]
   )
@@ -176,7 +174,10 @@ export function useCalendarScroll(options: Options) {
       if (!m || !day) return
       activeKey.current = key
       opts.current.onActiveDayChange(key)
-      scrollTo(Math.max(0, day.top - m.zoneTop - (m.zoneFullHeight - m.collapseDistance)), smooth)
+      const top = Math.max(0, day.top - m.zoneTop - (m.zoneFullHeight - m.collapseDistance))
+      // Late days can't reach the calendar; stop at the bottom but keep the day that was asked for.
+      heldKey.current = top > m.maxScroll ? key : null
+      scrollTo(Math.min(top, m.maxScroll), smooth, top > m.maxScroll)
     },
     [measure, scrollTo]
   )
@@ -187,6 +188,7 @@ export function useCalendarScroll(options: Options) {
     const m = metrics.current
     if (!m) return
     activeKey.current = null
+    heldKey.current = null
     scrollTo(Math.max(0, m.stuckAt), false)
   }, [measure, scrollTo])
 
@@ -210,7 +212,11 @@ export function useCalendarScroll(options: Options) {
     const isOurs = (e: Event) => e.target === (getTarget().el ?? document)
 
     const onScrollEnd = () => {
-      if (programmatic.current) return endProgrammatic()
+      if (programmatic.current) {
+        // Drop the frame queued during our own scroll; it would recompute the active day we just set.
+        cancelAnimationFrame(frame)
+        return endProgrammatic()
+      }
       // scrollend can arrive before the next frame's apply(); bring progress up to date first.
       cancelAnimationFrame(frame)
       apply(getTarget().scrollTop)
@@ -222,7 +228,10 @@ export function useCalendarScroll(options: Options) {
 
     const onScroll = (e: Event) => {
       if (!isOurs(e)) return
-      if (!programmatic.current) opts.current.onUserScroll()
+      if (!programmatic.current) {
+        heldKey.current = null
+        opts.current.onUserScroll()
+      }
       cancelAnimationFrame(frame)
       frame = requestAnimationFrame(() => apply(getTarget().scrollTop))
       if (!supportsScrollEnd) {

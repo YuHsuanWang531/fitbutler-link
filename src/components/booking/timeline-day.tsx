@@ -56,7 +56,7 @@ export function TimelineDay({ day, isToday, classes, emptyText, pendingId, onAct
                   )}
                   <span
                     className={cn(
-                      "absolute top-[17px] left-1/2 size-2.5 -translate-x-1/2 rounded-full ring-4 ring-white",
+                      "absolute top-[18px] left-1/2 size-2 -translate-x-1/2 rounded-full ring-4 ring-white",
                       ended ? "bg-neutral-300" : "bg-black"
                     )}
                   />

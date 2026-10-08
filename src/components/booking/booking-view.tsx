@@ -109,7 +109,6 @@ function BookingScreen() {
   const calendarViewport = useRef<HTMLDivElement>(null)
   const calendarRows = useRef<HTMLDivElement>(null)
   const spacer = useRef<HTMLDivElement>(null)
-  const tail = useRef<HTMLDivElement>(null)
   const closeOverlay = useCallback(() => setOverlayOpen(false), [])
 
   const { collapsed, scrollToDay, scrollToTop } = useCalendarScroll({
@@ -118,7 +117,6 @@ function BookingScreen() {
     calendarViewport,
     calendarRows,
     spacer,
-    tail,
     collapsible: mode === "month",
     weekIndex,
     layoutKey: `${mode}|${span}|${loaded}|${filters.category}|${filters.teacherId}`,
@@ -244,6 +242,8 @@ function BookingScreen() {
           )}
         </div>
 
+        {/* Week view has no handle row, so give its dots some room above the zone's bottom border. */}
+        {mode === "week" && <div aria-hidden className="h-3" />}
         {mode === "month" && (
           <div
             className={cn("transition-opacity motion-reduce:transition-none", !collapsed && "pointer-events-none")}
@@ -285,8 +285,7 @@ function BookingScreen() {
         })}
       </div>
 
-      {/* Lets the last days scroll up under the calendar; height set by useCalendarScroll. */}
-      <div ref={tail} className="flex justify-center pt-6">
+      <div className="flex h-20 items-start justify-center pt-6">
         <button
           type="button"
           onClick={() => step(1)}
@@ -311,7 +310,8 @@ function BookingScreen() {
 
 function CollapseHandle({ label, onClick }: { label: string; onClick(): void }) {
   return (
-    <button type="button" onClick={onClick} aria-label={label} className="flex h-5 w-full items-center justify-center">
+    // Full-width 32px row: the bar is small, the tap target isn't.
+    <button type="button" onClick={onClick} aria-label={label} className="flex h-8 w-full items-center justify-center">
       <span className="h-1 w-9 rounded-full bg-neutral-300" />
     </button>
   )
