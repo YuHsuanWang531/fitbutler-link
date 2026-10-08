@@ -13,6 +13,8 @@ export type GymClass = {
   start: string
   durationMin: number
   venue: string
+  /** Room inside the venue, e.g. 「A 教室」. */
+  room: string
   title: string
   category: ClassCategory
   teacher: Teacher

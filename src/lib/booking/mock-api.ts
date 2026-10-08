@@ -23,7 +23,11 @@ const TITLES: Record<ClassCategory, string[]> = {
   壺鈴: ["壺鈴基礎", "壺鈴循環訓練"],
 }
 
-const VENUES = ["市府館", "中山旗艦館"]
+const ROOMS: Record<string, string[]> = {
+  市府館: ["A 教室", "B 教室"],
+  中山旗艦館: ["A 教室", "B 教室", "C 教室"],
+}
+const VENUES = Object.keys(ROOMS)
 const SLOTS = ["07:00", "09:00", "10:30", "12:15", "18:30", "19:30", "20:40"]
 const DURATIONS = [50, 60, 75]
 
@@ -53,6 +57,7 @@ function generateDay(date: string): GymClass[] {
 
   return slots.map((start, i) => {
     const category = pick(CATEGORIES)
+    const venue = pick(VENUES)
     const capacity = pick([8, 10, 12, 15, 20])
     const roll = rand()
     // Mix of open, nearly full (≤3 left) and full classes.
@@ -64,7 +69,8 @@ function generateDay(date: string): GymClass[] {
       date,
       start,
       durationMin: pick(DURATIONS),
-      venue: pick(VENUES),
+      venue,
+      room: pick(ROOMS[venue]),
       title: pick(TITLES[category]),
       category,
       teacher: pick(TEACHERS),

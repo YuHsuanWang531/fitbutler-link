@@ -4,25 +4,20 @@ import { spotsLeft, type ClassAction } from "@/lib/booking/classes"
 
 const ACTION_LABEL: Record<ClassAction, string> = {
   book: "預約",
-  booked: "已預約",
+  booked: "取消預約",
   waitlist: "候補",
-  waitlisted: "已候補",
+  waitlisted: "取消候補",
   ended: "已結束",
   attended: "已上課",
 }
 
 const ACTION_STYLE: Record<ClassAction, string> = {
   book: "bg-black text-white",
-  booked: "border border-black text-black",
+  booked: "border border-neutral-300 text-black",
   waitlist: "border border-neutral-300 text-black",
-  waitlisted: "bg-neutral-100 text-black",
+  waitlisted: "border border-neutral-300 text-black",
   ended: "text-neutral-400",
   attended: "text-neutral-400",
-}
-
-const ACTION_ARIA: Partial<Record<ClassAction, string>> = {
-  booked: "已預約，點擊取消預約",
-  waitlisted: "已候補，點擊取消候補",
 }
 
 type ClassCardProps = {
@@ -38,8 +33,10 @@ export function ClassCard({ gymClass, action, pending, onAction }: ClassCardProp
   return (
     <div className={cn("flex items-center gap-3 rounded-[10px] border border-neutral-200 p-3", ended && "opacity-50")}>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-xs leading-4 text-muted-foreground">{gymClass.venue}</p>
-        <p className="truncate text-sm leading-5 font-medium">{gymClass.title}</p>
+        <p className="truncate text-xs leading-4 text-muted-foreground">
+          {gymClass.venue}｜{gymClass.room}
+        </p>
+        <p className="truncate text-lg leading-7 font-medium">{gymClass.title}</p>
         <div className="mt-1.5 flex items-center gap-1.5 text-xs leading-4">
           <span
             aria-hidden
@@ -59,7 +56,6 @@ export function ClassCard({ gymClass, action, pending, onAction }: ClassCardProp
         type="button"
         onClick={onAction}
         disabled={ended || pending}
-        aria-label={ACTION_ARIA[action]}
         className={cn(
           "h-8 min-w-16 shrink-0 rounded-full px-3 text-xs font-medium disabled:cursor-default",
           ACTION_STYLE[action],
