@@ -66,7 +66,7 @@ export function formatWeekTitle(weekStart: Date) {
   return `${head} – ${tail}`
 }
 
-/** 「10 月 8 日（四）」 */
+/** 「10 月 8 日 (四)」 */
 export function formatDayTitle(date: Date) {
-  return `${date.getMonth() + 1} 月 ${date.getDate()} 日（${WEEKDAY_LABELS[date.getDay()]}）`
+  return `${date.getMonth() + 1} 月 ${date.getDate()} 日 (${WEEKDAY_LABELS[date.getDay()]})`
 }

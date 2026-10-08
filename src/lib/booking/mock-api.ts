@@ -113,7 +113,7 @@ export const mockBookingApi: BookingApi = {
     return Promise.resolve(found ? { ...found } : null)
   },
   fetchFilterOptions() {
-    return Promise.resolve({ categories: [...CATEGORIES], teachers: [...TEACHERS] })
+    return Promise.resolve({ venues: [...VENUES], categories: [...CATEGORIES], teachers: [...TEACHERS] })
   },
   book: (id) => update(id, (c) => ({ ...c, myStatus: "booked", bookedCount: c.bookedCount + 1 })),
   cancelBooking: (id) => update(id, (c) => ({ ...c, myStatus: "none", bookedCount: c.bookedCount - 1 })),

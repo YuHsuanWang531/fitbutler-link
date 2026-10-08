@@ -29,10 +29,11 @@ export type GymClass = {
  * from is inclusive, to is exclusive; either side can be open.
  */
 export type ClassFilters = {
+  venue: string | null
   category: ClassCategory | null
   teacherId: string | null
   timeFrom: string | null
   timeTo: string | null
 }
 
-export const NO_FILTERS: ClassFilters = { category: null, teacherId: null, timeFrom: null, timeTo: null }
+export const NO_FILTERS: ClassFilters = { venue: null, category: null, teacherId: null, timeFrom: null, timeTo: null }

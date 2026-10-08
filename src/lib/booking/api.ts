@@ -8,7 +8,7 @@ export interface BookingApi {
   /** One class by id, or `null` if there's no such class. */
   fetchClass(classId: string): Promise<GymClass | null>
   /** Filter options for the booking page. */
-  fetchFilterOptions(): Promise<{ categories: ClassCategory[]; teachers: Teacher[] }>
+  fetchFilterOptions(): Promise<{ venues: string[]; categories: ClassCategory[]; teachers: Teacher[] }>
   book(classId: string): Promise<GymClass>
   cancelBooking(classId: string): Promise<GymClass>
   joinWaitlist(classId: string): Promise<GymClass>

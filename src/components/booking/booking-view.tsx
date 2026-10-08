@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 import { useCalendarScroll } from "@/hooks/use-calendar-scroll"
 import { useHorizontalSwipe } from "@/hooks/use-horizontal-swipe"
 import { bookingApi } from "@/lib/booking/api"
-import { classAction, countActiveFilters, formatTimeFilter, matchesFilters, type ClassAction } from "@/lib/booking/classes"
+import { classAction, countActiveFilters, matchesFilters, type ClassAction } from "@/lib/booking/classes"
 import {
   WEEKDAY_LABELS,
   addDays,
@@ -21,7 +21,6 @@ import {
   toKey,
 } from "@/lib/booking/dates"
 import { NO_FILTERS, type ClassCategory, type ClassFilters, type GymClass, type Teacher } from "@/lib/booking/types"
-import { AppliedFilters, type FilterChip } from "@/components/booking/applied-filters"
 import { BookingToolbar, type BookingMode } from "@/components/booking/booking-toolbar"
 import { CalendarGrid } from "@/components/booking/calendar-grid"
 import { FilterPanel } from "@/components/booking/filter-panel"
@@ -55,7 +54,11 @@ function BookingScreen() {
   const [filterOpen, setFilterOpen] = useState(false)
   const [overlayOpen, setOverlayOpen] = useState(false)
   const [pendingId, setPendingId] = useState<string | null>(null)
-  const [options, setOptions] = useState<{ categories: ClassCategory[]; teachers: Teacher[] }>({ categories: [], teachers: [] })
+  const [options, setOptions] = useState<{ venues: string[]; categories: ClassCategory[]; teachers: Teacher[] }>({
+    venues: [],
+    categories: [],
+    teachers: [],
+  })
   const [data, setData] = useState<{ span: string; classes: GymClass[] }>({ span: "", classes: [] })
   /** Where to scroll once the next range has rendered. Opens on today, under the fully open month. */
   const pendingScroll = useRef<PendingScroll | null>({ type: "day", key: todayKey, expanded: true })
@@ -119,7 +122,7 @@ function BookingScreen() {
     spacer,
     collapsible: mode === "month",
     weekIndex,
-    layoutKey: `${mode}|${span}|${loaded}|${filters.category}|${filters.teacherId}|${filters.timeFrom}|${filters.timeTo}`,
+    layoutKey: `${mode}|${span}|${loaded}|${filters.venue}|${filters.category}|${filters.teacherId}|${filters.timeFrom}|${filters.timeTo}`,
     onActiveDayChange: setSelectedKey,
     onUserScroll: closeOverlay,
   })
@@ -194,9 +197,20 @@ function BookingScreen() {
     showRange("month", startOfMonth(selected), toKey(selected))
   }
 
-  /** Re-anchor on the selected day after the timeline's content changes. */
+  /**
+   * With filters on, jump to the day of the first matching class: from today on when today is in range,
+   * else from the start of the range (falling back to the earliest match if nothing is left after today).
+   * With no filters (or no match), stay on the selected day.
+   */
   const applyFilters = (next: ClassFilters) => {
-    pendingScroll.current = { type: "day", key: selectedKey }
+    let target = selectedKey
+    if (countActiveFilters(next) > 0) {
+      const matchDays = rangeClasses.filter((c) => matchesFilters(c, next)).map((c) => c.date).sort()
+      const from = dayKeys.has(todayKey) ? todayKey : ""
+      target = matchDays.find((key) => key >= from) ?? matchDays[0] ?? selectedKey
+    }
+    setSelectedKey(target)
+    pendingScroll.current = { type: "day", key: target }
     setFilters(next)
     setFilterOpen(false)
   }
@@ -217,15 +231,6 @@ function BookingScreen() {
       setPendingId(null)
     }
   }
-
-  const chips: FilterChip[] = []
-  if (filters.category) chips.push({ id: "category", label: filters.category, clear: { category: null } })
-  if (filters.teacherId) {
-    const name = options.teachers.find((t) => t.id === filters.teacherId)?.name ?? ""
-    chips.push({ id: "teacher", label: name, clear: { teacherId: null } })
-  }
-  const timeLabel = formatTimeFilter(filters)
-  if (timeLabel) chips.push({ id: "time", label: timeLabel, clear: { timeFrom: null, timeTo: null } })
 
   const title = mode === "month" ? formatMonthTitle(anchor) : formatWeekTitle(anchor)
   const nextLabel = mode === "month" ? `看 ${addMonths(anchor, 1).getMonth() + 1} 月` : "看下一週"
@@ -252,11 +257,6 @@ function BookingScreen() {
           onNext={() => step(1)}
           onOpenFilters={() => setFilterOpen(true)}
           onModeChange={changeMode}
-        />
-        <AppliedFilters
-          chips={chips}
-          onRemove={(clear) => applyFilters({ ...filters, ...clear })}
-          onClearAll={() => applyFilters(NO_FILTERS)}
         />
         <div className="grid h-7 grid-cols-7 px-2 text-center text-xs leading-7 text-muted-foreground">
           {WEEKDAY_LABELS.map((label) => (
@@ -340,6 +340,7 @@ function BookingScreen() {
         open={filterOpen}
         onOpenChange={setFilterOpen}
         applied={filters}
+        venues={options.venues}
         categories={options.categories}
         teachers={options.teachers}
         rangeClasses={rangeClasses}

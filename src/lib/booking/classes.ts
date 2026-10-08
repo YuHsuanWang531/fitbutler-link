@@ -25,6 +25,7 @@ export function spotsLeft(c: GymClass) {
 export function matchesFilters(c: GymClass, filters: ClassFilters) {
   // `HH:mm` strings compare correctly as text.
   return (
+    (!filters.venue || c.venue === filters.venue) &&
     (!filters.category || c.category === filters.category) &&
     (!filters.teacherId || c.teacher.id === filters.teacherId) &&
     (!filters.timeFrom || c.start >= filters.timeFrom) &&
@@ -35,18 +36,11 @@ export function matchesFilters(c: GymClass, filters: ClassFilters) {
 /** The time range counts as one condition, whichever ends are set. */
 export function countActiveFilters(filters: ClassFilters) {
   return (
+    Number(filters.venue !== null) +
     Number(filters.category !== null) +
     Number(filters.teacherId !== null) +
     Number(filters.timeFrom !== null || filters.timeTo !== null)
   )
-}
-
-/** 「18:00 – 21:00」, 「18:00 後」 or 「21:00 前」; `null` when no time filter is set. */
-export function formatTimeFilter({ timeFrom, timeTo }: ClassFilters) {
-  if (timeFrom && timeTo) return `${timeFrom} – ${timeTo}`
-  if (timeFrom) return `${timeFrom} 後`
-  if (timeTo) return `${timeTo} 前`
-  return null
 }
 
 /** Half-hour choices for the time filter, 06:00 – 23:00. */

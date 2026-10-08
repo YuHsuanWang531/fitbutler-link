@@ -15,6 +15,7 @@ type FilterPanelProps = {
   open: boolean
   onOpenChange(open: boolean): void
   applied: ClassFilters
+  venues: string[]
   categories: ClassCategory[]
   teachers: Teacher[]
   /** Classes in the current month (or week), used for the 「顯示 N 堂課」 count. */
@@ -52,7 +53,7 @@ type FilterFormProps = Omit<FilterPanelProps, "open" | "onOpenChange"> & {
   Footer: typeof SheetFooter
 }
 
-function FilterForm({ applied, categories, teachers, rangeClasses, onApply, Header, Title, Footer }: FilterFormProps) {
+function FilterForm({ applied, venues, categories, teachers, rangeClasses, onApply, Header, Title, Footer }: FilterFormProps) {
   const [draft, setDraft] = useState(applied)
   const count = rangeClasses.filter((c) => matchesFilters(c, draft)).length
 
@@ -62,6 +63,12 @@ function FilterForm({ applied, categories, teachers, rangeClasses, onApply, Head
         <Title className="text-base font-medium">篩選課程</Title>
       </Header>
       <div className="flex flex-col gap-5 px-4 py-2">
+        <OptionGroup
+          label="上課場館"
+          options={venues.map((v) => ({ value: v, label: v }))}
+          value={draft.venue}
+          onChange={(venue) => setDraft((d) => ({ ...d, venue }))}
+        />
         <OptionGroup
           label="課程類別"
           options={categories.map((c) => ({ value: c, label: c }))}

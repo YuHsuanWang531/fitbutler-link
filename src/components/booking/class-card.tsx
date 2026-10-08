@@ -3,7 +3,7 @@ import Link from "next/link"
 
 import { cn } from "@/lib/utils"
 import type { GymClass } from "@/lib/booking/types"
-import { spotsLeft, type ClassAction } from "@/lib/booking/classes"
+import { classEndTime, spotsLeft, type ClassAction } from "@/lib/booking/classes"
 import { CLASS_INFO_PAGE_ENABLED } from "@/lib/booking/class-info"
 
 const ACTION_LABEL: Record<ClassAction, string> = {
@@ -46,6 +46,9 @@ export function ClassCard({ gymClass, action, pending, onAction }: ClassCardProp
           {gymClass.venue}｜{gymClass.room}
         </p>
         <p className="truncate text-lg leading-7 font-medium">{gymClass.title}</p>
+        <p className="text-sm leading-5">
+          {gymClass.start}-{classEndTime(gymClass)}
+        </p>
         <div className="mt-3 flex items-center gap-1.5 text-sm leading-5">
           {/* Avatar + name open the teacher's page (not built yet); the name underlines on hover. */}
           <Link href={`/teachers/${gymClass.teacher.id}`} className="group flex min-w-0 items-center gap-1.5">
