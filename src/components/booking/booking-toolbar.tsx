@@ -36,7 +36,7 @@ export function BookingToolbar({
         <button type="button" onClick={onPrev} aria-label={`上一${unit}`} className={iconButton}>
           <ChevronLeft className={ICON} strokeWidth={ICON_STROKE} />
         </button>
-        <h1 className="min-w-32 text-center text-lg leading-7 font-medium whitespace-nowrap">{title}</h1>
+        <h2 className="min-w-32 text-center text-lg leading-7 font-medium whitespace-nowrap">{title}</h2>
         <button type="button" onClick={onNext} aria-label={`下一${unit}`} className={iconButton}>
           <ChevronRight className={ICON} strokeWidth={ICON_STROKE} />
         </button>

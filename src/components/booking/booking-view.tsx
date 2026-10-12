@@ -14,6 +14,7 @@ import {
   eachDay,
   formatMonthTitle,
   formatWeekTitle,
+  fromKey,
   monthDays,
   monthWeeks,
   startOfMonth,
@@ -122,7 +123,7 @@ function BookingScreen() {
     spacer,
     collapsible: mode === "month",
     weekIndex,
-    layoutKey: `${mode}|${span}|${loaded}|${filters.venue}|${filters.category}|${filters.teacherId}|${filters.timeFrom}|${filters.timeTo}`,
+    layoutKey: `${mode}|${span}|${loaded}|${JSON.stringify(filters)}`,
     onActiveDayChange: setSelectedKey,
     onUserScroll: closeOverlay,
   })
@@ -156,8 +157,25 @@ function BookingScreen() {
     setAnchor(nextAnchor)
   }
 
-  const step = (direction: 1 | -1) =>
-    mode === "month" ? showRange("month", addMonths(anchor, direction)) : showRange("week", addDays(anchor, 7 * direction))
+  /**
+   * Previous/next month or week, keeping the selected day's place: the same date next month (clamped to the
+   * month's last day, so 10/31 → 11/30), or the same weekday next week.
+   */
+  const step = (direction: 1 | -1) => {
+    const selected = fromKey(selectedKey)
+    if (mode === "month") {
+      const month = addMonths(anchor, direction)
+      const lastDay = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate()
+      const day = new Date(month.getFullYear(), month.getMonth(), Math.min(selected.getDate(), lastDay))
+      return showRange("month", month, toKey(day))
+    }
+    const day = addDays(selected, 7 * direction)
+    showRange("week", startOfWeek(day), toKey(day))
+  }
+
+  /** The 「看 N 月」/「看下一週」 button at the bottom: the next range from its first day (month at the top, fully open). */
+  const showNextRange = () =>
+    mode === "month" ? showRange("month", addMonths(anchor, 1), null) : showRange("week", addDays(anchor, 7), toKey(addDays(anchor, 7)))
 
   /**
    * Collapsed month: the visible row is one week, so a swipe moves the timeline a week. Lands on today if that
@@ -329,7 +347,7 @@ function BookingScreen() {
       <div className="flex justify-center pt-1 pb-6">
         <button
           type="button"
-          onClick={() => step(1)}
+          onClick={showNextRange}
           className="h-10 rounded-full border border-neutral-300 px-5 text-sm font-medium hover:bg-neutral-100"
         >
           {nextLabel}

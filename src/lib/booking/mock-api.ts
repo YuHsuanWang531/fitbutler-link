@@ -2,17 +2,22 @@
 // same schedule; bookings live in memory until the page reloads.
 
 import type { BookingApi } from "@/lib/booking/api"
-import type { ClassCategory, GymClass, MyStatus, Teacher } from "@/lib/booking/types"
+import type { ClassCategory, GymClass, MyStatus } from "@/lib/booking/types"
 import { eachDay, fromKey, toKey } from "@/lib/booking/dates"
+import { teachers as TEACHERS } from "@/lib/member-teachers"
 
-const CATEGORIES: ClassCategory[] = ["瑜伽", "皮拉提斯", "重訓", "TRX", "壺鈴"]
-
-const TEACHERS: Teacher[] = [
-  { id: "lin", name: "林佳穎", avatar: "/images/teacher-1.jpg" },
-  { id: "chen", name: "陳柏翰", avatar: "/images/teacher-2.jpg" },
-  { id: "wang", name: "王思涵", avatar: "/images/teacher-3.jpg" },
-  { id: "chang", name: "張育誠", avatar: "/images/teacher-2.jpg" },
-  { id: "lee", name: "李欣怡", avatar: "/images/teacher-1.jpg" },
+const CATEGORIES: ClassCategory[] = [
+  "瑜伽",
+  "皮拉提斯",
+  "重訓",
+  "TRX",
+  "壺鈴",
+  "拳擊有氧",
+  "飛輪",
+  "有氧舞蹈",
+  "伸展放鬆",
+  "核心訓練",
+  "功能性訓練",
 ]
 
 const TITLES: Record<ClassCategory, string[]> = {
@@ -21,11 +26,27 @@ const TITLES: Record<ClassCategory, string[]> = {
   重訓: ["新手重訓入門基礎班", "下肢肌力訓練・臀腿", "上肢肌力訓練・背肩"],
   TRX: ["TRX 全身懸吊訓練", "TRX 核心燃脂循環"],
   壺鈴: ["壺鈴基礎動作入門", "壺鈴循環體能訓練"],
+  拳擊有氧: ["拳擊有氧燃脂入門", "拳擊組合進階訓練"],
+  飛輪: ["節奏飛輪・音樂騎乘", "飛輪間歇燃脂挑戰"],
+  有氧舞蹈: ["流行有氧舞蹈派對", "低衝擊有氧律動"],
+  伸展放鬆: ["筋膜放鬆與伸展", "睡前舒緩伸展"],
+  核心訓練: ["核心穩定強化訓練", "腹部核心燃燒"],
+  功能性訓練: ["功能性訓練・全身整合", "動作模式基礎班"],
 }
 
 const ROOMS: Record<string, string[]> = {
   市府館: ["A 教室", "B 教室"],
   中山旗艦館: ["A 教室", "B 教室", "C 教室"],
+  信義館: ["A 教室", "B 教室"],
+  大安館: ["A 教室"],
+  內湖館: ["A 教室", "B 教室"],
+  板橋館: ["A 教室", "B 教室"],
+  新竹館: ["A 教室"],
+  台中旗艦館: ["A 教室", "B 教室", "C 教室"],
+  台南館: ["A 教室"],
+  高雄館: ["A 教室", "B 教室"],
+  桃園館: ["A 教室"],
+  南港館: ["A 教室", "B 教室"],
 }
 const VENUES = Object.keys(ROOMS)
 const SLOTS = ["07:00", "09:00", "10:30", "12:15", "18:30", "19:30", "20:40"]

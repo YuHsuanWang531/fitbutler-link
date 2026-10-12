@@ -1,4 +1,15 @@
-export type ClassCategory = "瑜伽" | "皮拉提斯" | "重訓" | "TRX" | "壺鈴"
+export type ClassCategory =
+  | "瑜伽"
+  | "皮拉提斯"
+  | "重訓"
+  | "TRX"
+  | "壺鈴"
+  | "拳擊有氧"
+  | "飛輪"
+  | "有氧舞蹈"
+  | "伸展放鬆"
+  | "核心訓練"
+  | "功能性訓練"
 
 /** `avatar`: image path; without one the card shows the first character of the name. */
 export type Teacher = { id: string; name: string; avatar?: string }
@@ -25,15 +36,16 @@ export type GymClass = {
 }
 
 /**
- * `null` means 全部 / 不限. `timeFrom`/`timeTo` (`HH:mm`, half-hour steps) bound the class's start time:
+ * Venues, categories and teachers are multi-select: a class matches any of the picked values, and an empty
+ * list means 全部. `timeFrom`/`timeTo` (`HH:mm`, half-hour steps, `null` = 不限) bound the class's start time:
  * from is inclusive, to is exclusive; either side can be open.
  */
 export type ClassFilters = {
-  venue: string | null
-  category: ClassCategory | null
-  teacherId: string | null
+  venues: string[]
+  categories: ClassCategory[]
+  teacherIds: string[]
   timeFrom: string | null
   timeTo: string | null
 }
 
-export const NO_FILTERS: ClassFilters = { venue: null, category: null, teacherId: null, timeFrom: null, timeTo: null }
+export const NO_FILTERS: ClassFilters = { venues: [], categories: [], teacherIds: [], timeFrom: null, timeTo: null }

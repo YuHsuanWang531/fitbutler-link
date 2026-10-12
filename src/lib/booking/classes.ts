@@ -25,20 +25,20 @@ export function spotsLeft(c: GymClass) {
 export function matchesFilters(c: GymClass, filters: ClassFilters) {
   // `HH:mm` strings compare correctly as text.
   return (
-    (!filters.venue || c.venue === filters.venue) &&
-    (!filters.category || c.category === filters.category) &&
-    (!filters.teacherId || c.teacher.id === filters.teacherId) &&
+    (filters.venues.length === 0 || filters.venues.includes(c.venue)) &&
+    (filters.categories.length === 0 || filters.categories.includes(c.category)) &&
+    (filters.teacherIds.length === 0 || filters.teacherIds.includes(c.teacher.id)) &&
     (!filters.timeFrom || c.start >= filters.timeFrom) &&
     (!filters.timeTo || c.start < filters.timeTo)
   )
 }
 
-/** The time range counts as one condition, whichever ends are set. */
+/** Each group with something picked counts as one condition; so does the time range, whichever ends are set. */
 export function countActiveFilters(filters: ClassFilters) {
   return (
-    Number(filters.venue !== null) +
-    Number(filters.category !== null) +
-    Number(filters.teacherId !== null) +
+    Number(filters.venues.length > 0) +
+    Number(filters.categories.length > 0) +
+    Number(filters.teacherIds.length > 0) +
     Number(filters.timeFrom !== null || filters.timeTo !== null)
   )
 }

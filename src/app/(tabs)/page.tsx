@@ -2,8 +2,10 @@ import { ScanLine } from "lucide-react"
 
 import { NewsSection, type NewsItem } from "@/components/member/news-section"
 import { PromoBannerCarousel, type PromoBanner } from "@/components/member/promo-banner-carousel"
+import { TeacherCarousel } from "@/components/member/teacher-carousel"
 import { VenueCarousel } from "@/components/member/venue-carousel"
 import { newsArticles } from "@/lib/member-news"
+import { teachers } from "@/lib/member-teachers"
 import { venues } from "@/lib/member-venues"
 
 // Mock content from the Figma design; replace with API data.
@@ -34,6 +36,7 @@ export default function MemberHomePage() {
     <div className="flex flex-col gap-6 pt-3 pb-[88px] md:pb-6 lg:pt-6">
       <PromoBannerCarousel banners={banners} />
       <NewsSection items={news} />
+      <TeacherCarousel teachers={teachers} />
       <VenueCarousel venues={venues} />
 
       {/* Floats 16px above the floating tab bar (8px gap + 72px bar) and from the right edge. */}

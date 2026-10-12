@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { ChevronDown } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -34,13 +35,13 @@ export function FilterPanel({ open, onOpenChange, ...formProps }: FilterPanelPro
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="gap-0 p-0 sm:max-w-md">{form(DialogHeader, DialogTitle, DialogFooter)}</DialogContent>
+        <DialogContent className="flex max-h-[85dvh] flex-col gap-0 p-0 sm:max-w-md">{form(DialogHeader, DialogTitle, DialogFooter)}</DialogContent>
       </Dialog>
     )
   }
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="gap-0 rounded-t-2xl pb-[env(safe-area-inset-bottom)]">
+      <SheetContent side="bottom" className="max-h-[85dvh] gap-0 rounded-t-2xl pb-[env(safe-area-inset-bottom)]">
         {form(SheetHeader, SheetTitle, SheetFooter)}
       </SheetContent>
     </Sheet>
@@ -62,24 +63,25 @@ function FilterForm({ applied, venues, categories, teachers, rangeClasses, onApp
       <Header className="px-4 pt-4 pb-2">
         <Title className="text-base font-medium">篩選課程</Title>
       </Header>
-      <div className="flex flex-col gap-5 px-4 py-2">
+      {/* Only the options scroll; the title and the 清除 / 顯示 N 堂課 bar stay put. */}
+      <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overscroll-contain px-4 py-2">
         <OptionGroup
           label="上課場館"
           options={venues.map((v) => ({ value: v, label: v }))}
-          value={draft.venue}
-          onChange={(venue) => setDraft((d) => ({ ...d, venue }))}
+          value={draft.venues}
+          onChange={(venues) => setDraft((d) => ({ ...d, venues }))}
         />
         <OptionGroup
           label="課程類別"
           options={categories.map((c) => ({ value: c, label: c }))}
-          value={draft.category}
-          onChange={(category) => setDraft((d) => ({ ...d, category: category as ClassCategory | null }))}
+          value={draft.categories}
+          onChange={(categories) => setDraft((d) => ({ ...d, categories: categories as ClassCategory[] }))}
         />
         <OptionGroup
           label="授課老師"
-          options={teachers.map((t) => ({ value: t.id, label: t.name }))}
-          value={draft.teacherId}
-          onChange={(teacherId) => setDraft((d) => ({ ...d, teacherId }))}
+          options={teachers.map((t) => ({ value: t.id, label: t.name, avatar: t.avatar }))}
+          value={draft.teacherIds}
+          onChange={(teacherIds) => setDraft((d) => ({ ...d, teacherIds }))}
         />
         <TimeRange
           from={draft.timeFrom}
@@ -87,7 +89,7 @@ function FilterForm({ applied, venues, categories, teachers, rangeClasses, onApp
           onChange={(timeFrom, timeTo) => setDraft((d) => ({ ...d, timeFrom, timeTo }))}
         />
       </div>
-      <Footer className="flex-row gap-2 px-4 pt-4 pb-4">
+      <Footer className="flex-row gap-2 border-t border-neutral-200 px-4 pt-3 pb-4">
         <Button variant="ghost" className="h-10 px-4" onClick={() => setDraft(NO_FILTERS)}>
           清除
         </Button>
@@ -101,34 +103,46 @@ function FilterForm({ applied, venues, categories, teachers, rangeClasses, onApp
 
 type OptionGroupProps = {
   label: string
-  options: { value: string; label: string }[]
-  value: string | null
-  onChange(value: string | null): void
+  /** `avatar`: shown in a small circle before the label (teachers). */
+  options: { value: string; label: string; avatar?: string }[]
+  value: string[]
+  onChange(value: string[]): void
 }
 
-/** Single choice with a leading 「全部」 option (`null`). */
+/**
+ * Multiple choice with a leading 「全部」 (= nothing picked). Tapping an option toggles it; 全部 clears the
+ * group, and picking every option collapses back to 全部.
+ */
 function OptionGroup({ label, options, value, onChange }: OptionGroupProps) {
-  const all = [{ value: null, label: "全部" }, ...options]
+  const all: { value: string | null; label: string; avatar?: string }[] = [{ value: null, label: "全部" }, ...options]
+  const toggle = (option: string | null) => {
+    if (option === null) return onChange([])
+    const next = value.includes(option) ? value.filter((v) => v !== option) : [...value, option]
+    onChange(next.length === options.length ? [] : next)
+  }
   return (
     <div>
       <p id={`filter-${label}`} className="mb-2 text-sm font-medium">
         {label}
       </p>
-      <div role="radiogroup" aria-labelledby={`filter-${label}`} className="flex flex-wrap gap-2">
+      <div role="group" aria-labelledby={`filter-${label}`} className="flex flex-wrap gap-2">
         {all.map((option) => {
-          const selected = option.value === value
+          const selected = option.value === null ? value.length === 0 : value.includes(option.value)
           return (
             <button
               key={option.value ?? "all"}
               type="button"
-              role="radio"
-              aria-checked={selected}
-              onClick={() => onChange(option.value)}
+              aria-pressed={selected}
+              onClick={() => toggle(option.value)}
               className={cn(
-                "h-8 rounded-full border px-3.5 text-sm",
+                "flex h-8 items-center gap-1.5 rounded-full border pr-3.5 text-sm",
+                option.avatar ? "pl-1" : "pl-3.5",
                 selected ? "border-black bg-black text-white" : "border-neutral-200 text-black hover:bg-neutral-100"
               )}
             >
+              {option.avatar && (
+                <Image src={option.avatar} alt="" width={24} height={24} className="size-6 rounded-full object-cover" />
+              )}
               {option.label}
             </button>
           )
