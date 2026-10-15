@@ -60,7 +60,7 @@ export function ClassCard({ gymClass, action, pending, onAction, layout = "stack
   if (layout === "timeColumn") {
     return (
       <div className={cn("rounded-[10px] border border-neutral-200 p-4", ended && "opacity-50")}>
-        <div className="flex gap-4">
+        <div className="flex gap-3">
           <div className="flex shrink-0 flex-col items-center">
             <span className="text-lg leading-7 font-semibold">{gymClass.start}</span>
             <span aria-label="至" className="h-3 w-px bg-neutral-400" />
@@ -71,7 +71,7 @@ export function ClassCard({ gymClass, action, pending, onAction, layout = "stack
               {gymClass.venue}｜{gymClass.room}
             </p>
             <p className="truncate text-xl leading-7 font-medium">{gymClass.title}</p>
-            <div className="mt-4 flex items-center gap-2 text-sm leading-5">
+            <div className="mt-2 flex items-center gap-2 text-sm leading-5">
               <TeacherLink gymClass={gymClass} />
               {!ended && (
                 <span
@@ -90,7 +90,7 @@ export function ClassCard({ gymClass, action, pending, onAction, layout = "stack
             </div>
           </div>
         </div>
-        <div className="mt-4">{actions}</div>
+        <div className="mt-3">{actions}</div>
       </div>
     )
   }
