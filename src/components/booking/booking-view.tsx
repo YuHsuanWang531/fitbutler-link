@@ -327,7 +327,7 @@ function BookingScreen() {
       <div ref={spacer} aria-hidden />
 
       <div className="px-4 lg:px-6">
-        {days.map((day, dayIndex) => {
+        {days.map((day) => {
           const key = toKey(day)
           const entry = byDay.get(key)
           return (
@@ -338,8 +338,6 @@ function BookingScreen() {
               emptyText={entry?.all && activeFilterCount ? "沒有符合篩選的課程" : "沒有排課"}
               pendingId={pendingId}
               onAction={runAction}
-              // Comparing two card designs: the first half of the range keeps the old card, the second half the new.
-              cardLayout={dayIndex < days.length / 2 ? "stacked" : "timeColumn"}
             />
           )
         })}
