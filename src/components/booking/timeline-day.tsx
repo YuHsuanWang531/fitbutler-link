@@ -1,7 +1,7 @@
 import type { GymClass } from "@/lib/booking/types"
 import type { ClassAction } from "@/lib/booking/classes"
 import { formatDayTitle, toKey } from "@/lib/booking/dates"
-import { ClassCard } from "@/components/booking/class-card"
+import { ClassCard, type ClassCardLayout } from "@/components/booking/class-card"
 
 type TimelineDayProps = {
   day: Date
@@ -10,10 +10,11 @@ type TimelineDayProps = {
   emptyText: string
   pendingId: string | null
   onAction(gymClass: GymClass, action: ClassAction): void
+  cardLayout: ClassCardLayout
 }
 
 /** One day: a title that sticks under the calendar, then its class cards. */
-export function TimelineDay({ day, classes, emptyText, pendingId, onAction }: TimelineDayProps) {
+export function TimelineDay({ day, classes, emptyText, pendingId, onAction, cardLayout }: TimelineDayProps) {
   const key = toKey(day)
   return (
     <section data-day={key} aria-labelledby={`day-${key}`}>
@@ -37,6 +38,7 @@ export function TimelineDay({ day, classes, emptyText, pendingId, onAction }: Ti
                 action={action}
                 pending={pendingId === gymClass.id}
                 onAction={() => onAction(gymClass, action)}
+                layout={cardLayout}
               />
             </li>
           ))}
