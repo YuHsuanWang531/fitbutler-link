@@ -49,7 +49,8 @@ type Metrics = {
   /** Scroll offset at which the zone sticks. */
   stuckAt: number
   /** Day sections in document order, with their (collapse-independent) scroll position. */
-  days: { key: string; top: number }[]
+  /** `anchor`: how far below the title the day's `[data-scroll-anchor]` card sits (0 = its first class). */
+  days: { key: string; top: number; anchor: number }[]
   maxScroll: number
 }
 
@@ -58,6 +59,15 @@ const SCROLL_END_FALLBACK_MS = 150
 const SNAP_THRESHOLD = 0.15
 
 const clamp = (v: number) => Math.min(1, Math.max(0, v))
+
+/** Distance from the bottom of a day's (sticky) title to its `[data-scroll-anchor]` card, if it has one. */
+function anchorOffset(section: HTMLElement) {
+  const anchor = section.querySelector<HTMLElement>("[data-scroll-anchor]")
+  const title = section.querySelector<HTMLElement>("h2")
+  if (!anchor) return 0
+  const offset = anchor.getBoundingClientRect().top - section.getBoundingClientRect().top - (title?.offsetHeight ?? 0)
+  return Math.max(0, offset)
+}
 
 export function useCalendarScroll(options: Options) {
   const getTarget = useScrollTarget()
@@ -122,34 +132,37 @@ export function useCalendarScroll(options: Options) {
     }
   }, [])
 
-  const measure = useCallback(({ skipActiveDay = false } = {}) => {
-    const { root, zone, calendarViewport, calendarRows, collapsible } = opts.current
-    if (!root.current || !zone.current || !calendarViewport.current || !calendarRows.current) return
-    const target = getTarget()
+  const measure = useCallback(
+    ({ skipActiveDay = false } = {}) => {
+      const { root, zone, calendarViewport, calendarRows, collapsible } = opts.current
+      if (!root.current || !zone.current || !calendarViewport.current || !calendarRows.current) return
+      const target = getTarget()
 
-    const zoneTop = parseFloat(getComputedStyle(zone.current).top) || 0
-    const rows = calendarRows.current.children.length
-    const rowHeight = (calendarRows.current.firstElementChild as HTMLElement | null)?.offsetHeight ?? 0
-    const collapseDistance = collapsible ? (rows - 1) * rowHeight : 0
-    // The zone's height with the calendar fully open, whatever its current collapse.
-    const zoneFullHeight = zone.current.offsetHeight - calendarViewport.current.offsetHeight + rows * rowHeight
-    const rootTop = root.current.getBoundingClientRect().top - target.viewportTop + target.scrollTop
-    const sections = Array.from(root.current.querySelectorAll<HTMLElement>("[data-day]"))
-    const scrollHeight = target.el ? target.el.scrollHeight : document.documentElement.scrollHeight
+      const zoneTop = parseFloat(getComputedStyle(zone.current).top) || 0
+      const rows = calendarRows.current.children.length
+      const rowHeight = (calendarRows.current.firstElementChild as HTMLElement | null)?.offsetHeight ?? 0
+      const collapseDistance = collapsible ? (rows - 1) * rowHeight : 0
+      // The zone's height with the calendar fully open, whatever its current collapse.
+      const zoneFullHeight = zone.current.offsetHeight - calendarViewport.current.offsetHeight + rows * rowHeight
+      const rootTop = root.current.getBoundingClientRect().top - target.viewportTop + target.scrollTop
+      const sections = Array.from(root.current.querySelectorAll<HTMLElement>("[data-day]"))
+      const scrollHeight = target.el ? target.el.scrollHeight : document.documentElement.scrollHeight
 
-    metrics.current = {
-      zoneTop,
-      zoneFullHeight,
-      rowHeight,
-      rows,
-      collapseDistance,
-      stuckAt: rootTop - zoneTop,
-      days: sections.map((el) => ({ key: el.dataset.day!, top: rootTop + el.offsetTop })),
-      maxScroll: scrollHeight - target.viewportHeight,
-    }
+      metrics.current = {
+        zoneTop,
+        zoneFullHeight,
+        rowHeight,
+        rows,
+        collapseDistance,
+        stuckAt: rootTop - zoneTop,
+        days: sections.map((el) => ({ key: el.dataset.day!, top: rootTop + el.offsetTop, anchor: anchorOffset(el) })),
+        maxScroll: scrollHeight - target.viewportHeight,
+      }
 
-    apply(target.scrollTop, { skipActiveDay })
-  }, [apply, getTarget])
+      apply(target.scrollTop, { skipActiveDay })
+    },
+    [apply, getTarget]
+  )
 
   const endProgrammatic = useCallback(() => {
     programmatic.current = false
@@ -173,7 +186,7 @@ export function useCalendarScroll(options: Options) {
     [apply, endProgrammatic, getTarget]
   )
 
-  /** Scroll so the day's title sits right under the (collapsed) calendar. */
+  /** Scroll so the day's title sits right under the (collapsed) calendar, its anchor card right under the title. */
   const scrollToDay = useCallback(
     (key: string, { smooth }: { smooth: boolean }) => {
       // Don't let the pre-scroll position report its own day; the caller already selected `key`.
@@ -184,7 +197,7 @@ export function useCalendarScroll(options: Options) {
       activeKey.current = key
       collapseOrigin.current = null
       opts.current.onActiveDayChange(key)
-      const top = Math.max(0, day.top - m.zoneTop - (m.zoneFullHeight - m.collapseDistance))
+      const top = Math.max(0, day.top + day.anchor - m.zoneTop - (m.zoneFullHeight - m.collapseDistance))
       // Late days can't reach the calendar; stop at the bottom but keep the day that was asked for.
       heldKey.current = top > m.maxScroll ? key : null
       scrollTo(Math.min(top, m.maxScroll), smooth, top > m.maxScroll)
@@ -213,7 +226,7 @@ export function useCalendarScroll(options: Options) {
       const m = metrics.current
       const day = m?.days.find((d) => d.key === key)
       if (!m || !day) return
-      const top = Math.max(m.stuckAt, day.top - m.zoneTop - m.zoneFullHeight)
+      const top = Math.max(m.stuckAt, day.top + day.anchor - m.zoneTop - m.zoneFullHeight)
       const reachable = Math.min(top, m.maxScroll)
       collapseOrigin.current = reachable > m.stuckAt ? reachable : null
       heldKey.current = top > m.maxScroll ? key : null

@@ -2,7 +2,7 @@
 // same schedule; bookings live in memory until the page reloads.
 
 import type { BookingApi } from "@/lib/booking/api"
-import type { ClassCategory, GymClass, MyStatus } from "@/lib/booking/types"
+import type { ClassAvailability, ClassCategory, GymClass, MyStatus } from "@/lib/booking/types"
 import { eachDay, fromKey, toKey } from "@/lib/booking/dates"
 import { teachers as TEACHERS } from "@/lib/member-teachers"
 
@@ -70,11 +70,14 @@ function hash(text: string) {
 
 function generateDay(date: string): GymClass[] {
   const rand = seeded(hash(date))
-  const pick = <T,>(list: T[]) => list[Math.floor(rand() * list.length)]
+  const pick = <T>(list: T[]) => list[Math.floor(rand() * list.length)]
   // About one day in eight has no classes, so the timeline shows its empty state.
   if (rand() < 0.12) return []
   const count = 1 + Math.floor(rand() * 4)
-  const slots = [...SLOTS].sort(() => rand() - 0.5).slice(0, count).sort()
+  const slots = [...SLOTS]
+    .sort(() => rand() - 0.5)
+    .slice(0, count)
+    .sort()
 
   return slots.map((start, i) => {
     const category = pick(CATEGORIES)
@@ -82,9 +85,26 @@ function generateDay(date: string): GymClass[] {
     const capacity = pick([8, 10, 12, 15, 20])
     const roll = rand()
     // Mix of open, nearly full (≤3 left) and full classes.
-    const bookedCount = roll < 0.2 ? capacity : roll < 0.45 ? capacity - 1 - Math.floor(rand() * 3) : Math.floor(rand() * (capacity - 4))
+    const bookedCount =
+      roll < 0.2 ? capacity : roll < 0.45 ? capacity - 1 - Math.floor(rand() * 3) : Math.floor(rand() * (capacity - 4))
     const statusRoll = rand()
-    const myStatus: MyStatus = statusRoll < 0.12 ? "booked" : statusRoll < 0.16 && bookedCount >= capacity ? "waitlisted" : "none"
+    const myStatus: MyStatus =
+      statusRoll < 0.12 ? "booked" : statusRoll < 0.4 && bookedCount >= capacity ? "waitlisted" : "none"
+    // A few classes per month are 停課, not open yet, or free to drop in.
+    const availabilityRoll = rand()
+    const availability: ClassAvailability =
+      myStatus !== "none"
+        ? "open"
+        : availabilityRoll < 0.06
+          ? "stopped"
+          : availabilityRoll < 0.12
+            ? "notOpen"
+            : availabilityRoll < 0.18
+              ? "free"
+              : "open"
+    const teacher = pick(TEACHERS)
+    // About one class in four is co-taught.
+    const second = rand() < 0.25 ? pick(TEACHERS.filter((t) => t.id !== teacher.id)) : null
     return {
       id: `${date}-${i}`,
       date,
@@ -94,9 +114,13 @@ function generateDay(date: string): GymClass[] {
       room: pick(ROOMS[venue]),
       title: pick(TITLES[category]),
       category,
-      teacher: pick(TEACHERS),
+      teachers: second ? [teacher, second] : [teacher],
       capacity,
       bookedCount,
+      availability,
+      waitlistEnabled: myStatus === "waitlisted" || rand() < 0.6,
+      waitlistPosition: myStatus === "waitlisted" ? 1 + Math.floor(rand() * 5) : undefined,
+      hasInfo: rand() < 0.7,
       myStatus,
     }
   })
@@ -138,6 +162,7 @@ export const mockBookingApi: BookingApi = {
   },
   book: (id) => update(id, (c) => ({ ...c, myStatus: "booked", bookedCount: c.bookedCount + 1 })),
   cancelBooking: (id) => update(id, (c) => ({ ...c, myStatus: "none", bookedCount: c.bookedCount - 1 })),
-  joinWaitlist: (id) => update(id, (c) => ({ ...c, myStatus: "waitlisted" })),
-  leaveWaitlist: (id) => update(id, (c) => ({ ...c, myStatus: "none" })),
+  joinWaitlist: (id) =>
+    update(id, (c) => ({ ...c, myStatus: "waitlisted", waitlistPosition: 1 + (Math.abs(hash(id)) % 5) })),
+  leaveWaitlist: (id) => update(id, (c) => ({ ...c, myStatus: "none", waitlistPosition: undefined })),
 }

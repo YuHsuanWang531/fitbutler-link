@@ -45,24 +45,28 @@ export default async function ClassInfoPage({ params }: Props) {
                 {gymClass.venue}｜{gymClass.room}
               </p>
             </div>
-            <div className="flex items-center gap-2 text-sm leading-5">
-              {gymClass.teacher.avatar ? (
-                <Image
-                  src={gymClass.teacher.avatar}
-                  alt=""
-                  width={32}
-                  height={32}
-                  className="size-8 rounded-full object-cover"
-                />
-              ) : (
-                <span
-                  aria-hidden
-                  className="flex size-8 items-center justify-center rounded-full bg-neutral-200 text-xs text-neutral-700"
-                >
-                  {gymClass.teacher.name[0]}
+            <div className="flex items-center gap-4 text-sm leading-5">
+              {gymClass.teachers.map((teacher) => (
+                <span key={teacher.id} className="flex items-center gap-2">
+                  {teacher.avatar ? (
+                    <Image
+                      src={teacher.avatar}
+                      alt=""
+                      width={32}
+                      height={32}
+                      className="size-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <span
+                      aria-hidden
+                      className="flex size-8 items-center justify-center rounded-full bg-neutral-200 text-xs text-neutral-700"
+                    >
+                      {teacher.name[0]}
+                    </span>
+                  )}
+                  <span className="font-medium">{teacher.name}</span>
                 </span>
-              )}
-              <span className="font-medium">{gymClass.teacher.name}</span>
+              ))}
             </div>
           </div>
 

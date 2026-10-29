@@ -35,7 +35,9 @@ export function FilterPanel({ open, onOpenChange, ...formProps }: FilterPanelPro
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="flex max-h-[85dvh] flex-col gap-0 p-0 sm:max-w-md">{form(DialogHeader, DialogTitle, DialogFooter)}</DialogContent>
+        <DialogContent className="flex max-h-[85dvh] flex-col gap-0 p-0 sm:max-w-md">
+          {form(DialogHeader, DialogTitle, DialogFooter)}
+        </DialogContent>
       </Dialog>
     )
   }
@@ -54,7 +56,17 @@ type FilterFormProps = Omit<FilterPanelProps, "open" | "onOpenChange"> & {
   Footer: typeof SheetFooter
 }
 
-function FilterForm({ applied, venues, categories, teachers, rangeClasses, onApply, Header, Title, Footer }: FilterFormProps) {
+function FilterForm({
+  applied,
+  venues,
+  categories,
+  teachers,
+  rangeClasses,
+  onApply,
+  Header,
+  Title,
+  Footer,
+}: FilterFormProps) {
   const [draft, setDraft] = useState(applied)
   const count = rangeClasses.filter((c) => matchesFilters(c, draft)).length
 

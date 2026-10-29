@@ -11,11 +11,17 @@ export type ClassCategory =
   | "核心訓練"
   | "功能性訓練"
 
-/** `avatar`: image path; without one the card shows the first character of the name. */
-export type Teacher = { id: string; name: string; avatar?: string }
+/**
+ * `avatar`: image path; without one the card shows the first character of the name.
+ * `role`: what they teach, e.g. 「私課老師 / 團課老師」, shown under the name on the home page.
+ */
+export type Teacher = { id: string; name: string; avatar?: string; role?: string }
 
 /** The signed-in member's relation to a class. */
 export type MyStatus = "none" | "booked" | "waitlisted"
+
+/** Set by the gym: 停課, not open for booking yet, or a drop-in class that needs no booking. */
+export type ClassAvailability = "open" | "stopped" | "notOpen" | "free"
 
 export type GymClass = {
   id: string
@@ -29,9 +35,17 @@ export type GymClass = {
   room: string
   title: string
   category: ClassCategory
-  teacher: Teacher
+  /** One or two teachers. */
+  teachers: Teacher[]
   capacity: number
   bookedCount: number
+  availability: ClassAvailability
+  /** Whether a full class takes a waitlist. */
+  waitlistEnabled: boolean
+  /** The member's place in the waitlist while `myStatus` is `waitlisted`. */
+  waitlistPosition?: number
+  /** Whether the gym filled in the class info (課程資訊); without it the card has no 課程資訊 button. */
+  hasInfo: boolean
   myStatus: MyStatus
 }
 

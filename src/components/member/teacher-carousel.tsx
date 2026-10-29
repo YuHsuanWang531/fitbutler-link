@@ -3,7 +3,7 @@ import Link from "next/link"
 
 import type { Teacher } from "@/lib/booking/types"
 
-/** 老師介紹: a sideways-scrolling row of portrait + name; each opens the teacher's page (not built yet). */
+/** 老師介紹: a sideways-scrolling row of portrait + name + role; each opens the teacher's page (not built yet). */
 export function TeacherCarousel({ teachers }: { teachers: Teacher[] }) {
   return (
     <section className="flex flex-col gap-4">
@@ -13,13 +13,16 @@ export function TeacherCarousel({ teachers }: { teachers: Teacher[] }) {
           <li key={teacher.id} className="w-[150px] shrink-0 snap-start">
             <Link href={`/teachers/${teacher.id}`} className="group flex flex-col gap-2">
               <div className="relative aspect-square overflow-hidden rounded-[10px] bg-neutral-100">
-                {teacher.avatar && (
-                  <Image src={teacher.avatar} alt="" fill sizes="150px" className="object-cover" />
+                {teacher.avatar && <Image src={teacher.avatar} alt="" fill sizes="150px" className="object-cover" />}
+              </div>
+              <div className="flex flex-col text-center">
+                <span className="truncate text-base leading-6 font-medium underline-offset-2 group-hover:underline">
+                  {teacher.name}
+                </span>
+                {teacher.role && (
+                  <span className="truncate text-sm leading-5 text-muted-foreground">{teacher.role}</span>
                 )}
               </div>
-              <span className="truncate text-center text-base leading-6 font-medium underline-offset-2 group-hover:underline">
-                {teacher.name}
-              </span>
             </Link>
           </li>
         ))}

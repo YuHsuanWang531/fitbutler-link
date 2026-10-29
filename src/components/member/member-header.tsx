@@ -2,17 +2,19 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BellRing, FileText } from "lucide-react"
+import { BellRing, FileText, SlidersHorizontal } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { BrandLogoButton } from "@/components/member/brand-logo-button"
+import { requestOpenFilters, useActiveFilterCount } from "@/lib/booking/filter-bridge"
 
 /**
- * Tabs header. Mobile: brand logo + 通知, except on 預約 where it's the page title + 預約規則.
+ * Tabs header. Mobile: brand logo + 通知, except on 預約 where it's the page title + 篩選 + 預約規則.
  * md+: the brand logo centered above the content card on every tab.
  */
 export function MemberHeader({ className }: { className?: string }) {
   const isBooking = usePathname() === "/booking"
+  const filterCount = useActiveFilterCount()
   return (
     <header
       className={cn(
@@ -27,10 +29,25 @@ export function MemberHeader({ className }: { className?: string }) {
             <div className="hidden md:block">
               <BrandLogoButton />
             </div>
-            {/* 預約規則 page is still to be written; the link is in place for it. */}
-            <Link href="/booking/rules" aria-label="預約規則" className="text-neutral-950 md:hidden">
-              <FileText className="size-6" strokeWidth={1.5} />
-            </Link>
+            <div className="flex items-center gap-5 text-neutral-950 md:hidden">
+              <button
+                type="button"
+                onClick={requestOpenFilters}
+                aria-label={filterCount ? `篩選，已套用 ${filterCount} 個條件` : "篩選"}
+                className="relative"
+              >
+                <SlidersHorizontal className="size-6" strokeWidth={1.5} />
+                {filterCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 flex size-4 items-center justify-center rounded-full bg-black text-[10px] leading-none text-white">
+                    {filterCount}
+                  </span>
+                )}
+              </button>
+              {/* 預約規則 page is still to be written; the link is in place for it. */}
+              <Link href="/booking/rules" aria-label="預約規則">
+                <FileText className="size-6" strokeWidth={1.5} />
+              </Link>
+            </div>
           </>
         ) : (
           <>

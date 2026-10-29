@@ -1,19 +1,21 @@
 import type { GymClass } from "@/lib/booking/types"
-import type { ClassAction } from "@/lib/booking/classes"
+import type { ClassAction, ClassStatus } from "@/lib/booking/classes"
 import { formatDayTitle, toKey } from "@/lib/booking/dates"
 import { ClassCard } from "@/components/booking/class-card"
 
 type TimelineDayProps = {
   day: Date
-  classes: { gymClass: GymClass; action: ClassAction }[]
+  classes: { gymClass: GymClass; status: ClassStatus }[]
   /** Shown when `classes` is empty. */
   emptyText: string
   pendingId: string | null
+  /** The card scrolling to this day lands on (today: the next class to start); the first class otherwise. */
+  anchorId?: string
   onAction(gymClass: GymClass, action: ClassAction): void
 }
 
 /** One day: a title that sticks under the calendar, then its class cards. */
-export function TimelineDay({ day, classes, emptyText, pendingId, onAction }: TimelineDayProps) {
+export function TimelineDay({ day, classes, emptyText, pendingId, anchorId, onAction }: TimelineDayProps) {
   const key = toKey(day)
   return (
     <section data-day={key} aria-labelledby={`day-${key}`}>
@@ -30,13 +32,13 @@ export function TimelineDay({ day, classes, emptyText, pendingId, onAction }: Ti
         <p className="pb-4 text-sm text-muted-foreground">{emptyText}</p>
       ) : (
         <ol className="pb-2">
-          {classes.map(({ gymClass, action }) => (
-            <li key={gymClass.id} className="pb-3">
+          {classes.map(({ gymClass, status }) => (
+            <li key={gymClass.id} className="pb-3" data-scroll-anchor={gymClass.id === anchorId || undefined}>
               <ClassCard
                 gymClass={gymClass}
-                action={action}
+                status={status}
                 pending={pendingId === gymClass.id}
-                onAction={() => onAction(gymClass, action)}
+                onAction={(action) => onAction(gymClass, action)}
               />
             </li>
           ))}

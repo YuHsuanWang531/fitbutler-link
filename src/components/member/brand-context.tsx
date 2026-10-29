@@ -17,6 +17,13 @@ export type Brand = {
 
 export const brands: Brand[] = [
   {
+    id: "smile-pilates",
+    name: "Smile Pilates",
+    logo: "/images/logo-smile-pilates.png",
+    accent: "#85745d",
+    onAccent: "#ffffff",
+  },
+  {
     id: "den-yoga",
     name: "DEN YOGA",
     logo: "/images/logo.png",

@@ -6,7 +6,8 @@ import { cn } from "@/lib/utils"
 import { useCalendarScroll } from "@/hooks/use-calendar-scroll"
 import { useHorizontalSwipe } from "@/hooks/use-horizontal-swipe"
 import { bookingApi } from "@/lib/booking/api"
-import { classAction, countActiveFilters, matchesFilters, type ClassAction } from "@/lib/booking/classes"
+import { onOpenFiltersRequest, setActiveFilterCount } from "@/lib/booking/filter-bridge"
+import { classStatus, classStart, countActiveFilters, matchesFilters, type ClassAction } from "@/lib/booking/classes"
 import {
   WEEKDAY_LABELS,
   addDays,
@@ -24,6 +25,8 @@ import {
 import { NO_FILTERS, type ClassCategory, type ClassFilters, type GymClass, type Teacher } from "@/lib/booking/types"
 import { BookingToolbar, type BookingMode } from "@/components/booking/booking-toolbar"
 import { CalendarGrid } from "@/components/booking/calendar-grid"
+import { ConfirmBooking } from "@/components/booking/confirm-booking"
+import { Toast } from "@/components/booking/toast"
 import { FilterPanel } from "@/components/booking/filter-panel"
 import { TimelineDay } from "@/components/booking/timeline-day"
 
@@ -31,7 +34,11 @@ const subscribeNever = () => () => {}
 
 /** "Today" comes from the client clock, so the page renders after hydration. */
 export function BookingView() {
-  const hydrated = useSyncExternalStore(subscribeNever, () => true, () => false)
+  const hydrated = useSyncExternalStore(
+    subscribeNever,
+    () => true,
+    () => false
+  )
   return hydrated ? <BookingScreen /> : <div className="min-h-dvh" />
 }
 
@@ -103,7 +110,14 @@ function BookingScreen() {
   }, [allClasses, filters])
 
   const activeFilterCount = countActiveFilters(filters)
-  const weekIndex = Math.max(0, weeks.findIndex((week) => week.some((d) => toKey(d) === selectedKey)))
+  // The phone header's 篩選 button (see filter-bridge.ts) shows this count and opens the panel.
+  useEffect(() => setActiveFilterCount(activeFilterCount), [activeFilterCount])
+  useEffect(() => () => setActiveFilterCount(0), [])
+  useEffect(() => onOpenFiltersRequest(() => setFilterOpen(true)), [])
+  const weekIndex = Math.max(
+    0,
+    weeks.findIndex((week) => week.some((d) => toKey(d) === selectedKey))
+  )
 
   // Refs for the scroll-linked calendar (see useCalendarScroll).
   const root = useRef<HTMLDivElement>(null)
@@ -128,15 +142,22 @@ function BookingScreen() {
     onUserScroll: closeOverlay,
   })
 
+  const runScroll = useCallback(
+    (scroll: PendingScroll) => {
+      if (scroll.type === "top") scrollToTop()
+      else if (scroll.expanded) scrollToDayExpanded(scroll.key)
+      else scrollToDay(scroll.key, { smooth: false })
+    },
+    [scrollToDay, scrollToDayExpanded, scrollToTop]
+  )
+
   // Runs after useCalendarScroll has measured the new content.
   useLayoutEffect(() => {
     const pending = pendingScroll.current
     if (!loaded || !pending) return
     pendingScroll.current = null
-    if (pending.type === "top") scrollToTop()
-    else if (pending.expanded) scrollToDayExpanded(pending.key)
-    else scrollToDay(pending.key, { smooth: false })
-  }, [loaded, span, filters, scrollToDay, scrollToDayExpanded, scrollToTop])
+    runScroll(pending)
+  }, [loaded, span, filters, runScroll])
 
   /**
    * Switch month/week or move to another range. Lands on `focusKey`, else today if it's in range, else the top.
@@ -145,14 +166,16 @@ function BookingScreen() {
    */
   const showRange = (nextMode: BookingMode, nextAnchor: Date, focusKey?: string | null, keepCollapsed = false) => {
     const nextDays = nextMode === "month" ? monthDays(nextAnchor) : eachDay(nextAnchor, addDays(nextAnchor, 6))
-    const target =
-      focusKey !== undefined ? focusKey : nextDays.some((d) => toKey(d) === todayKey) ? todayKey : null
+    const target = focusKey !== undefined ? focusKey : nextDays.some((d) => toKey(d) === todayKey) ? todayKey : null
     setSelectedKey(target ?? toKey(nextDays[0]))
     // A new month opens fully expanded (unless swiped into while collapsed), with the target day right under it.
-    pendingScroll.current = target
+    const scroll: PendingScroll = target
       ? { type: "day", key: target, expanded: nextMode === "month" && !keepCollapsed }
       : { type: "top" }
     setOverlayOpen(false)
+    // Same range (e.g. 今天 while already in this month): nothing re-renders the timeline, so scroll right away.
+    if (nextMode === mode && toKey(nextAnchor) === toKey(anchor)) return runScroll(scroll)
+    pendingScroll.current = scroll
     setMode(nextMode)
     setAnchor(nextAnchor)
   }
@@ -173,9 +196,17 @@ function BookingScreen() {
     showRange("week", startOfWeek(day), toKey(day))
   }
 
+  /** 今天: today's month (fully open) or week, with today selected. */
+  const goToToday = () =>
+    mode === "month"
+      ? showRange("month", startOfMonth(today), todayKey)
+      : showRange("week", startOfWeek(today), todayKey)
+
   /** The 「看 N 月」/「看下一週」 button at the bottom: the next range from its first day (month at the top, fully open). */
   const showNextRange = () =>
-    mode === "month" ? showRange("month", addMonths(anchor, 1), null) : showRange("week", addDays(anchor, 7), toKey(addDays(anchor, 7)))
+    mode === "month"
+      ? showRange("month", addMonths(anchor, 1), null)
+      : showRange("week", addDays(anchor, 7), toKey(addDays(anchor, 7)))
 
   /**
    * Collapsed month: the visible row is one week, so a swipe moves the timeline a week. Lands on today if that
@@ -223,7 +254,10 @@ function BookingScreen() {
   const applyFilters = (next: ClassFilters) => {
     let target = selectedKey
     if (countActiveFilters(next) > 0) {
-      const matchDays = rangeClasses.filter((c) => matchesFilters(c, next)).map((c) => c.date).sort()
+      const matchDays = rangeClasses
+        .filter((c) => matchesFilters(c, next))
+        .map((c) => c.date)
+        .sort()
       const from = dayKeys.has(todayKey) ? todayKey : ""
       target = matchDays.find((key) => key >= from) ?? matchDays[0] ?? selectedKey
     }
@@ -233,14 +267,38 @@ function BookingScreen() {
     setFilterOpen(false)
   }
 
+  // 預約 asks first: the card opens 確認預約, and only its confirm button books.
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [confirmClass, setConfirmClass] = useState<GymClass | null>(null)
+  const onCardAction = (gymClass: GymClass, action: ClassAction) => {
+    if (action !== "book") return runAction(gymClass, action)
+    setConfirmClass(gymClass)
+    setConfirmOpen(true)
+  }
+  const confirmBooking = async () => {
+    setConfirmOpen(false)
+    if (!confirmClass) return
+    await runAction(confirmClass, "book")
+    showToast("預約成功")
+  }
+
+  // Toast: the message stays set while it fades out; a new one restarts the 2-second timer.
+  const [toast, setToast] = useState({ message: "", visible: false })
+  const toastTimer = useRef<number | undefined>(undefined)
+  const showToast = (message: string) => {
+    window.clearTimeout(toastTimer.current)
+    setToast({ message, visible: true })
+    toastTimer.current = window.setTimeout(() => setToast((t) => ({ ...t, visible: false })), 2000)
+  }
+  useEffect(() => () => window.clearTimeout(toastTimer.current), [])
+
   const runAction = async (gymClass: GymClass, action: ClassAction) => {
     const call = {
       book: bookingApi.book,
       booked: bookingApi.cancelBooking,
       waitlist: bookingApi.joinWaitlist,
       waitlisted: bookingApi.leaveWaitlist,
-    }[action as "book" | "booked" | "waitlist" | "waitlisted"]
-    if (!call) return
+    }[action]
     setPendingId(gymClass.id)
     try {
       const updated = await call(gymClass.id)
@@ -275,6 +333,7 @@ function BookingScreen() {
           onNext={() => step(1)}
           onOpenFilters={() => setFilterOpen(true)}
           onModeChange={changeMode}
+          onToday={goToToday}
         />
         <div className="grid h-7 grid-cols-7 px-2 text-center text-xs leading-7 text-muted-foreground">
           {WEEKDAY_LABELS.map((label) => (
@@ -292,7 +351,11 @@ function BookingScreen() {
           {overlayOpen && (
             <div className="absolute inset-x-0 top-0 z-20 bg-white shadow-[0_8px_16px_-8px_rgb(0_0_0/0.2)]">
               <CalendarGrid weeks={weeks} {...gridProps} />
-              <CollapseHandle label="收合月曆" onClick={closeOverlay} onSwipe={(dir) => dir === "up" && closeOverlay()} />
+              <CollapseHandle
+                label="收合月曆"
+                onClick={closeOverlay}
+                onSwipe={(dir) => dir === "up" && closeOverlay()}
+              />
             </div>
           )}
         </div>
@@ -330,14 +393,21 @@ function BookingScreen() {
         {days.map((day) => {
           const key = toKey(day)
           const entry = byDay.get(key)
+          // Today lands on the first class that hasn't started yet (on-going ones stay above it), or the last
+          // class once they all have.
+          const anchorId =
+            key === todayKey
+              ? (entry?.visible.find((c) => classStart(c) >= now) ?? entry?.visible.at(-1))?.id
+              : undefined
           return (
             <TimelineDay
               key={key}
               day={day}
-              classes={(entry?.visible ?? []).map((gymClass) => ({ gymClass, action: classAction(gymClass, now) }))}
+              classes={(entry?.visible ?? []).map((gymClass) => ({ gymClass, status: classStatus(gymClass, now) }))}
               emptyText={entry?.all && activeFilterCount ? "沒有符合篩選的課程" : "沒有排課"}
               pendingId={pendingId}
-              onAction={runAction}
+              anchorId={anchorId}
+              onAction={onCardAction}
             />
           )
         })}
@@ -364,6 +434,13 @@ function BookingScreen() {
         rangeClasses={rangeClasses}
         onApply={applyFilters}
       />
+      <ConfirmBooking
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        gymClass={confirmClass}
+        onConfirm={confirmBooking}
+      />
+      <Toast message={toast.message} visible={toast.visible} />
     </div>
   )
 }

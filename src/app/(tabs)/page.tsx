@@ -1,9 +1,11 @@
 import { ScanLine } from "lucide-react"
 
+import { CourseCarousel } from "@/components/member/course-carousel"
 import { NewsSection, type NewsItem } from "@/components/member/news-section"
 import { PromoBannerCarousel, type PromoBanner } from "@/components/member/promo-banner-carousel"
 import { TeacherCarousel } from "@/components/member/teacher-carousel"
 import { VenueCarousel } from "@/components/member/venue-carousel"
+import { courses } from "@/lib/member-courses"
 import { newsArticles } from "@/lib/member-news"
 import { teachers } from "@/lib/member-teachers"
 import { venues } from "@/lib/member-venues"
@@ -37,6 +39,7 @@ export default function MemberHomePage() {
       <PromoBannerCarousel banners={banners} />
       <NewsSection items={news} />
       <TeacherCarousel teachers={teachers} />
+      <CourseCarousel courses={courses} />
       <VenueCarousel venues={venues} />
 
       {/* Floats 16px above the floating tab bar (8px gap + 72px bar) and from the right edge. */}
