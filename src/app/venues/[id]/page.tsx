@@ -7,6 +7,7 @@ import { MemberMain } from "@/components/member/member-main"
 import { MemberPageHeader } from "@/components/member/member-page-header"
 import { VenueSocialLinks } from "@/components/member/venue-social-links"
 import { getVenue, venues } from "@/lib/member-venues"
+import { toTelHref } from "@/lib/phone"
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -20,11 +21,6 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const venue = getVenue((await params).id)
   return { title: venue ? `${venue.name}｜場館介紹` : "場館介紹" }
-}
-
-/** "(+886)0912345678" → "+886912345678" (drop the domestic trunk 0 after the country code). */
-function toTelHref(phone: string) {
-  return `tel:${phone.replace(/[^\d+]/g, "").replace(/^\+8860/, "+886")}`
 }
 
 const contactRowClassName = "flex items-center gap-0.5 text-sm leading-5 text-muted-foreground"

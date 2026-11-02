@@ -4,7 +4,6 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import type { GymClass, Teacher } from "@/lib/booking/types"
 import { classEndTime, spotsLeft, statusAction, type ClassAction, type ClassStatus } from "@/lib/booking/classes"
-import { CLASS_INFO_PAGE_ENABLED } from "@/lib/booking/class-info"
 
 const ACTION_LABEL: Record<ClassAction, string> = {
   book: "預約",
@@ -134,16 +133,11 @@ function CardActions({ gymClass, status, pending, onAction }: ClassCardProps) {
   if (!gymClass.hasInfo && !action) return null
   return (
     <div className="mt-3 flex gap-2">
-      {gymClass.hasInfo &&
-        (CLASS_INFO_PAGE_ENABLED ? (
-          <Link href={`/classes/${gymClass.id}`} className={cn(BUTTON, OUTLINE, "hover:bg-neutral-100")}>
-            課程資訊
-          </Link>
-        ) : (
-          <button type="button" className={cn(BUTTON, OUTLINE, "hover:bg-neutral-100")}>
-            課程資訊
-          </button>
-        ))}
+      {gymClass.hasInfo && (
+        <Link href={`/courses/${gymClass.courseId}`} className={cn(BUTTON, OUTLINE, "hover:bg-neutral-100")}>
+          課程資訊
+        </Link>
+      )}
       {action && (
         <button
           type="button"

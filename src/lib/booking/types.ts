@@ -25,6 +25,8 @@ export type ClassAvailability = "open" | "stopped" | "notOpen" | "free"
 
 export type GymClass = {
   id: string
+  /** The course this class is a session of (see courses.ts); its 課程資訊 page is `/courses/{courseId}`. */
+  courseId: string
   /** Local date `YYYY-MM-DD`. */
   date: string
   /** Local start time `HH:mm`. */

@@ -1,15 +1,15 @@
 "use client"
 
-import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BellRing, FileText, SlidersHorizontal } from "lucide-react"
+import { BellRing, SlidersHorizontal } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { BrandLogoButton } from "@/components/member/brand-logo-button"
+import { VenueRules } from "@/components/booking/venue-rules"
 import { requestOpenFilters, useActiveFilterCount } from "@/lib/booking/filter-bridge"
 
 /**
- * Tabs header. Mobile: brand logo + 通知, except on 預約 where it's the page title + 篩選 + 預約規則.
+ * Tabs header. Mobile: brand logo + 通知, except on 預約 where it's the page title + 篩選 + 場館使用規範.
  * md+: the brand logo centered above the content card on every tab.
  */
 export function MemberHeader({ className }: { className?: string }) {
@@ -43,10 +43,7 @@ export function MemberHeader({ className }: { className?: string }) {
                   </span>
                 )}
               </button>
-              {/* 預約規則 page is still to be written; the link is in place for it. */}
-              <Link href="/booking/rules" aria-label="預約規則">
-                <FileText className="size-6" strokeWidth={1.5} />
-              </Link>
+              <VenueRules />
             </div>
           </>
         ) : (
