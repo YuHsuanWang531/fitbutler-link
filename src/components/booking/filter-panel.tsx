@@ -101,7 +101,7 @@ function FilterForm({
           onChange={(timeFrom, timeTo) => setDraft((d) => ({ ...d, timeFrom, timeTo }))}
         />
       </div>
-      <Footer className="flex-row gap-2 border-t border-neutral-200 px-4 pt-3 pb-4">
+      <Footer className="m-0 flex-row gap-2 border-t border-neutral-200 bg-white px-4 pt-3 pb-4">
         <Button variant="ghost" className="h-10 px-4" onClick={() => setDraft(NO_FILTERS)}>
           清除
         </Button>

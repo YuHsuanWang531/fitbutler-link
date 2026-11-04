@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { FileText, XIcon } from "lucide-react"
 
+import { useMediaQuery } from "@/hooks/use-media-query"
+import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 
 const UPDATED_AT = "2026/10/31"
@@ -54,41 +56,56 @@ const SECTIONS: { title: string; items: string[] }[] = [
   },
 ]
 
-/** The 預約 header's 場館使用規範 button and the bottom sheet it opens. */
+/** The 預約 header's 場館使用規範 button: a bottom sheet on phones, a centred dialog from md up. */
 export function VenueRules() {
   const [open, setOpen] = useState(false)
+  const isDesktop = useMediaQuery("(min-width: 768px)")
+  const body = (Header: typeof SheetHeader, Title: typeof SheetTitle, Close: typeof SheetClose) => (
+    <>
+      <Header className="relative items-center gap-0.5 px-12 pt-5 pb-4 text-center">
+        <Title className="text-lg leading-7 font-medium">場館使用規範</Title>
+        <p className="text-sm leading-5 text-muted-foreground">最近更新時間 {UPDATED_AT}</p>
+        <Close aria-label="關閉" className="absolute top-5 right-4 text-neutral-950">
+          <XIcon className="size-6" strokeWidth={1.5} />
+        </Close>
+      </Header>
+      <div className="flex min-h-0 flex-col gap-5 overflow-y-auto px-4 pb-6 text-[15px] leading-6 text-neutral-800 md:px-6">
+        {SECTIONS.map((section) => (
+          <section key={section.title} className="flex flex-col gap-1.5">
+            <h3 className="text-base font-medium text-black">{section.title}</h3>
+            <ol className="flex list-decimal flex-col gap-1 pl-5 marker:text-neutral-500">
+              {section.items.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ol>
+          </section>
+        ))}
+      </div>
+    </>
+  )
+
   return (
     <>
       <button type="button" onClick={() => setOpen(true)} aria-label="場館使用規範">
-        <FileText className="size-6" strokeWidth={1.5} />
+        <FileText className="size-6 md:size-7" strokeWidth={1.5} />
       </button>
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent
-          side="bottom"
-          showCloseButton={false}
-          className="max-h-[85dvh] gap-0 rounded-t-2xl pb-[env(safe-area-inset-bottom)]"
-        >
-          <SheetHeader className="relative items-center gap-0.5 px-12 pt-5 pb-4 text-center">
-            <SheetTitle className="text-lg leading-7 font-medium">場館使用規範</SheetTitle>
-            <p className="text-sm leading-5 text-muted-foreground">最近更新時間 {UPDATED_AT}</p>
-            <SheetClose aria-label="關閉" className="absolute top-5 right-4 text-neutral-950">
-              <XIcon className="size-6" strokeWidth={1.5} />
-            </SheetClose>
-          </SheetHeader>
-          <div className="flex flex-col gap-5 overflow-y-auto px-4 pb-6 text-[15px] leading-6 text-neutral-800">
-            {SECTIONS.map((section) => (
-              <section key={section.title} className="flex flex-col gap-1.5">
-                <h3 className="text-base font-medium text-black">{section.title}</h3>
-                <ol className="flex list-decimal flex-col gap-1 pl-5 marker:text-neutral-500">
-                  {section.items.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ol>
-              </section>
-            ))}
-          </div>
-        </SheetContent>
-      </Sheet>
+      {isDesktop ? (
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent showCloseButton={false} className="flex max-h-[80dvh] flex-col gap-0 p-0 sm:max-w-lg">
+            {body(DialogHeader, DialogTitle, DialogClose)}
+          </DialogContent>
+        </Dialog>
+      ) : (
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetContent
+            side="bottom"
+            showCloseButton={false}
+            className="max-h-[85dvh] gap-0 rounded-t-2xl pb-[env(safe-area-inset-bottom)]"
+          >
+            {body(SheetHeader, SheetTitle, SheetClose)}
+          </SheetContent>
+        </Sheet>
+      )}
     </>
   )
 }

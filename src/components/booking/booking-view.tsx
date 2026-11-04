@@ -328,10 +328,8 @@ function BookingScreen() {
         <BookingToolbar
           mode={mode}
           title={title}
-          activeFilterCount={activeFilterCount}
           onPrev={() => step(-1)}
           onNext={() => step(1)}
-          onOpenFilters={() => setFilterOpen(true)}
           onModeChange={changeMode}
           onToday={goToToday}
         />

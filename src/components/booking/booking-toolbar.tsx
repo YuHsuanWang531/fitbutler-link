@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -7,30 +7,19 @@ export type BookingMode = "month" | "week"
 type BookingToolbarProps = {
   mode: BookingMode
   title: string
-  activeFilterCount: number
   onPrev(): void
   onNext(): void
-  onOpenFilters(): void
   onModeChange(mode: BookingMode): void
   onToday(): void
 }
 
-/** Every icon in the row: 22px, 1.75 stroke, so the arrows and the filter icon carry the same weight. */
+/** The arrows: 22px, 1.75 stroke. 篩選 lives in the page header on every size. */
 const ICON = "size-[22px]"
 const ICON_STROKE = 1.75
 
 const iconButton = "flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-neutral-100"
 
-export function BookingToolbar({
-  mode,
-  title,
-  activeFilterCount,
-  onPrev,
-  onNext,
-  onOpenFilters,
-  onModeChange,
-  onToday,
-}: BookingToolbarProps) {
+export function BookingToolbar({ mode, title, onPrev, onNext, onModeChange, onToday }: BookingToolbarProps) {
   const unit = mode === "month" ? "個月" : "週"
   return (
     <div className="flex h-14 items-center justify-between gap-2 px-2 lg:px-4">
@@ -45,20 +34,6 @@ export function BookingToolbar({
       </div>
 
       <div className="flex items-center gap-2">
-        {/* On phones 篩選 is in the page header instead. */}
-        <button
-          type="button"
-          onClick={onOpenFilters}
-          aria-label={activeFilterCount ? `篩選，已套用 ${activeFilterCount} 個條件` : "篩選"}
-          className={cn(iconButton, "relative hidden md:flex")}
-        >
-          <SlidersHorizontal className={ICON} strokeWidth={ICON_STROKE} />
-          {activeFilterCount > 0 && (
-            <span className="absolute top-0.5 right-0.5 flex size-4 items-center justify-center rounded-full bg-black text-[10px] leading-none text-white">
-              {activeFilterCount}
-            </span>
-          )}
-        </button>
         {/* 今天 sits right after the 月 / 週 switch. */}
         <div className="flex items-center gap-1.5">
           <div role="radiogroup" aria-label="檢視方式" className="flex rounded-full bg-neutral-100 p-0.5">

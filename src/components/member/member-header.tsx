@@ -10,7 +10,7 @@ import { requestOpenFilters, useActiveFilterCount } from "@/lib/booking/filter-b
 
 /**
  * Tabs header. Mobile: brand logo + 通知, except on 預約 where it's the page title + 篩選 + 場館使用規範.
- * md+: the brand logo centered above the content card on every tab.
+ * md+: the brand logo centered above the content card, except on 預約 where the title row stays (aligned to the card).
  */
 export function MemberHeader({ className }: { className?: string }) {
   const isBooking = usePathname() === "/booking"
@@ -22,21 +22,24 @@ export function MemberHeader({ className }: { className?: string }) {
         className
       )}
     >
-      <div className="flex h-15 items-center justify-between px-6 md:h-auto md:justify-center">
+      <div
+        className={cn(
+          "flex h-15 items-center justify-between px-6 md:h-auto md:justify-center",
+          isBooking && "md:px-0"
+        )}
+      >
         {isBooking ? (
-          <>
-            <h1 className="text-2xl leading-8 font-medium md:hidden">預約</h1>
-            <div className="hidden md:block">
-              <BrandLogoButton />
-            </div>
-            <div className="flex items-center gap-5 text-neutral-950 md:hidden">
+          // md+: the title row lines up with the content card below it (same width and offset as MemberMain).
+          <div className="flex w-full items-center justify-between md:mx-auto md:w-[500px] md:px-7 lg:mr-auto lg:ml-[max(174px,calc((100%-740px)/2))] lg:w-[740px]">
+            <h1 className="text-2xl leading-8 font-medium md:text-[28px] md:leading-9">預約</h1>
+            <div className="flex items-center gap-5 text-neutral-950 md:gap-6">
               <button
                 type="button"
                 onClick={requestOpenFilters}
                 aria-label={filterCount ? `篩選，已套用 ${filterCount} 個條件` : "篩選"}
                 className="relative"
               >
-                <SlidersHorizontal className="size-6" strokeWidth={1.5} />
+                <SlidersHorizontal className="size-6 md:size-7" strokeWidth={1.5} />
                 {filterCount > 0 && (
                   <span className="absolute -top-1.5 -right-1.5 flex size-4 items-center justify-center rounded-full bg-black text-[10px] leading-none text-white">
                     {filterCount}
@@ -45,7 +48,7 @@ export function MemberHeader({ className }: { className?: string }) {
               </button>
               <VenueRules />
             </div>
-          </>
+          </div>
         ) : (
           <>
             <BrandLogoButton />

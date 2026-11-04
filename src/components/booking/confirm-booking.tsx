@@ -57,7 +57,7 @@ export function ConfirmBooking({ open, onOpenChange, gymClass, onConfirm }: Conf
             ))}
           </div>
         </div>
-        <Footer className="flex-row gap-2 px-4 pt-4 pb-4">
+        <Footer className="m-0 flex-row gap-2 bg-white px-4 pt-4 pb-4">
           <Button variant="outline" className="h-10 flex-1 rounded-full" onClick={() => onOpenChange(false)}>
             取消
           </Button>
