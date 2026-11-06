@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react"
+import { X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { useCalendarScroll } from "@/hooks/use-calendar-scroll"
@@ -22,6 +23,7 @@ import {
   startOfWeek,
   toKey,
 } from "@/lib/booking/dates"
+import { getCourse } from "@/lib/booking/courses"
 import { NO_FILTERS, type ClassCategory, type ClassFilters, type GymClass, type Teacher } from "@/lib/booking/types"
 import { BookingToolbar, type BookingMode } from "@/components/booking/booking-toolbar"
 import { CalendarGrid } from "@/components/booking/calendar-grid"
@@ -32,20 +34,23 @@ import { TimelineDay } from "@/components/booking/timeline-day"
 
 const subscribeNever = () => () => {}
 
-/** "Today" comes from the client clock, so the page renders after hydration. */
-export function BookingView() {
+/**
+ * "Today" comes from the client clock, so the page renders after hydration.
+ * `initialFilters` (a teacher page's 團課內容, a course page's 預約) starts the list filtered.
+ */
+export function BookingView({ initialFilters }: { initialFilters?: Partial<ClassFilters> }) {
   const hydrated = useSyncExternalStore(
     subscribeNever,
     () => true,
     () => false
   )
-  return hydrated ? <BookingScreen /> : <div className="min-h-dvh" />
+  return hydrated ? <BookingScreen initialFilters={initialFilters} /> : <div className="min-h-dvh" />
 }
 
 /** `expanded`: show the day under the fully open month instead of the collapsed one. */
 type PendingScroll = { type: "day"; key: string; expanded?: boolean } | { type: "top" }
 
-function BookingScreen() {
+function BookingScreen({ initialFilters }: { initialFilters?: Partial<ClassFilters> }) {
   const [today] = useState(() => new Date())
   const [now, setNow] = useState(today)
   useEffect(() => {
@@ -58,7 +63,7 @@ function BookingScreen() {
   /** First day of the month (month view) or Sunday of the week (week view). */
   const [anchor, setAnchor] = useState(() => startOfMonth(today))
   const [selectedKey, setSelectedKey] = useState(todayKey)
-  const [filters, setFilters] = useState<ClassFilters>(NO_FILTERS)
+  const [filters, setFilters] = useState<ClassFilters>(() => ({ ...NO_FILTERS, ...initialFilters }))
   const [filterOpen, setFilterOpen] = useState(false)
   const [overlayOpen, setOverlayOpen] = useState(false)
   const [pendingId, setPendingId] = useState<string | null>(null)
@@ -70,6 +75,8 @@ function BookingScreen() {
   const [data, setData] = useState<{ span: string; classes: GymClass[] }>({ span: "", classes: [] })
   /** Where to scroll once the next range has rendered. Opens on today, under the fully open month. */
   const pendingScroll = useRef<PendingScroll | null>({ type: "day", key: todayKey, expanded: true })
+  /** Opened already filtered: the first load lands on the first matching day from today instead. */
+  const jumpToFirstMatch = useRef(countActiveFilters(filters) > 0 ? filters : null)
 
   const weeks = useMemo(
     () => (mode === "month" ? monthWeeks(anchor) : [eachDay(anchor, addDays(anchor, 6))]),
@@ -85,12 +92,25 @@ function BookingScreen() {
   useEffect(() => {
     let alive = true
     bookingApi.fetchClasses(spanFrom, spanTo).then((classes) => {
-      if (alive) setData({ span, classes })
+      if (!alive) return
+      const initial = jumpToFirstMatch.current
+      if (initial) {
+        jumpToFirstMatch.current = null
+        const first = classes
+          .filter((c) => c.date >= todayKey && dayKeys.has(c.date) && matchesFilters(c, initial))
+          .map((c) => c.date)
+          .sort()[0]
+        if (first) {
+          setSelectedKey(first)
+          pendingScroll.current = { type: "day", key: first, expanded: true }
+        }
+      }
+      setData({ span, classes })
     })
     return () => {
       alive = false
     }
-  }, [span, spanFrom, spanTo])
+  }, [span, spanFrom, spanTo, todayKey, dayKeys])
   useEffect(() => {
     bookingApi.fetchFilterOptions().then(setOptions)
   }, [])
@@ -110,6 +130,8 @@ function BookingScreen() {
   }, [allClasses, filters])
 
   const activeFilterCount = countActiveFilters(filters)
+  // The filter panel has no course group, so a course filter shows as a removable chip under the toolbar.
+  const course = filters.courseId ? getCourse(filters.courseId) : undefined
   // The phone header's 篩選 button (see filter-bridge.ts) shows this count and opens the panel.
   useEffect(() => setActiveFilterCount(activeFilterCount), [activeFilterCount])
   useEffect(() => () => setActiveFilterCount(0), [])
@@ -333,6 +355,19 @@ function BookingScreen() {
           onModeChange={changeMode}
           onToday={goToToday}
         />
+        {course && (
+          <div className="flex px-4 pb-2 lg:px-6">
+            <button
+              type="button"
+              onClick={() => applyFilters({ ...filters, courseId: null })}
+              aria-label={`取消課程篩選：${course.title}`}
+              className="flex h-8 min-w-0 items-center gap-1 rounded-full bg-neutral-100 pr-2 pl-3 text-sm hover:bg-neutral-200"
+            >
+              <span className="truncate">課程：{course.title}</span>
+              <X aria-hidden className="size-4 shrink-0" strokeWidth={1.75} />
+            </button>
+          </div>
+        )}
         <div className="grid h-7 grid-cols-7 px-2 text-center text-xs leading-7 text-muted-foreground">
           {WEEKDAY_LABELS.map((label) => (
             <span key={label}>{label}</span>

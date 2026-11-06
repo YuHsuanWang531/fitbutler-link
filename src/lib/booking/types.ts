@@ -55,6 +55,7 @@ export type GymClass = {
  * Venues, categories and teachers are multi-select: a class matches any of the picked values, and an empty
  * list means 全部. `timeFrom`/`timeTo` (`HH:mm`, half-hour steps, `null` = 不限) bound the class's start time:
  * from is inclusive, to is exclusive; either side can be open.
+ * `courseId` narrows to one course; only a course page's 預約 sets it (the filter panel has no course group).
  */
 export type ClassFilters = {
   venues: string[]
@@ -62,6 +63,14 @@ export type ClassFilters = {
   teacherIds: string[]
   timeFrom: string | null
   timeTo: string | null
+  courseId: string | null
 }
 
-export const NO_FILTERS: ClassFilters = { venues: [], categories: [], teacherIds: [], timeFrom: null, timeTo: null }
+export const NO_FILTERS: ClassFilters = {
+  venues: [],
+  categories: [],
+  teacherIds: [],
+  timeFrom: null,
+  timeTo: null,
+  courseId: null,
+}

@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Image from "next/image"
+import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Clock } from "lucide-react"
 
@@ -54,6 +55,13 @@ export default async function CoursePage({ params }: Props) {
                 {course.durationMin} 分鐘
               </p>
             </div>
+
+            <Link
+              href={`/booking?course=${course.id}`}
+              className="flex h-11 items-center justify-center rounded-full bg-black text-base font-medium text-white hover:bg-neutral-800"
+            >
+              預約
+            </Link>
 
             <section aria-labelledby="course-intro" className="flex flex-col gap-2">
               <h2 id="course-intro" className="text-lg leading-7 font-medium">

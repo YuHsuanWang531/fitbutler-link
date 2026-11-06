@@ -2,40 +2,40 @@ import type { Teacher } from "@/lib/booking/types"
 
 // Mock teachers, shared by the home page's 老師介紹 and the booking mock data. Replace with API data.
 export const teachers: Teacher[] = [
-  { id: "andy", name: "Andy 林安迪", avatar: "/images/coach-andy.jpg", role: "私人教練" },
-  { id: "sandy", name: "Sandy 黃珊迪", avatar: "/images/coach-sandy.jpg", role: "私人教練" },
-  { id: "sophie", name: "Sophie 蘇菲", avatar: "/images/coach-sophie.jpg", role: "私人教練, 團課老師" },
-  { id: "chris", name: "Chris 克里斯", avatar: "/images/coach-chris.jpg", role: "私人教練, 團課老師" },
-  { id: "lin", name: "林佳穎", avatar: "/images/coach-sandy.jpg", role: "私人教練, 團課老師" },
-  { id: "chen", name: "陳柏翰", avatar: "/images/coach-andy.jpg", role: "私人教練" },
+  { id: "andy", name: "Andy 林安迪", avatar: "/images/coach-andy.jpg", role: "私課老師 / 團課老師" },
+  { id: "sandy", name: "Sandy 黃珊迪", avatar: "/images/coach-sandy.jpg", role: "私課老師" },
+  { id: "sophie", name: "Sophie 蘇菲", avatar: "/images/coach-sophie.jpg", role: "團課老師" },
+  { id: "chris", name: "Chris 克里斯", avatar: "/images/coach-chris.jpg", role: "私課老師 / 團課老師" },
+  { id: "lin", name: "林佳穎", avatar: "/images/coach-sandy.jpg", role: "私課老師 / 團課老師" },
+  { id: "chen", name: "陳柏翰", avatar: "/images/coach-andy.jpg", role: "私課老師" },
   { id: "wang", name: "王思涵", avatar: "/images/coach-sophie.jpg", role: "團課老師" },
-  { id: "chang", name: "張育誠", avatar: "/images/coach-chris.jpg", role: "私人教練, 團課老師" },
-  { id: "lee", name: "李欣怡", avatar: "/images/coach-sandy.jpg", role: "私人教練" },
+  { id: "chang", name: "張育誠", avatar: "/images/coach-chris.jpg", role: "私課老師 / 團課老師" },
+  { id: "lee", name: "李欣怡", avatar: "/images/coach-sandy.jpg", role: "私課老師" },
   { id: "huang", name: "黃詩婷", avatar: "/images/coach-sophie.jpg", role: "團課老師" },
-  { id: "wu", name: "吳承恩", avatar: "/images/coach-andy.jpg", role: "私人教練, 團課老師" },
-  { id: "tsai", name: "蔡宜蓁", avatar: "/images/coach-sandy.jpg", role: "私人教練" },
+  { id: "wu", name: "吳承恩", avatar: "/images/coach-andy.jpg", role: "私課老師 / 團課老師" },
+  { id: "tsai", name: "蔡宜蓁", avatar: "/images/coach-sandy.jpg", role: "私課老師" },
   { id: "liu", name: "劉冠廷", avatar: "/images/coach-chris.jpg", role: "團課老師" },
-  { id: "yang", name: "楊雅筑", avatar: "/images/coach-sophie.jpg", role: "私人教練, 團課老師" },
-  { id: "hsu", name: "許家豪", avatar: "/images/coach-andy.jpg", role: "私人教練" },
+  { id: "yang", name: "楊雅筑", avatar: "/images/coach-sophie.jpg", role: "私課老師 / 團課老師" },
+  { id: "hsu", name: "許家豪", avatar: "/images/coach-andy.jpg", role: "私課老師" },
   { id: "cheng", name: "鄭靜宜", avatar: "/images/coach-sandy.jpg", role: "團課老師" },
-  { id: "hsieh", name: "謝明哲", avatar: "/images/coach-chris.jpg", role: "私人教練, 團課老師" },
-  { id: "kuo", name: "郭品妍", avatar: "/images/coach-sophie.jpg", role: "私人教練" },
+  { id: "hsieh", name: "謝明哲", avatar: "/images/coach-chris.jpg", role: "私課老師 / 團課老師" },
+  { id: "kuo", name: "郭品妍", avatar: "/images/coach-sophie.jpg", role: "私課老師" },
   { id: "hung", name: "洪志偉", avatar: "/images/coach-andy.jpg", role: "團課老師" },
-  { id: "tseng", name: "曾郁婷", avatar: "/images/coach-sandy.jpg", role: "私人教練, 團課老師" },
-  { id: "chiu", name: "邱建宏", avatar: "/images/coach-chris.jpg", role: "私人教練" },
+  { id: "tseng", name: "曾郁婷", avatar: "/images/coach-sandy.jpg", role: "私課老師 / 團課老師" },
+  { id: "chiu", name: "邱建宏", avatar: "/images/coach-chris.jpg", role: "私課老師" },
   { id: "liao", name: "廖婉琪", avatar: "/images/coach-sophie.jpg", role: "團課老師" },
-  { id: "lai", name: "賴俊宇", avatar: "/images/coach-andy.jpg", role: "私人教練, 團課老師" },
-  { id: "chou", name: "周雅婷", avatar: "/images/coach-sandy.jpg", role: "私人教練" },
+  { id: "lai", name: "賴俊宇", avatar: "/images/coach-andy.jpg", role: "私課老師 / 團課老師" },
+  { id: "chou", name: "周雅婷", avatar: "/images/coach-sandy.jpg", role: "私課老師" },
 ]
 
 /** Back-office fields for a teacher's page. */
 export type TeacherProfile = {
   /** 教練的一句話. */
   quote: string
-  /** 自我介紹, HTML from the back office's rich-text editor. */
+  /** 教練介紹, HTML from the back office's rich-text editor. */
   introHtml: string
   phone: string
-  /** 相關連結, at most `MAX_TEACHER_LINKS`. */
+  /** Shown as icons: Instagram, Facebook, LINE, YouTube and Threads by their address, anything else as a link icon. At most `MAX_TEACHER_LINKS`. */
   links: { title: string; url: string }[]
   /** At most `MAX_TEACHER_PHOTOS`; the back office suggests 900 × 900. */
   photos: string[]
@@ -46,11 +46,14 @@ export const MAX_TEACHER_PHOTOS = 5
 
 const PROFILES: Record<string, Partial<TeacherProfile>> = {
   andy: {
-    quote: "訓練不是為了變成別人，而是成為更強的自己。",
+    quote: "透過扎實的訓練重新認識自己。",
     introHtml:
-      "<p>大家好，我是 Andy！擁有 8 年私人教練經驗，專長是<strong>增肌減脂</strong>與<strong>運動傷害預防</strong>。</p><p>我相信好的訓練要先把動作做對，再談重量與強度。課程會依你的目標與身體狀況量身安排：</p><ul><li>新手入門：從基礎動作模式開始，建立正確發力</li><li>增肌減脂：搭配飲食建議，穩定看見變化</li><li>體態調整：改善圓肩、骨盆前傾等常見問題</li></ul><p>證照：NSCA-CPT、ACE 私人教練、CPR+AED。</p>",
+      "<p>每個人需要的不是嚴苛的極限訓練，而是一套適合自己、能走得長遠的科學計畫。身為你的教練，不只指導動作，更陪你建立自信與習慣。讓我們一起把訓練融入生活，迎接更好的自己！</p>",
+    phone: "(+886)0900999000",
     links: [
-      { title: "Andy 的 Instagram", url: "https://www.instagram.com/" },
+      { title: "Instagram", url: "https://www.instagram.com/" },
+      { title: "Facebook", url: "https://www.facebook.com/" },
+      { title: "LINE", url: "https://line.me/" },
       { title: "增肌飲食懶人包", url: "https://example.com/andy-nutrition" },
     ],
   },
