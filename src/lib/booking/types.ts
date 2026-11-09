@@ -14,8 +14,9 @@ export type ClassCategory =
 /**
  * `avatar`: image path; without one the card shows the first character of the name.
  * `role`: what they teach, e.g. 「私課老師 / 團課老師」, shown under the name on the home page.
+ * `featured`: ticked as 熱門老師 in the back office; only these show on the home page (all show in the list).
  */
-export type Teacher = { id: string; name: string; avatar?: string; role?: string }
+export type Teacher = { id: string; name: string; avatar?: string; role?: string; featured?: boolean }
 
 /** The signed-in member's relation to a class. */
 export type MyStatus = "none" | "booked" | "waitlisted"

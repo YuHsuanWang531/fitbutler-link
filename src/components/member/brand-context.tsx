@@ -13,6 +13,10 @@ export type Brand = {
   accent: string
   /** Text on a solid accent fill; defaults to whichever of black/white contrasts more. */
   onAccent?: string
+  /** Demo: this gym ticked no 熱門老師, so the home page's 老師介紹 shows its empty state. */
+  noFeaturedTeachers?: boolean
+  /** Demo: this gym featured no courses, so the home page's 課程介紹 shows its empty state. */
+  noFeaturedCourses?: boolean
 }
 
 export const brands: Brand[] = [
@@ -27,6 +31,8 @@ export const brands: Brand[] = [
     name: "SoFit",
     logo: "/images/logo-sofit.png",
     accent: "#ebbe2b",
+    noFeaturedTeachers: true,
+    noFeaturedCourses: true,
   },
   {
     id: "mountain-strong",
@@ -75,7 +81,9 @@ export function BrandProvider({ className, children }: { className?: string; chi
 
   return (
     <BrandContext.Provider value={{ brand, cycleBrand }}>
-      <div className={className} style={
+      <div
+        className={className}
+        style={
           {
             "--brand-accent": brand.accent,
             "--brand-on-accent": onAccent,
@@ -83,7 +91,8 @@ export function BrandProvider({ className, children }: { className?: string; chi
             "--brand-tint": tint,
             "--brand-on-tint": onTint,
           } as CSSProperties
-        }>
+        }
+      >
         {children}
       </div>
     </BrandContext.Provider>

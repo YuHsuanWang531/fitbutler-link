@@ -1,22 +1,43 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
 import { UserRound } from "lucide-react"
 
+import { useBrand } from "@/components/member/brand-context"
+import { EmptyFeatureBanner } from "@/components/member/empty-feature-banner"
 import { SectionHeading } from "@/components/member/section-heading"
 import type { Teacher } from "@/lib/booking/types"
+import { featuredTeachers } from "@/lib/member-teachers"
 
-/** 老師介紹: a sideways-scrolling row of teachers, with 看全部 opening the full list. */
-export function TeacherCarousel({ teachers }: { teachers: Teacher[] }) {
+/**
+ * 老師介紹: a sideways-scrolling row of the 熱門老師, with 看全部 opening the full list.
+ * With none ticked, an `EmptyFeatureBanner` takes the whole section's place.
+ */
+export function TeacherCarousel() {
+  const { brand } = useBrand()
+  const teachers = brand.noFeaturedTeachers ? [] : featuredTeachers
   return (
-    <section className="flex flex-col gap-4">
-      <SectionHeading title="老師介紹" allHref="/teachers" />
-      <ul className="flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 [scrollbar-width:none] lg:scroll-px-6 lg:px-6 [&::-webkit-scrollbar]:hidden">
-        {teachers.map((teacher) => (
-          <li key={teacher.id} className="w-[150px] shrink-0 snap-start">
-            <TeacherTile teacher={teacher} sizes="150px" />
-          </li>
-        ))}
-      </ul>
+    <section aria-label="老師介紹" className="flex flex-col gap-4">
+      {teachers.length > 0 ? (
+        <>
+          <SectionHeading title="老師介紹" allHref="/teachers" />
+          <ul className="flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 [scrollbar-width:none] lg:scroll-px-6 lg:px-6 [&::-webkit-scrollbar]:hidden">
+            {teachers.map((teacher) => (
+              <li key={teacher.id} className="w-[150px] shrink-0 snap-start">
+                <TeacherTile teacher={teacher} sizes="150px" />
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : (
+        <EmptyFeatureBanner
+          href="/teachers"
+          title="找到適合你的老師"
+          description="依專長、課程類型挑選，私課團課老師都在這裡"
+          action="瀏覽老師"
+        />
+      )}
     </section>
   )
 }

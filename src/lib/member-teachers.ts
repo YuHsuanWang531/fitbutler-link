@@ -1,12 +1,12 @@
 import type { Teacher } from "@/lib/booking/types"
 
-// Mock teachers, shared by the home page's 老師介紹 and the booking mock data. Replace with API data.
+// Mock teachers, shared by the 老師介紹 pages and the booking mock data. Replace with API data.
 export const teachers: Teacher[] = [
-  { id: "andy", name: "Andy 林安迪", avatar: "/images/coach-andy.jpg", role: "私課老師 / 團課老師" },
-  { id: "sandy", name: "Sandy 黃珊迪", avatar: "/images/coach-sandy.jpg", role: "私課老師" },
-  { id: "sophie", name: "Sophie 蘇菲", avatar: "/images/coach-sophie.jpg", role: "團課老師" },
-  { id: "chris", name: "Chris 克里斯", avatar: "/images/coach-chris.jpg", role: "私課老師 / 團課老師" },
-  { id: "lin", name: "林佳穎", avatar: "/images/coach-sandy.jpg", role: "私課老師 / 團課老師" },
+  { id: "andy", name: "Andy 林安迪", avatar: "/images/coach-andy.jpg", role: "私課老師 / 團課老師", featured: true },
+  { id: "sandy", name: "Sandy 黃珊迪", avatar: "/images/coach-sandy.jpg", role: "私課老師", featured: true },
+  { id: "sophie", name: "Sophie 蘇菲", avatar: "/images/coach-sophie.jpg", role: "團課老師", featured: true },
+  { id: "chris", name: "Chris 克里斯", avatar: "/images/coach-chris.jpg", role: "私課老師 / 團課老師", featured: true },
+  { id: "lin", name: "林佳穎", avatar: "/images/coach-sandy.jpg", role: "私課老師 / 團課老師", featured: true },
   { id: "chen", name: "陳柏翰", avatar: "/images/coach-andy.jpg", role: "私課老師" },
   { id: "wang", name: "王思涵", avatar: "/images/coach-sophie.jpg", role: "團課老師" },
   { id: "chang", name: "張育誠", avatar: "/images/coach-chris.jpg", role: "私課老師 / 團課老師" },
@@ -88,6 +88,9 @@ const DEFAULT_PHOTOS = [
   "/images/course-functional.jpg",
   "/images/course-core.jpg",
 ]
+
+/** 熱門老師: the ones ticked in the back office, shown on the home page's 老師介紹. */
+export const featuredTeachers = teachers.filter((t) => t.featured)
 
 export function getTeacher(id: string) {
   return teachers.find((t) => t.id === id)
