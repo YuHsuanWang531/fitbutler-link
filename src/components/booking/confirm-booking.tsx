@@ -71,7 +71,7 @@ export function ConfirmBooking({ open, onOpenChange, gymClass, onConfirm }: Conf
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="gap-0 p-0 sm:max-w-md">{body(DialogHeader, DialogTitle, DialogFooter)}</DialogContent>
+        <DialogContent className="gap-0 p-0 sm:max-w-[500px]">{body(DialogHeader, DialogTitle, DialogFooter)}</DialogContent>
       </Dialog>
     )
   }

@@ -33,8 +33,8 @@ export function CourseCarousel() {
         <EmptyFeatureBanner
           href="/courses"
           title="探索多元課程"
-          description="瑜伽、皮拉提斯、重訓，找到你的運動節奏"
-          action="瀏覽課程"
+          description="找到你的運動節奏"
+          action="看全部"
         />
       )}
     </section>

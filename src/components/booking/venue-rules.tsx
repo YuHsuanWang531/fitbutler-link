@@ -91,7 +91,7 @@ export function VenueRules() {
       </button>
       {isDesktop ? (
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent showCloseButton={false} className="flex max-h-[80dvh] flex-col gap-0 p-0 sm:max-w-lg">
+          <DialogContent showCloseButton={false} className="flex max-h-[80dvh] flex-col gap-0 p-0 sm:max-w-[500px]">
             {body(DialogHeader, DialogTitle, DialogClose)}
           </DialogContent>
         </Dialog>

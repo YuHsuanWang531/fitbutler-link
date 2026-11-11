@@ -34,8 +34,8 @@ export function TeacherCarousel() {
         <EmptyFeatureBanner
           href="/teachers"
           title="找到適合你的老師"
-          description="依專長、課程類型挑選，私課團課老師都在這裡"
-          action="瀏覽老師"
+          description="團課私課老師都在這裡"
+          action="看全部"
         />
       )}
     </section>

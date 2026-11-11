@@ -35,7 +35,7 @@ export function FilterPanel({ open, onOpenChange, ...formProps }: FilterPanelPro
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="flex max-h-[85dvh] flex-col gap-0 p-0 sm:max-w-md">
+        <DialogContent className="flex max-h-[85dvh] flex-col gap-0 p-0 sm:max-w-[500px]">
           {form(DialogHeader, DialogTitle, DialogFooter)}
         </DialogContent>
       </Dialog>

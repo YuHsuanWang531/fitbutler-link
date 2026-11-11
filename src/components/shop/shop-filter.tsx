@@ -57,7 +57,7 @@ export function ShopFilter() {
       </button>
       {isDesktop ? (
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent className="flex max-h-[85dvh] flex-col gap-0 p-0 sm:max-w-md">
+          <DialogContent className="flex max-h-[85dvh] flex-col gap-0 p-0 sm:max-w-[500px]">
             {form(DialogHeader, DialogTitle, DialogFooter)}
           </DialogContent>
         </Dialog>
