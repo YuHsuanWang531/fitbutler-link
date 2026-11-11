@@ -1,85 +1,91 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 
 import { cn } from "@/lib/utils"
 import { PlanCard } from "@/components/shop/plan-card"
-import { PLAN_TYPES, planInVenues, plans, SUBTYPE_FILTER_TYPES, type PlanType } from "@/lib/shop-plans"
-import { useShopVenues } from "@/lib/shop-venue"
+import { useShopFilters } from "@/lib/shop-filters"
+import {
+  BUY_TYPES,
+  isOnSale,
+  PLAN_TYPES,
+  planInVenue,
+  plans,
+  sortPlans,
+  type BuyType,
+  type PlanType,
+} from "@/lib/shop-plans"
 
-const TABS: (PlanType | null)[] = [null, ...PLAN_TYPES]
+const TABS: { type: PlanType | null; label: string; href: string }[] = [
+  { type: null, label: "全部", href: "/shop" },
+  ...PLAN_TYPES.map(({ type, slug }) => ({ type, label: type, href: `/shop?type=${slug}` })),
+]
 
 /**
- * 購買: plan-type tabs over the filtered venues' plans (venues come from the header's 篩選). 會籍 / 團體課程 / 私人課程
- * also get a chip row of their 次分類 under the tabs.
+ * 購買列表: 方案類型 tabs (`?type=`), a 購買類型 chip row (not on 全部／儲值金), and plans that are on sale, sold at
+ * the picked 場館 and ordered by the picked 排序 (both from the header's 篩選).
  */
-export function ShopView() {
-  const venues = useShopVenues()
-  const [type, setType] = useState<PlanType | null>(null)
-  const [subtype, setSubtype] = useState<string | null>(null)
-  const inTab = plans.filter((p) => planInVenues(p, venues) && (!type || p.type === type))
-  // 次分類 come from every plan of the tab, so the chips don't shift when the venue filter changes.
-  const subtypes =
-    type && SUBTYPE_FILTER_TYPES.includes(type)
-      ? [...new Set(plans.filter((p) => p.type === type).map((p) => p.subtype))]
-      : []
-  const list = subtype ? inTab.filter((p) => p.subtype === subtype) : inTab
-  const selectTab = (next: PlanType | null) => {
-    setType(next)
-    setSubtype(null)
-  }
+export function ShopView({ type }: { type: PlanType | null }) {
+  const { venue, sort } = useShopFilters()
+  const [buyType, setBuyType] = useState<BuyType | null>(null)
+
+  const inTab = plans.filter((p) => isOnSale(p) && (!type || p.type === type))
+  // A 購買類型 only shows when the tab has plans of it (before the venue filter, so the row doesn't shift).
+  const buyTypes = type && type !== "儲值金" ? BUY_TYPES.filter((t) => inTab.some((p) => p.buyTypes.includes(t))) : []
+  const list = sortPlans(
+    inTab.filter((p) => planInVenue(p, venue) && (!buyType || p.buyTypes.includes(buyType))),
+    sort
+  )
 
   return (
     <div className="[--shop-top:calc(61px+env(safe-area-inset-top))] md:[--shop-top:0px]">
       <div className="sticky top-(--shop-top) z-10 bg-white">
-        <div
-          role="tablist"
+        <nav
           aria-label="方案類型"
-          className={cn(
-            "flex gap-6 overflow-x-auto px-6 [scrollbar-width:none] md:px-7",
-            "border-b border-neutral-200"
-          )}
+          className="flex gap-6 overflow-x-auto border-b border-neutral-200 px-6 [scrollbar-width:none] md:px-7"
         >
-          {TABS.map((t) => {
-            const selected = t === type
+          {TABS.map((tab) => {
+            const selected = tab.type === type
             return (
-              <button
-                key={t ?? "all"}
-                type="button"
-                role="tab"
-                aria-selected={selected}
-                onClick={() => selectTab(t)}
+              <Link
+                key={tab.label}
+                href={tab.href}
+                replace
+                scroll={false}
+                aria-current={selected ? "page" : undefined}
                 className={cn(
-                  "relative h-12 shrink-0 text-base",
+                  "relative flex h-12 shrink-0 items-center text-base",
                   selected ? "font-medium text-black" : "text-neutral-500 hover:text-neutral-800"
                 )}
               >
-                {t ?? "全部方案"}
+                {tab.label}
                 {selected && <span aria-hidden className="absolute inset-x-0 bottom-0 h-0.5 bg-black" />}
-              </button>
+              </Link>
             )
           })}
-        </div>
-        {subtypes.length > 0 && (
+        </nav>
+        {buyTypes.length > 0 && (
           <div
-            role="group"
-            aria-label={`${type}次分類`}
+            role="radiogroup"
+            aria-label="購買類型"
             className="flex gap-2 overflow-x-auto px-4 py-3 [scrollbar-width:none] md:px-7"
           >
-            {[null, ...subtypes].map((s) => {
-              const selected = s === subtype
+            {[null, ...buyTypes].map((t) => {
+              const selected = t === buyType
               return (
                 <button
-                  key={s ?? "all"}
+                  key={t ?? "all"}
                   type="button"
-                  aria-pressed={selected}
-                  onClick={() => setSubtype(s)}
+                  role="radio"
+                  aria-checked={selected}
+                  onClick={() => setBuyType(t)}
                   className={cn(
                     "h-8 shrink-0 rounded-full border px-3.5 text-sm",
                     selected ? "border-black bg-black text-white" : "border-neutral-200 text-black hover:bg-neutral-100"
                   )}
                 >
-                  {s ?? "全部"}
+                  {t ?? "全部"}
                 </button>
               )
             })}
@@ -87,15 +93,15 @@ export function ShopView() {
         )}
       </div>
       {list.length > 0 ? (
-        <ul className={cn("flex flex-col gap-3 px-4 pb-6 md:px-7", subtypes.length > 0 ? "pt-0" : "pt-4")}>
+        <ul className={cn("flex flex-col gap-3 px-4 pb-6 md:px-7", buyTypes.length > 0 ? "pt-0" : "pt-4")}>
           {list.map((plan) => (
             <li key={plan.id}>
-              <PlanCard plan={plan} buyHref={`/shop/${plan.id}`} />
+              <PlanCard plan={plan} href={`/shop/${plan.id}`} />
             </li>
           ))}
         </ul>
       ) : (
-        <p className="px-4 py-16 text-center text-sm text-neutral-500">目前篩選的場館沒有這類方案</p>
+        <p className="px-4 py-16 text-center text-sm text-neutral-500">目前暫無方案</p>
       )}
     </div>
   )

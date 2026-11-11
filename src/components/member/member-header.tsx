@@ -6,7 +6,7 @@ import { BellRing, SlidersHorizontal } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { BrandLogoButton } from "@/components/member/brand-logo-button"
 import { VenueRules } from "@/components/booking/venue-rules"
-import { ShopVenueFilter } from "@/components/shop/shop-venue-filter"
+import { ShopFilter } from "@/components/shop/shop-filter"
 import { requestOpenFilters, useActiveFilterCount } from "@/lib/booking/filter-bridge"
 
 /**
@@ -39,7 +39,7 @@ export function MemberHeader({ className }: { className?: string }) {
             <h1 className="text-2xl leading-8 font-medium md:text-[28px] md:leading-9">{isShop ? "購買" : "預約"}</h1>
             <div className="flex items-center gap-5 text-neutral-950 md:gap-6">
               {isShop ? (
-                <ShopVenueFilter />
+                <ShopFilter />
               ) : (
                 <>
                   <button

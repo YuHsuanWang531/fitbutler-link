@@ -125,7 +125,7 @@ type OptionGroupProps = {
  * Multiple choice with a leading 「全部」 (= nothing picked). Tapping an option toggles it; 全部 clears the
  * group, and picking every option collapses back to 全部.
  */
-export function OptionGroup({ label, options, value, onChange }: OptionGroupProps) {
+function OptionGroup({ label, options, value, onChange }: OptionGroupProps) {
   const all: { value: string | null; label: string; avatar?: string }[] = [{ value: null, label: "全部" }, ...options]
   const toggle = (option: string | null) => {
     if (option === null) return onChange([])

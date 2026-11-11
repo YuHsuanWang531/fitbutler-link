@@ -36,7 +36,7 @@ export default async function NewsArticlePage({ params }: Props) {
             images={article.gallery.map((image, i) => ({ id: `${article.id}-${i}`, ...image }))}
             label="切換至圖片"
             trackClassName="px-4 md:px-[calc((100%-361px)/2)]"
-            slideClassName="aspect-[361/240] md:w-[361px]"
+            slideClassName="aspect-[361/240] max-w-[433px] md:w-[361px]"
             sizes="(max-width: 767px) 100vw, 361px"
             priority
           />
