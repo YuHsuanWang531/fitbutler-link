@@ -2,22 +2,15 @@ import Link from "next/link"
 import { ChevronRight, Gift } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import type { PriceLayout } from "@/lib/shop-card-layout"
 import { planInfoTags, priceHint, priceLabel, type Plan } from "@/lib/shop-plans"
 
 /**
  * 方案資訊卡片 (緊湊列表樣式): the whole card opens the plan page, with › on the right. 購買類型 tags, 方案名稱
- * (2 lines max), 金額 + 輔助說明 and 資訊標籤 (剩餘／限購／加贈). 金額 sits under the title or on the right.
+ * (2 lines max), 金額 + 輔助說明 and 資訊標籤 (剩餘／限購／加贈). 金額 sits on the right, centered on the card.
  */
-export function PlanListCard({ plan, href, layout }: { plan: Plan; href: string; layout: PriceLayout }) {
+export function PlanListCard({ plan, href }: { plan: Plan; href: string }) {
   const hint = priceHint(plan)
   const tags = planInfoTags(plan)
-  const price = (
-    <p className={cn("text-xl leading-7 font-semibold text-black", layout === "right" && "shrink-0")}>
-      {priceLabel(plan)}
-    </p>
-  )
-
   return (
     <Link
       href={href}
@@ -35,7 +28,6 @@ export function PlanListCard({ plan, href, layout }: { plan: Plan; href: string;
         )}
         <div className="flex flex-col gap-1">
           <h2 className="line-clamp-2 text-base leading-6 font-medium text-black">{plan.title}</h2>
-          {layout === "below" && price}
           {hint && <p className="text-sm leading-5 text-muted-foreground">{hint}</p>}
         </div>
         {tags.length > 0 && (
@@ -57,7 +49,7 @@ export function PlanListCard({ plan, href, layout }: { plan: Plan; href: string;
           </ul>
         )}
       </div>
-      {layout === "right" && price}
+      <p className="shrink-0 text-xl leading-7 font-semibold text-black">{priceLabel(plan)}</p>
       <ChevronRight aria-hidden className="size-5 shrink-0 text-neutral-500" strokeWidth={2} />
     </Link>
   )

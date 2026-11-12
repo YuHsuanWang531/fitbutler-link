@@ -5,7 +5,6 @@ import Link from "next/link"
 
 import { cn } from "@/lib/utils"
 import { PlanListCard } from "@/components/shop/plan-list-card"
-import { setPriceLayout, usePriceLayout } from "@/lib/shop-card-layout"
 import { useShopFilters } from "@/lib/shop-filters"
 import {
   BUY_TYPES,
@@ -30,7 +29,6 @@ const TABS: { type: PlanType | null; label: string; href: string }[] = [
 export function ShopView({ type }: { type: PlanType | null }) {
   const { venue, sort } = useShopFilters()
   const [buyType, setBuyType] = useState<BuyType | null>(null)
-  const layout = usePriceLayout()
 
   const inTab = plans.filter((p) => isOnSale(p) && (!type || p.type === type))
   // A 購買類型 only shows when the tab has plans of it (before the venue filter, so the row doesn't shift).
@@ -94,39 +92,11 @@ export function ShopView({ type }: { type: PlanType | null }) {
           </div>
         )}
       </div>
-      {/* TEMP: 價格位置 comparison; remove once one is picked. */}
-      <div
-        className={cn(
-          "flex items-center gap-2 px-4 pb-3 text-xs text-neutral-500 md:px-7",
-          buyTypes.length === 0 && "pt-3"
-        )}
-      >
-        比較價格位置
-        {(
-          [
-            ["below", "標題下方"],
-            ["right", "右側"],
-          ] as const
-        ).map(([key, label]) => (
-          <button
-            key={key}
-            type="button"
-            aria-pressed={layout === key}
-            onClick={() => setPriceLayout(key)}
-            className={cn(
-              "h-7 rounded-full border border-dashed px-3",
-              layout === key ? "border-black text-black" : "border-neutral-300"
-            )}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
       {list.length > 0 ? (
-        <ul className="flex flex-col gap-3 px-4 pb-6 md:px-7">
+        <ul className={cn("flex flex-col gap-3 px-4 pb-6 md:px-7", buyTypes.length > 0 ? "pt-0" : "pt-4")}>
           {list.map((plan) => (
             <li key={plan.id}>
-              <PlanListCard plan={plan} href={`/shop/${plan.id}`} layout={layout} />
+              <PlanListCard plan={plan} href={`/shop/${plan.id}`} />
             </li>
           ))}
         </ul>
