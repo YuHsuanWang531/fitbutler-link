@@ -5,7 +5,7 @@ import Link from "next/link"
 
 import { cn } from "@/lib/utils"
 import { PlanListCard } from "@/components/shop/plan-list-card"
-import { useShopFilters } from "@/lib/shop-filters"
+import { useShopFilters, useShopSort } from "@/lib/shop-filters"
 import {
   BUY_TYPES,
   isOnSale,
@@ -24,10 +24,11 @@ const TABS: { type: PlanType | null; label: string; href: string }[] = [
 
 /**
  * 購買列表: 方案類型 tabs (`?type=`), a 購買類型 chip row (not on 全部／儲值金), and plans that are on sale, sold at
- * the picked 場館 and ordered by the picked 排序 (both from the header's 篩選).
+ * the picked 場館 and ordered by the picked 排序 (場館 and 排序 both come from the header).
  */
 export function ShopView({ type }: { type: PlanType | null }) {
-  const { venue, sort } = useShopFilters()
+  const { venue } = useShopFilters()
+  const sort = useShopSort()
   const [buyType, setBuyType] = useState<BuyType | null>(null)
 
   const inTab = plans.filter((p) => isOnSale(p) && (!type || p.type === type))

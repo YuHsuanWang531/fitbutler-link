@@ -28,7 +28,7 @@ export function PlanListCard({ plan, href }: { plan: Plan; href: string }) {
         )}
         <div className="flex flex-col gap-1">
           <h2 className="line-clamp-2 text-base leading-6 font-medium text-black">{plan.title}</h2>
-          {hint && <p className="text-sm leading-5 text-muted-foreground">{hint}</p>}
+          {hint && <p className="truncate text-sm leading-5 text-muted-foreground">{hint}</p>}
         </div>
         {tags.length > 0 && (
           <ul aria-label="方案資訊" className="mt-3 flex flex-wrap gap-2">

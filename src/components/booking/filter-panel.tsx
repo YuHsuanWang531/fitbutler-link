@@ -16,7 +16,6 @@ type FilterPanelProps = {
   open: boolean
   onOpenChange(open: boolean): void
   applied: ClassFilters
-  venues: string[]
   categories: ClassCategory[]
   teachers: Teacher[]
   /** Classes in the current month (or week), used for the 「顯示 N 堂課」 count. */
@@ -56,17 +55,7 @@ type FilterFormProps = Omit<FilterPanelProps, "open" | "onOpenChange"> & {
   Footer: typeof SheetFooter
 }
 
-function FilterForm({
-  applied,
-  venues,
-  categories,
-  teachers,
-  rangeClasses,
-  onApply,
-  Header,
-  Title,
-  Footer,
-}: FilterFormProps) {
+function FilterForm({ applied, categories, teachers, rangeClasses, onApply, Header, Title, Footer }: FilterFormProps) {
   const [draft, setDraft] = useState(applied)
   const count = rangeClasses.filter((c) => matchesFilters(c, draft)).length
 
@@ -78,12 +67,6 @@ function FilterForm({
       {/* Only the options scroll; the title and the 清除 / 顯示 N 堂課 bar stay put. */}
       <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overscroll-contain px-4 py-2">
         <OptionGroup
-          label="上課場館"
-          options={venues.map((v) => ({ value: v, label: v }))}
-          value={draft.venues}
-          onChange={(venues) => setDraft((d) => ({ ...d, venues }))}
-        />
-        <OptionGroup
           label="課程類別"
           options={categories.map((c) => ({ value: c, label: c }))}
           value={draft.categories}
@@ -94,6 +77,7 @@ function FilterForm({
           options={teachers.map((t) => ({ value: t.id, label: t.name, avatar: t.avatar }))}
           value={draft.teacherIds}
           onChange={(teacherIds) => setDraft((d) => ({ ...d, teacherIds }))}
+          limit={4}
         />
         <TimeRange
           from={draft.timeFrom}
@@ -102,7 +86,7 @@ function FilterForm({
         />
       </div>
       <Footer className="m-0 flex-row gap-2 border-t border-neutral-200 bg-white px-4 pt-3 pb-4">
-        <Button variant="ghost" className="h-10 px-4" onClick={() => setDraft(NO_FILTERS)}>
+        <Button variant="ghost" className="h-10 px-4" onClick={() => setDraft({ ...NO_FILTERS, venues: draft.venues })}>
           清除
         </Button>
         <Button className="h-10 flex-1 rounded-full" disabled={count === 0} onClick={() => onApply(draft)}>
@@ -119,14 +103,17 @@ type OptionGroupProps = {
   options: { value: string; label: string; avatar?: string }[]
   value: string[]
   onChange(value: string[]): void
+  /** Show only this many options besides 全部 (plus any already picked, e.g. from a teacher page). */
+  limit?: number
 }
 
 /**
  * Multiple choice with a leading 「全部」 (= nothing picked). Tapping an option toggles it; 全部 clears the
  * group, and picking every option collapses back to 全部.
  */
-function OptionGroup({ label, options, value, onChange }: OptionGroupProps) {
-  const all: { value: string | null; label: string; avatar?: string }[] = [{ value: null, label: "全部" }, ...options]
+function OptionGroup({ label, options, value, onChange, limit }: OptionGroupProps) {
+  const shown = limit === undefined ? options : options.filter((o, i) => i < limit || value.includes(o.value))
+  const all: { value: string | null; label: string; avatar?: string }[] = [{ value: null, label: "全部" }, ...shown]
   const toggle = (option: string | null) => {
     if (option === null) return onChange([])
     const next = value.includes(option) ? value.filter((v) => v !== option) : [...value, option]

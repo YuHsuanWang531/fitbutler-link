@@ -48,8 +48,8 @@ export type Plan = {
   saleEnd?: string
   /** 開放 APP 線上銷售. */
   online: boolean
-  /** Tie-break for 最新上架. */
-  createdAt: string
+  /** 方案 trade_id; breaks ties between plans that start selling the same day. */
+  tradeId: number
 }
 
 /** 營業據點, sorted by 場館 ID. */
@@ -74,7 +74,7 @@ export const plans: Plan[] = [
     perPersonLimit: 1,
     saleStart: "2026-11-01",
     online: true,
-    createdAt: "2026-10-28T10:00",
+    tradeId: 1001,
   },
   {
     id: "monthly",
@@ -85,7 +85,7 @@ export const plans: Plan[] = [
     gifts: ["教練課體驗 1 堂"],
     saleStart: "2026-10-15",
     online: true,
-    createdAt: "2026-10-10T09:00",
+    tradeId: 1002,
   },
   {
     id: "weekly",
@@ -96,7 +96,7 @@ export const plans: Plan[] = [
     venues: ["市府館", "信義館", "內湖館"],
     saleStart: "2026-11-05",
     online: true,
-    createdAt: "2026-11-01T09:00",
+    tradeId: 1003,
   },
   {
     id: "yearly",
@@ -108,7 +108,7 @@ export const plans: Plan[] = [
     venues: ["市府館", "中山旗艦館", "信義館"],
     saleStart: "2026-09-01",
     online: true,
-    createdAt: "2026-08-20T09:00",
+    tradeId: 1004,
   },
   {
     id: "off-peak",
@@ -120,7 +120,7 @@ export const plans: Plan[] = [
     venues: ["市府館", "大安館", "內湖館"],
     saleStart: "2026-10-01",
     online: true,
-    createdAt: "2026-09-25T09:00",
+    tradeId: 1005,
   },
   {
     // 銷售期間已過: not listed.
@@ -132,7 +132,7 @@ export const plans: Plan[] = [
     saleStart: "2026-06-01",
     saleEnd: "2026-09-30",
     online: true,
-    createdAt: "2026-05-20T09:00",
+    tradeId: 1006,
   },
 
   // ——— 團體課 ———
@@ -145,7 +145,7 @@ export const plans: Plan[] = [
     perPersonLimit: 1,
     saleStart: "2026-10-20",
     online: true,
-    createdAt: "2026-10-18T09:00",
+    tradeId: 1007,
   },
   {
     id: "yoga-10",
@@ -157,7 +157,7 @@ export const plans: Plan[] = [
     stock: { limit: 50, sold: 38 },
     saleStart: "2026-11-08",
     online: true,
-    createdAt: "2026-11-06T09:00",
+    tradeId: 1008,
   },
   {
     id: "pilates-8",
@@ -168,7 +168,7 @@ export const plans: Plan[] = [
     venues: ["中山旗艦館", "大安館"],
     saleStart: "2026-10-01",
     online: true,
-    createdAt: "2026-09-28T09:00",
+    tradeId: 1009,
   },
   {
     id: "group-unlimited",
@@ -180,7 +180,7 @@ export const plans: Plan[] = [
     venues: ["市府館", "信義館", "內湖館"],
     saleStart: "2026-10-01",
     online: true,
-    createdAt: "2026-09-30T09:00",
+    tradeId: 1010,
   },
   {
     // 未開放 APP 線上銷售: not listed.
@@ -191,7 +191,7 @@ export const plans: Plan[] = [
     payment: { kind: "once", total: 8000 },
     saleStart: "2026-10-01",
     online: false,
-    createdAt: "2026-09-30T10:00",
+    tradeId: 1011,
   },
 
   // ——— 私教課 ———
@@ -204,7 +204,7 @@ export const plans: Plan[] = [
     perPersonLimit: 1,
     saleStart: "2026-10-01",
     online: true,
-    createdAt: "2026-09-29T09:00",
+    tradeId: 1012,
   },
   {
     id: "pt-12",
@@ -215,7 +215,7 @@ export const plans: Plan[] = [
     gifts: ["體組成量測 2 次", "伸展放鬆 1 堂"],
     saleStart: "2026-10-25",
     online: true,
-    createdAt: "2026-10-24T09:00",
+    tradeId: 1013,
   },
   {
     id: "pt-duo-8",
@@ -225,7 +225,7 @@ export const plans: Plan[] = [
     payment: { kind: "once", total: 14400 },
     saleStart: "2026-10-25",
     online: true,
-    createdAt: "2026-10-23T09:00",
+    tradeId: 1014,
   },
   {
     // 已售完: not listed.
@@ -237,7 +237,7 @@ export const plans: Plan[] = [
     stock: { limit: 10, sold: 10 },
     saleStart: "2026-11-01",
     online: true,
-    createdAt: "2026-10-30T09:00",
+    tradeId: 1015,
   },
 
   // ——— 數據服務 ———
@@ -249,7 +249,7 @@ export const plans: Plan[] = [
     payment: { kind: "once", total: 600 },
     saleStart: "2026-10-10",
     online: true,
-    createdAt: "2026-10-08T09:00",
+    tradeId: 1016,
   },
   {
     id: "data-monthly",
@@ -259,7 +259,7 @@ export const plans: Plan[] = [
     payment: { kind: "subscription", period: "月", first: 199, each: 199 },
     saleStart: "2026-11-02",
     online: true,
-    createdAt: "2026-11-01T10:00",
+    tradeId: 1017,
   },
 
   // ——— 儲值金 ———
@@ -271,7 +271,7 @@ export const plans: Plan[] = [
     payment: { kind: "once", total: 1000 },
     saleStart: "2026-11-10",
     online: true,
-    createdAt: "2026-11-09T09:00",
+    tradeId: 1018,
   },
   {
     id: "credit-3000",
@@ -282,7 +282,7 @@ export const plans: Plan[] = [
     reward: 300,
     saleStart: "2026-09-01",
     online: true,
-    createdAt: "2026-08-30T09:00",
+    tradeId: 1019,
   },
   {
     id: "credit-10000",
@@ -295,7 +295,7 @@ export const plans: Plan[] = [
     stock: { limit: 100, sold: 64 },
     saleStart: "2026-09-01",
     online: true,
-    createdAt: "2026-08-30T10:00",
+    tradeId: 1020,
   },
 ]
 
@@ -324,12 +324,15 @@ export const SORTS = [
 ] as const
 export type SortKey = (typeof SORTS)[number]["key"]
 
-export function sortPlans(list: Plan[], sort: SortKey) {
+/**
+ * No 排序 picked (and 最新上架) = 開始銷售日期 new to old, then trade_id small to large; price sorts go by the first
+ * payment.
+ */
+export function sortPlans(list: Plan[], sort: SortKey | null) {
   return [...list].sort((a, b) => {
     if (sort === "price-asc") return firstPayment(a) - firstPayment(b)
     if (sort === "price-desc") return firstPayment(b) - firstPayment(a)
-    // 最新上架: later 銷售期間開始日 first, then later 建立時間.
-    return b.saleStart.localeCompare(a.saleStart) || b.createdAt.localeCompare(a.createdAt)
+    return b.saleStart.localeCompare(a.saleStart) || a.tradeId - b.tradeId
   })
 }
 

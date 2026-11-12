@@ -7,7 +7,12 @@ import { cn } from "@/lib/utils"
 import { useCalendarScroll } from "@/hooks/use-calendar-scroll"
 import { useHorizontalSwipe } from "@/hooks/use-horizontal-swipe"
 import { bookingApi } from "@/lib/booking/api"
-import { onOpenFiltersRequest, setActiveFilterCount } from "@/lib/booking/filter-bridge"
+import {
+  onOpenFiltersRequest,
+  onSetVenueRequest,
+  setActiveFilterCount,
+  setBookingVenueState,
+} from "@/lib/booking/filter-bridge"
 import { classStatus, classStart, countActiveFilters, matchesFilters, type ClassAction } from "@/lib/booking/classes"
 import {
   WEEKDAY_LABELS,
@@ -64,6 +69,10 @@ function BookingScreen({ initialFilters }: { initialFilters?: Partial<ClassFilte
   const [anchor, setAnchor] = useState(() => startOfMonth(today))
   const [selectedKey, setSelectedKey] = useState(todayKey)
   const [filters, setFilters] = useState<ClassFilters>(() => ({ ...NO_FILTERS, ...initialFilters }))
+  const filtersRef = useRef(filters)
+  useEffect(() => {
+    filtersRef.current = filters
+  })
   const [filterOpen, setFilterOpen] = useState(false)
   const [overlayOpen, setOverlayOpen] = useState(false)
   const [pendingId, setPendingId] = useState<string | null>(null)
@@ -133,8 +142,13 @@ function BookingScreen({ initialFilters }: { initialFilters?: Partial<ClassFilte
   // The filter panel has no course group, so a course filter shows as a removable chip under the toolbar.
   const course = filters.courseId ? getCourse(filters.courseId) : undefined
   // The phone header's 篩選 button (see filter-bridge.ts) shows this count and opens the panel.
-  useEffect(() => setActiveFilterCount(activeFilterCount), [activeFilterCount])
+  // The 篩選 badge leaves out 場館, which has its own pill.
+  const panelFilterCount = activeFilterCount - Number(filters.venues.length > 0)
+  useEffect(() => setActiveFilterCount(panelFilterCount), [panelFilterCount])
   useEffect(() => () => setActiveFilterCount(0), [])
+  const pickedVenue = filters.venues[0] ?? null
+  useEffect(() => setBookingVenueState(options.venues, pickedVenue), [options.venues, pickedVenue])
+  useEffect(() => () => setBookingVenueState([], null), [])
   useEffect(() => onOpenFiltersRequest(() => setFilterOpen(true)), [])
   const weekIndex = Math.max(
     0,
@@ -288,6 +302,16 @@ function BookingScreen({ initialFilters }: { initialFilters?: Partial<ClassFilte
     setFilters(next)
     setFilterOpen(false)
   }
+  // The header's 場館 pill: single choice, applied like any other filter change.
+  const applyFiltersRef = useRef(applyFilters)
+  useEffect(() => {
+    applyFiltersRef.current = applyFilters
+  })
+  useEffect(
+    () =>
+      onSetVenueRequest((venue) => applyFiltersRef.current({ ...filtersRef.current, venues: venue ? [venue] : [] })),
+    []
+  )
 
   // 預約 asks first: the card opens 確認預約, and only its confirm button books.
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -461,7 +485,6 @@ function BookingScreen({ initialFilters }: { initialFilters?: Partial<ClassFilte
         open={filterOpen}
         onOpenChange={setFilterOpen}
         applied={filters}
-        venues={options.venues}
         categories={options.categories}
         teachers={options.teachers}
         rangeClasses={rangeClasses}
