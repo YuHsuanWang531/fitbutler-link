@@ -1,0 +1,64 @@
+import Link from "next/link"
+import { ChevronRight, Gift } from "lucide-react"
+
+import { cn } from "@/lib/utils"
+import type { PriceLayout } from "@/lib/shop-card-layout"
+import { planInfoTags, priceHint, priceLabel, type Plan } from "@/lib/shop-plans"
+
+/**
+ * 方案資訊卡片 (緊湊列表樣式): the whole card opens the plan page, with › on the right. 購買類型 tags, 方案名稱
+ * (2 lines max), 金額 + 輔助說明 and 資訊標籤 (剩餘／限購／加贈). 金額 sits under the title or on the right.
+ */
+export function PlanListCard({ plan, href, layout }: { plan: Plan; href: string; layout: PriceLayout }) {
+  const hint = priceHint(plan)
+  const tags = planInfoTags(plan)
+  const price = (
+    <p className={cn("text-xl leading-7 font-semibold text-black", layout === "right" && "shrink-0")}>
+      {priceLabel(plan)}
+    </p>
+  )
+
+  return (
+    <Link
+      href={href}
+      className="group flex items-center gap-3 rounded-[10px] border border-neutral-200 p-4 transition-colors hover:border-neutral-300 hover:bg-neutral-50"
+    >
+      <div className="flex min-w-0 flex-1 flex-col">
+        {plan.type !== "儲值金" && plan.buyTypes.length > 0 && (
+          <ul aria-label="購買類型" className="mb-2 flex flex-wrap gap-1.5">
+            {plan.buyTypes.map((t) => (
+              <li key={t} className="rounded bg-neutral-100 px-1.5 py-0.5 text-xs leading-4 text-neutral-700">
+                {t}
+              </li>
+            ))}
+          </ul>
+        )}
+        <div className="flex flex-col gap-1">
+          <h2 className="line-clamp-2 text-base leading-6 font-medium text-black">{plan.title}</h2>
+          {layout === "below" && price}
+          {hint && <p className="text-sm leading-5 text-muted-foreground">{hint}</p>}
+        </div>
+        {tags.length > 0 && (
+          <ul aria-label="方案資訊" className="mt-3 flex flex-wrap gap-2">
+            {tags.map((tag) => (
+              <li
+                key={tag.kind}
+                className={cn(
+                  "flex h-6 items-center gap-1 rounded-full border px-2.5 text-sm",
+                  tag.kind === "stock"
+                    ? "border-[#f3c2ad] bg-[#fdf1ec] text-[#c2410c]"
+                    : "border-neutral-200 bg-white text-neutral-800"
+                )}
+              >
+                {tag.kind === "gift" && <Gift aria-hidden className="size-3.5" strokeWidth={2} />}
+                {tag.label}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      {layout === "right" && price}
+      <ChevronRight aria-hidden className="size-5 shrink-0 text-neutral-500" strokeWidth={2} />
+    </Link>
+  )
+}

@@ -210,7 +210,7 @@ export const plans: Plan[] = [
     id: "pt-12",
     type: "私教課",
     buyTypes: ["堂數制"],
-    title: "一對一教練課 12 堂",
+    title: "一對一教練課 12 堂（含體態評估、飲食建議與每月體組成追蹤報告）",
     payment: { kind: "installment", first: 2800, each: 2800, count: 6 },
     gifts: ["體組成量測 2 次", "伸展放鬆 1 堂"],
     saleStart: "2026-10-25",
@@ -364,4 +364,17 @@ export function scarcityLabel(plan: Plan) {
 export function giftLabel(plan: Plan) {
   if (plan.type === "儲值金") return plan.reward ? `贈送回饋金 ${formatPrice(plan.reward)}` : null
   return plan.gifts?.length ? `再贈${plan.gifts.join("、")}` : null
+}
+
+/** 列表卡片的資訊標籤: 剩餘 (限制銷售數量), 限購 (每人限購數量), 加贈 (count only; 儲值金 shows its 回饋金). */
+export function planInfoTags(plan: Plan) {
+  const tags: { kind: "stock" | "limit" | "gift"; label: string }[] = []
+  if (plan.stock) tags.push({ kind: "stock", label: `剩餘 ${plan.stock.limit - plan.stock.sold} 組` })
+  if (plan.perPersonLimit) tags.push({ kind: "limit", label: `限購 ${plan.perPersonLimit} 組` })
+  if (plan.type === "儲值金") {
+    if (plan.reward) tags.push({ kind: "gift", label: `贈送回饋金 ${formatPrice(plan.reward)}` })
+  } else if (plan.gifts?.length) {
+    tags.push({ kind: "gift", label: `加贈 ${plan.gifts.length} 項` })
+  }
+  return tags
 }
