@@ -5,10 +5,12 @@ import { cn } from "@/lib/utils"
 import { planInfoTags, priceHint, priceLabel, type Plan } from "@/lib/shop-plans"
 
 /**
- * 方案資訊卡片 (緊湊列表樣式): the whole card opens the plan page, with › on the right. 購買類型 tags, 方案名稱
+ * 方案資訊卡片 (緊湊列表樣式): the whole card opens the plan page, with › on the right. 方案類型 (`showType`, the 全部
+ * tab only) and 購買類型 tags, 方案名稱
  * (2 lines max), 金額 + 輔助說明 and 資訊標籤 (剩餘／限購／加贈). 金額 sits on the right, centered on the card.
  */
-export function PlanListCard({ plan, href }: { plan: Plan; href: string }) {
+export function PlanListCard({ plan, href, showType }: { plan: Plan; href: string; showType?: boolean }) {
+  const buyTypes = plan.type === "儲值金" ? [] : plan.buyTypes
   const hint = priceHint(plan)
   const tags = planInfoTags(plan)
   return (
@@ -17,9 +19,15 @@ export function PlanListCard({ plan, href }: { plan: Plan; href: string }) {
       className="group flex items-center gap-3 rounded-[10px] border border-neutral-200 p-4 transition-colors hover:border-neutral-300 hover:bg-neutral-50"
     >
       <div className="flex min-w-0 flex-1 flex-col">
-        {plan.type !== "儲值金" && plan.buyTypes.length > 0 && (
-          <ul aria-label="購買類型" className="mb-2 flex flex-wrap gap-1.5">
-            {plan.buyTypes.map((t) => (
+        {(showType || buyTypes.length > 0) && (
+          <ul aria-label="方案分類" className="mb-2 flex flex-wrap gap-1.5">
+            {showType && (
+              // 方案類型, only under 全部; 儲值金 reads 儲值 here.
+              <li className="rounded bg-black px-1.5 py-0.5 text-xs leading-4 text-white">
+                {plan.type === "儲值金" ? "儲值" : plan.type}
+              </li>
+            )}
+            {buyTypes.map((t) => (
               <li key={t} className="rounded bg-neutral-100 px-1.5 py-0.5 text-xs leading-4 text-neutral-700">
                 {t}
               </li>

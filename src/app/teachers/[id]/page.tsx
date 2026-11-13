@@ -77,7 +77,7 @@ export default async function TeacherPage({ params }: Props) {
             {teachesGroupClasses && (
               <Link
                 href={`/booking?teacher=${teacher.id}`}
-                className="flex h-11 items-center justify-center rounded-full bg-black text-base font-medium text-white hover:bg-neutral-800"
+                className="flex h-11 items-center justify-center rounded-[8px] bg-black text-base font-medium text-white hover:bg-neutral-800"
               >
                 團課內容
               </Link>

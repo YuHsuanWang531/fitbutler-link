@@ -7,7 +7,7 @@ export type OrderQuery = { pay?: string; date?: string; venues?: string }
 export function OrderSummary({ plan, query }: { plan: Plan; query: OrderQuery }) {
   const payment = getPaymentOptions(plan, getPlanDetail(plan)).find((o) => o.id === query.pay)
   return (
-    <dl className="flex flex-col gap-2 rounded-[14px] border border-neutral-200 p-4 text-sm leading-5">
+    <dl className="flex flex-col gap-2 rounded-[10px] border border-neutral-200 p-4 text-sm leading-5">
       <Line label="方案">{plan.title}</Line>
       {query.date && <Line label="會籍啟用日">{query.date.replaceAll("-", "/")}</Line>}
       {query.venues && <Line label="可使用場館">{query.venues.split(",").join("、")}</Line>}

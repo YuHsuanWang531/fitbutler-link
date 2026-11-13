@@ -62,7 +62,7 @@ export function VenuePill({
         type="button"
         onClick={() => setOpen(true)}
         aria-label={`場館：${value ?? "全部場館"}`}
-        className="flex h-8 max-w-[180px] items-center gap-1 rounded-full border border-neutral-200 pr-2.5 pl-3.5 text-sm text-black hover:bg-neutral-100"
+        className="flex h-8 max-w-[180px] items-center gap-1 rounded-[10px] border border-neutral-200 pr-2.5 pl-3.5 text-sm text-black hover:bg-neutral-100"
       >
         <span className="truncate">{value ?? "全部場館"}</span>
         <ChevronDown aria-hidden className="size-4 shrink-0" strokeWidth={2} />
@@ -114,7 +114,7 @@ export function ChipGroup<T extends string | null>({
               aria-checked={selected}
               onClick={() => onChange(option.value)}
               className={cn(
-                "flex h-8 items-center rounded-full border px-3.5 text-sm",
+                "flex h-8 items-center rounded-[10px] border px-3.5 text-sm",
                 selected ? "border-black bg-black text-white" : "border-neutral-200 text-black hover:bg-neutral-100"
               )}
             >

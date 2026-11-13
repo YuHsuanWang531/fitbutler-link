@@ -89,7 +89,7 @@ function FilterForm({ applied, categories, teachers, rangeClasses, onApply, Head
         <Button variant="ghost" className="h-10 px-4" onClick={() => setDraft({ ...NO_FILTERS, venues: draft.venues })}>
           清除
         </Button>
-        <Button className="h-10 flex-1 rounded-full" disabled={count === 0} onClick={() => onApply(draft)}>
+        <Button className="h-10 flex-1 rounded-[8px]" disabled={count === 0} onClick={() => onApply(draft)}>
           顯示 {count} 堂課
         </Button>
       </Footer>
@@ -134,7 +134,7 @@ function OptionGroup({ label, options, value, onChange, limit }: OptionGroupProp
               aria-pressed={selected}
               onClick={() => toggle(option.value)}
               className={cn(
-                "flex h-8 items-center gap-1.5 rounded-full border pr-3.5 text-sm",
+                "flex h-8 items-center gap-1.5 rounded-[10px] border pr-3.5 text-sm",
                 option.avatar ? "pl-1" : "pl-3.5",
                 selected ? "border-black bg-black text-white" : "border-neutral-200 text-black hover:bg-neutral-100"
               )}
@@ -204,7 +204,7 @@ function TimeSelect({ label, value, options, onChange }: TimeSelectProps) {
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value || null)}
         className={cn(
-          "h-10 w-full cursor-pointer appearance-none rounded-full border bg-white pr-9 pl-4 text-sm hover:bg-neutral-100",
+          "h-10 w-full cursor-pointer appearance-none rounded-[10px] border bg-white pr-9 pl-4 text-sm hover:bg-neutral-100",
           value ? "border-black" : "border-neutral-200 text-muted-foreground"
         )}
       >

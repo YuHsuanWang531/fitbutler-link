@@ -109,3 +109,11 @@ export function statusAction(status: ClassStatus): ClassAction | null {
       return null
   }
 }
+
+/** Hours before the start when 取消限制時段 begins: cancelling after that records a 黃牌. */
+export const CANCEL_LIMIT_HOURS = 24
+
+export function inCancelLimit(c: GymClass, now = new Date()) {
+  const start = new Date(`${c.date}T${c.start}:00`)
+  return start.getTime() - now.getTime() <= CANCEL_LIMIT_HOURS * 60 * 60 * 1000
+}

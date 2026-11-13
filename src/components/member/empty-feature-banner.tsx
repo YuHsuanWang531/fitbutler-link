@@ -14,7 +14,7 @@ export function EmptyFeatureBanner({ href, title, description, action }: EmptyFe
           <p className="text-lg leading-7 font-medium text-black">{title}</p>
           <p className="text-sm leading-5 text-neutral-500">{description}</p>
         </div>
-        <span className="flex h-9 shrink-0 items-center rounded-full border border-neutral-200 bg-white px-4 text-sm text-black group-hover:bg-neutral-50">
+        <span className="flex h-9 shrink-0 items-center rounded-[8px] border border-neutral-200 bg-white px-4 text-sm text-black group-hover:bg-neutral-50">
           {action}
         </span>
       </Link>

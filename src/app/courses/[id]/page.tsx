@@ -58,7 +58,7 @@ export default async function CoursePage({ params }: Props) {
 
             <Link
               href={`/booking?course=${course.id}`}
-              className="flex h-11 items-center justify-center rounded-full bg-black text-base font-medium text-white hover:bg-neutral-800"
+              className="flex h-11 items-center justify-center rounded-[8px] bg-black text-base font-medium text-white hover:bg-neutral-800"
             >
               預約
             </Link>

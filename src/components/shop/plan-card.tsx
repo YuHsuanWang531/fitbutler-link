@@ -15,7 +15,7 @@ export function PlanCard({ plan, href }: { plan: Plan; href?: string }) {
   const card = (
     <article
       className={cn(
-        "flex flex-col rounded-[14px] border border-neutral-200 p-4",
+        "flex flex-col rounded-[10px] border border-neutral-200 p-4",
         href && "transition-colors group-hover:border-neutral-300 group-hover:bg-neutral-50"
       )}
     >
@@ -39,7 +39,7 @@ export function PlanCard({ plan, href }: { plan: Plan; href?: string }) {
         {href && (
           <span
             aria-hidden
-            className="flex h-9 shrink-0 items-center self-start rounded-full bg-black px-5 text-sm font-medium text-white group-hover:bg-neutral-800"
+            className="flex h-9 shrink-0 items-center self-start rounded-[8px] bg-black px-5 text-sm font-medium text-white group-hover:bg-neutral-800"
           >
             查看
           </span>
@@ -48,7 +48,7 @@ export function PlanCard({ plan, href }: { plan: Plan; href?: string }) {
     </article>
   )
   return href ? (
-    <Link href={href} className="group block rounded-[14px]">
+    <Link href={href} className="group block rounded-[10px]">
       {card}
     </Link>
   ) : (

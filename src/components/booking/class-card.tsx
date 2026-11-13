@@ -54,7 +54,7 @@ function statusTag(status: ClassStatus, gymClass: GymClass): { label: string; st
   }
 }
 
-const BUTTON = "flex h-9 flex-1 items-center justify-center rounded-full px-3 text-sm font-medium"
+const BUTTON = "flex h-9 flex-1 items-center justify-center rounded-[8px] px-3 text-sm font-medium"
 
 type ClassCardProps = {
   gymClass: GymClass

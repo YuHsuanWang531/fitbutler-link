@@ -49,6 +49,8 @@ export type GymClass = {
   waitlistPosition?: number
   /** Whether the gym filled in the class info (課程資訊); without it the card has no 課程資訊 button. */
   hasInfo: boolean
+  /** 老師叮嚀, shown in 確認預約 when the teacher wrote one. */
+  teacherNote?: string
   myStatus: MyStatus
 }
 

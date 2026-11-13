@@ -36,6 +36,11 @@ const ROOMS: Record<string, string[]> = {
   南港館: ["A 教室", "B 教室"],
 }
 const VENUES = Object.keys(ROOMS)
+const NOTES = [
+  "請穿著方便活動的服裝，自備毛巾與水壺，課前 10 分鐘到教室暖身。",
+  "課程強度較高，有舊傷或身體不適請在上課前先告訴老師。",
+  "教室提供瑜伽墊，有自己的墊子也歡迎帶來。上課前 1 小時避免吃太飽。",
+]
 const SLOTS = ["07:00", "09:00", "10:30", "12:15", "18:30", "19:30", "20:40"]
 
 /** Deterministic PRNG (mulberry32) so each date always produces the same classes. */
@@ -109,6 +114,7 @@ function generateDay(date: string): GymClass[] {
       waitlistEnabled: myStatus === "waitlisted" || rand() < 0.6,
       waitlistPosition: myStatus === "waitlisted" ? 1 + Math.floor(rand() * 5) : undefined,
       hasInfo: rand() < 0.7,
+      teacherNote: rand() < 0.6 ? pick(NOTES) : undefined,
       myStatus,
     }
   })

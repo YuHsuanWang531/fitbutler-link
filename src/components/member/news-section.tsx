@@ -76,7 +76,7 @@ export function NewsSection({ items }: { items: NewsItem[] }) {
                 alt=""
                 width={85}
                 height={85}
-                className="size-[85px] shrink-0 rounded-[8px] object-cover"
+                className="size-[85px] shrink-0 rounded-[10px] object-cover"
               />
             </Link>
           </li>

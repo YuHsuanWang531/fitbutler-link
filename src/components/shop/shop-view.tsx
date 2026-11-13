@@ -82,7 +82,7 @@ export function ShopView({ type }: { type: PlanType | null }) {
                   aria-checked={selected}
                   onClick={() => setBuyType(t)}
                   className={cn(
-                    "h-8 shrink-0 rounded-full border px-3.5 text-sm",
+                    "h-8 shrink-0 rounded-[10px] border px-3.5 text-sm",
                     selected ? "border-black bg-black text-white" : "border-neutral-200 text-black hover:bg-neutral-100"
                   )}
                 >
@@ -97,7 +97,7 @@ export function ShopView({ type }: { type: PlanType | null }) {
         <ul className={cn("flex flex-col gap-3 px-4 pb-6 md:px-7", buyTypes.length > 0 ? "pt-0" : "pt-4")}>
           {list.map((plan) => (
             <li key={plan.id}>
-              <PlanListCard plan={plan} href={`/shop/${plan.id}`} />
+              <PlanListCard plan={plan} href={`/shop/${plan.id}`} showType={!type} />
             </li>
           ))}
         </ul>
