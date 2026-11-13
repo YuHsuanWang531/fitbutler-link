@@ -22,7 +22,7 @@ export default async function ContractPage({ params, searchParams }: Props) {
       <OrderSummary plan={plan} query={query} />
       <Link
         href={`/shop/${id}/payment?${next}`}
-        className="flex h-11 items-center justify-center rounded-[8px] bg-black text-base font-medium text-white hover:bg-neutral-800"
+        className="flex h-11 items-center justify-center rounded-[10px] bg-black text-base font-medium text-white hover:bg-neutral-800"
       >
         同意並前往付款
       </Link>

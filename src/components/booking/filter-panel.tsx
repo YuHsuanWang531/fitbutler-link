@@ -42,7 +42,7 @@ export function FilterPanel({ open, onOpenChange, ...formProps }: FilterPanelPro
   }
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="max-h-[85dvh] gap-0 rounded-t-2xl pb-[env(safe-area-inset-bottom)]">
+      <SheetContent side="bottom" className="max-h-[85dvh] gap-0 rounded-t-[10px] pb-[env(safe-area-inset-bottom)]">
         {form(SheetHeader, SheetTitle, SheetFooter)}
       </SheetContent>
     </Sheet>
@@ -89,7 +89,7 @@ function FilterForm({ applied, categories, teachers, rangeClasses, onApply, Head
         <Button variant="ghost" className="h-10 px-4" onClick={() => setDraft({ ...NO_FILTERS, venues: draft.venues })}>
           清除
         </Button>
-        <Button className="h-10 flex-1 rounded-[8px]" disabled={count === 0} onClick={() => onApply(draft)}>
+        <Button className="h-10 flex-1 rounded-[10px]" disabled={count === 0} onClick={() => onApply(draft)}>
           顯示 {count} 堂課
         </Button>
       </Footer>

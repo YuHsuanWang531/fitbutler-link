@@ -475,7 +475,7 @@ function BookingScreen({ initialFilters }: { initialFilters?: Partial<ClassFilte
         <button
           type="button"
           onClick={showNextRange}
-          className="h-10 rounded-[8px] border border-neutral-300 px-5 text-sm font-medium hover:bg-neutral-100"
+          className="h-10 rounded-[10px] border border-neutral-300 px-5 text-sm font-medium hover:bg-neutral-100"
         >
           {nextLabel}
         </button>

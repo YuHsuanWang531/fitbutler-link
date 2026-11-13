@@ -32,7 +32,7 @@ export function Popup({
     </Dialog>
   ) : (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="max-h-[85dvh] gap-0 rounded-t-2xl pb-[env(safe-area-inset-bottom)]">
+      <SheetContent side="bottom" className="max-h-[85dvh] gap-0 rounded-t-[10px] pb-[env(safe-area-inset-bottom)]">
         <SheetHeader className="px-4 pt-4 pb-2">
           <SheetTitle className="text-base font-medium">{title}</SheetTitle>
         </SheetHeader>

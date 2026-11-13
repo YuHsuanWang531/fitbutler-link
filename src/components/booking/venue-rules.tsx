@@ -100,7 +100,7 @@ export function VenueRules() {
           <SheetContent
             side="bottom"
             showCloseButton={false}
-            className="max-h-[85dvh] gap-0 rounded-t-2xl pb-[env(safe-area-inset-bottom)]"
+            className="max-h-[85dvh] gap-0 rounded-t-[10px] pb-[env(safe-area-inset-bottom)]"
           >
             {body(SheetHeader, SheetTitle, SheetClose)}
           </SheetContent>

@@ -192,7 +192,7 @@ function Form({ saved, fallbackHref }: { saved: InvoiceSetting; fallbackHref: st
         <DialogContent showCloseButton={false} className="gap-4 p-5 sm:max-w-xs">
           <DialogTitle className="text-center text-base font-medium">請輸入正確格式資料</DialogTitle>
           <DialogFooter className="m-0 border-0 bg-white p-0">
-            <Button className="h-10 w-full rounded-[8px]" onClick={() => setFailed(false)}>
+            <Button className="h-10 w-full rounded-[10px]" onClick={() => setFailed(false)}>
               確定
             </Button>
           </DialogFooter>

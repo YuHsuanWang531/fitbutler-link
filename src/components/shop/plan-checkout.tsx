@@ -146,7 +146,7 @@ export function PlanCheckout({ plan, detail }: { plan: Plan; detail: PlanDetail 
             <span className="text-sm leading-7 text-neutral-500">請選擇付款方式</span>
           )}
         </div>
-        <Button className="h-11 w-36 rounded-[8px] text-base" disabled={storedShort} onClick={checkout}>
+        <Button className="h-11 w-36 rounded-[10px] text-base" disabled={storedShort} onClick={checkout}>
           結帳
         </Button>
       </div>
@@ -155,7 +155,7 @@ export function PlanCheckout({ plan, detail }: { plan: Plan; detail: PlanDetail 
         <DialogContent showCloseButton={false} className="gap-4 p-5 sm:max-w-xs">
           <DialogTitle className="text-center text-base font-medium">{alert}</DialogTitle>
           <DialogFooter className="m-0 border-0 bg-white p-0">
-            <Button className="h-10 w-full rounded-[8px]" onClick={() => setAlert(null)}>
+            <Button className="h-10 w-full rounded-[10px]" onClick={() => setAlert(null)}>
               確定
             </Button>
           </DialogFooter>

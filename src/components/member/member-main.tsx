@@ -24,7 +24,7 @@ export function MemberMain({ className, children }: { className?: string; childr
     <main
       ref={ref}
       className={cn(
-        "flex-1 md:mx-auto md:mb-6 md:min-h-0 md:w-[500px] md:overflow-x-hidden md:overflow-y-auto md:overscroll-contain md:rounded-[14px] md:border md:border-neutral-200 lg:mr-auto lg:ml-[max(174px,calc((100%-740px)/2))] lg:w-[740px]",
+        "flex-1 md:mx-auto md:mb-6 md:min-h-0 md:w-[500px] md:overflow-x-hidden md:overflow-y-auto md:overscroll-contain md:rounded-[10px] md:border md:border-neutral-200 lg:mr-auto lg:ml-[max(174px,calc((100%-740px)/2))] lg:w-[740px]",
         className
       )}
     >

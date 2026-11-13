@@ -138,10 +138,10 @@ export function ConfirmBooking({ open, onOpenChange, gymClass, onConfirm }: Conf
           </div>
         </div>
         <Footer className="m-0 flex-col gap-2 border-0 bg-white p-4 sm:flex-col">
-          <Button className="h-10 w-full rounded-[8px]" onClick={confirm}>
+          <Button className="h-10 w-full rounded-[10px]" onClick={confirm}>
             確認預約
           </Button>
-          <Button variant="outline" className="h-10 w-full rounded-[8px]" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" className="h-10 w-full rounded-[10px]" onClick={() => onOpenChange(false)}>
             取消
           </Button>
         </Footer>
@@ -159,7 +159,7 @@ export function ConfirmBooking({ open, onOpenChange, gymClass, onConfirm }: Conf
   }
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="gap-0 rounded-t-2xl pb-[env(safe-area-inset-bottom)]">
+      <SheetContent side="bottom" className="gap-0 rounded-t-[10px] pb-[env(safe-area-inset-bottom)]">
         {body(SheetHeader, SheetTitle, SheetFooter)}
       </SheetContent>
     </Sheet>
