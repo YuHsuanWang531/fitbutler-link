@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 
+import { canGoBackInApp, markBack, markReplace } from "@/components/member/nav-depth"
+
 /** Sub-page header: back arrow + centered title. Sticky bar on mobile; from md up it sits above the content card, in place of the logo. */
 export function MemberPageHeader({
   title,
@@ -17,9 +19,15 @@ export function MemberPageHeader({
   const router = useRouter()
 
   const goBack = () => {
-    // Opened directly (e.g. a shared link) there is no in-app page to go back to.
-    if (window.history.length > 1) router.back()
-    else router.push(fallbackHref)
+    // Came from another page of the app: go back to it. Opened directly (shared link, reload, PWA launch):
+    // there's nothing of ours behind, so go up to the parent page instead.
+    if (canGoBackInApp()) {
+      markBack()
+      router.back()
+    } else {
+      markReplace()
+      router.replace(fallbackHref)
+    }
   }
 
   return (
@@ -30,12 +38,12 @@ export function MemberPageHeader({
           type="button"
           onClick={goBack}
           aria-label="返回"
-          className={action ? "flex w-10 items-center" : "flex size-7 items-center justify-center"}
+          className={action ? "flex w-14 items-center" : "flex size-7 items-center justify-center"}
         >
           <ArrowLeft className="size-6" strokeWidth={1.5} />
         </button>
         <p className="flex-1 truncate text-center text-lg leading-[1.2] font-medium">{title}</p>
-        {action ? <div className="flex w-10 justify-end">{action}</div> : <span aria-hidden className="size-7" />}
+        {action ? <div className="flex w-14 justify-end">{action}</div> : <span aria-hidden className="size-7" />}
       </div>
     </header>
   )

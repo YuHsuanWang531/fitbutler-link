@@ -1,7 +1,6 @@
 "use client"
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react"
-import { X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { useCalendarScroll } from "@/hooks/use-calendar-scroll"
@@ -28,8 +27,7 @@ import {
   startOfWeek,
   toKey,
 } from "@/lib/booking/dates"
-import { getCourse } from "@/lib/booking/courses"
-import { NO_FILTERS, type ClassCategory, type ClassFilters, type GymClass, type Teacher } from "@/lib/booking/types"
+import { NO_FILTERS, type ClassFilters, type GymClass, type Teacher } from "@/lib/booking/types"
 import { BookingToolbar, type BookingMode } from "@/components/booking/booking-toolbar"
 import { CalendarGrid } from "@/components/booking/calendar-grid"
 import { ConfirmBooking } from "@/components/booking/confirm-booking"
@@ -76,9 +74,13 @@ function BookingScreen({ initialFilters }: { initialFilters?: Partial<ClassFilte
   const [filterOpen, setFilterOpen] = useState(false)
   const [overlayOpen, setOverlayOpen] = useState(false)
   const [pendingId, setPendingId] = useState<string | null>(null)
-  const [options, setOptions] = useState<{ venues: string[]; categories: ClassCategory[]; teachers: Teacher[] }>({
+  const [options, setOptions] = useState<{
+    venues: string[]
+    courses: { id: string; title: string }[]
+    teachers: Teacher[]
+  }>({
     venues: [],
-    categories: [],
+    courses: [],
     teachers: [],
   })
   const [data, setData] = useState<{ span: string; classes: GymClass[] }>({ span: "", classes: [] })
@@ -139,8 +141,6 @@ function BookingScreen({ initialFilters }: { initialFilters?: Partial<ClassFilte
   }, [allClasses, filters])
 
   const activeFilterCount = countActiveFilters(filters)
-  // The filter panel has no course group, so a course filter shows as a removable chip under the toolbar.
-  const course = filters.courseId ? getCourse(filters.courseId) : undefined
   // The phone header's 篩選 button (see filter-bridge.ts) shows this count and opens the panel.
   // The 篩選 badge leaves out 場館, which has its own pill.
   const panelFilterCount = activeFilterCount - Number(filters.venues.length > 0)
@@ -379,19 +379,6 @@ function BookingScreen({ initialFilters }: { initialFilters?: Partial<ClassFilte
           onModeChange={changeMode}
           onToday={goToToday}
         />
-        {course && (
-          <div className="flex px-4 pb-2 lg:px-6">
-            <button
-              type="button"
-              onClick={() => applyFilters({ ...filters, courseId: null })}
-              aria-label={`取消課程篩選：${course.title}`}
-              className="flex h-8 min-w-0 items-center gap-1 rounded-full bg-neutral-100 pr-2 pl-3 text-sm hover:bg-neutral-200"
-            >
-              <span className="truncate">課程：{course.title}</span>
-              <X aria-hidden className="size-4 shrink-0" strokeWidth={1.75} />
-            </button>
-          </div>
-        )}
         <div className="grid h-7 grid-cols-7 px-2 text-center text-xs leading-7 text-muted-foreground">
           {WEEKDAY_LABELS.map((label) => (
             <span key={label}>{label}</span>
@@ -485,7 +472,7 @@ function BookingScreen({ initialFilters }: { initialFilters?: Partial<ClassFilte
         open={filterOpen}
         onOpenChange={setFilterOpen}
         applied={filters}
-        categories={options.categories}
+        courses={options.courses}
         teachers={options.teachers}
         rangeClasses={rangeClasses}
         onApply={applyFilters}

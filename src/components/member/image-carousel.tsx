@@ -24,19 +24,14 @@ type ImageCarouselProps = {
 }
 
 /** Endless, swipeable image carousel with dot indicators. */
-export function ImageCarousel({
-  images,
-  label,
-  trackClassName,
-  slideClassName,
-  sizes,
-  priority,
-}: ImageCarouselProps) {
+export function ImageCarousel({ images, label, trackClassName, slideClassName, sizes, priority }: ImageCarouselProps) {
   const clones = images.length > 1 ? Math.min(LOOP_CLONES, images.length) : 0
   const { ref, index, scrollTo, ready } = useSnapCarousel<HTMLDivElement>({ loopClones: clones })
 
   const slides = [
-    ...images.slice(images.length - clones).map((img) => ({ ...img, key: `before-${img.id}`, clone: true, leading: true })),
+    ...images
+      .slice(images.length - clones)
+      .map((img) => ({ ...img, key: `before-${img.id}`, clone: true, leading: true })),
     ...images.map((img) => ({ ...img, key: img.id, clone: false, leading: false })),
     ...images.slice(0, clones).map((img) => ({ ...img, key: `after-${img.id}`, clone: true, leading: false })),
   ]
@@ -72,9 +67,7 @@ export function ImageCarousel({
           </div>
         ))}
       </div>
-      {images.length > 1 && (
-        <CarouselDots count={images.length} active={index} onSelect={scrollTo} label={label} />
-      )}
+      {images.length > 1 && <CarouselDots count={images.length} active={index} onSelect={scrollTo} label={label} />}
     </section>
   )
 }

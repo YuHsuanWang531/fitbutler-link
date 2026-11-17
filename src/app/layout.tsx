@@ -3,6 +3,7 @@ import { Geist, Noto_Sans_TC } from "next/font/google"
 
 import { BrandProvider } from "@/components/member/brand-context"
 import { MemberSideNav } from "@/components/member/member-side-nav"
+import { NavDepthTracker } from "@/components/member/nav-depth"
 import { cn } from "@/lib/utils"
 import "./globals.css"
 
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="zh-TW" className={cn(notoSansTC.variable, geist.variable, "h-full antialiased")}>
       <body className="flex min-h-full flex-col">
         <BrandProvider className="flex min-h-dvh w-full flex-col bg-white font-[family-name:var(--font-geist),var(--font-sans)] text-black md:h-dvh md:overflow-hidden">
+          <NavDepthTracker />
           <MemberSideNav />
           {children}
         </BrandProvider>

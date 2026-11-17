@@ -12,11 +12,16 @@ export type Venue = {
   /** Bold opening paragraph of 場館介紹. */
   lead: string
   description: string[]
+  /** 營業時間, one row per day in display order, e.g. { day: "星期一", time: "8:00~18:00" }. */
+  hours: { day: string; time: string }[]
   phone: string
   email: string
   socials: { platform: SocialPlatform; url: string }[]
   website?: string
 }
+
+const WEEKDAYS = ["星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日"]
+const DEFAULT_HOURS = WEEKDAYS.map((day) => ({ day, time: "8:00~18:00" }))
 
 // Contact details are placeholders (the phone number is the one in the Figma design).
 export const venues: Venue[] = [
@@ -35,6 +40,7 @@ export const venues: Venue[] = [
       "館內設有自由重量區、器械區與有氧區，啞鈴從 2 公斤到 40 公斤一應俱全，深蹲架與史密斯機也不必排隊等候。",
       "團課教室每週安排壺鈴、TRX 與伸展課程，新手也能在教練帶領下安心入門；更衣室備有置物櫃、吹風機與淋浴間，練完直接回辦公室也沒問題。",
     ],
+    hours: DEFAULT_HOURS,
     phone: "(+886)0900999000",
     email: "cityhall@example.com",
     socials: [
@@ -61,6 +67,7 @@ export const venues: Venue[] = [
       "整層空間規劃為重訓區、有氧區、團課教室與 PT 專用區，器材全面採用最新機型，地板也加厚避震，訓練更安心。",
       "營業時間為週一至週五 06:00–23:00，週六、日 08:00–22:00；淋浴間與更衣室提供毛巾租借，空手來也能練。",
     ],
+    hours: DEFAULT_HOURS,
     phone: "(+886)0900999000",
     email: "zhongshan@example.com",
     socials: [],
@@ -80,6 +87,7 @@ export const venues: Venue[] = [
       "更衣間與淋浴設備一應俱全，貼心維持潔淨舒適。無論你是剛踏入健身的新手，或是追求極限的運動愛好者，都能在這裡找到專屬節奏，享受身心被釋放的每一刻。",
       "明亮開放的場館設計結合自然採光與流暢動線，無論是自由重量區、有氧訓練區還是團課教室，都能讓每一次訓練更專注、更自在。更衣間與淋浴設備一應俱全，貼心維持潔淨舒適。無論你是剛踏入健身的新手，或是追求極限的運動愛好者，都能在這裡找到專屬節奏，享受身心被釋放的每一刻。",
     ],
+    hours: DEFAULT_HOURS,
     phone: "(+886)0900999000",
     email: "cityhall@example.com",
     socials: [

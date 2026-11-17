@@ -24,10 +24,7 @@ export function CarouselDots({
           aria-label={`${label} ${i + 1}`}
           aria-current={i === active}
           onClick={() => onSelect(i)}
-          className={cn(
-            "size-1.5 rounded-full transition-colors",
-            i === active ? "bg-black" : inactiveClassName
-          )}
+          className={cn("size-1.5 rounded-full transition-colors", i === active ? "bg-black" : inactiveClassName)}
         />
       ))}
     </div>

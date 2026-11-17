@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { PlanListCard } from "@/components/shop/plan-list-card"
@@ -26,12 +27,14 @@ const TABS: { type: PlanType | null; label: string; href: string }[] = [
  * 購買列表: 方案類型 tabs (`?type=`), a 購買類型 chip row (not on 全部／儲值金), and plans that are on sale, sold at
  * the picked 場館 and ordered by the picked 排序 (場館 and 排序 both come from the header).
  */
-export function ShopView({ type }: { type: PlanType | null }) {
+export function ShopView({ type, teacher }: { type: PlanType | null; teacher: { id: string; name: string } | null }) {
   const { venue } = useShopFilters()
   const sort = useShopSort()
   const [buyType, setBuyType] = useState<BuyType | null>(null)
 
-  const inTab = plans.filter((p) => isOnSale(p) && (!type || p.type === type))
+  const inTab = plans.filter(
+    (p) => isOnSale(p) && (!type || p.type === type) && (!teacher || p.teacherIds?.includes(teacher.id))
+  )
   // A 購買類型 only shows when the tab has plans of it (before the venue filter, so the row doesn't shift).
   const buyTypes = type && type !== "儲值金" ? BUY_TYPES.filter((t) => inTab.some((p) => p.buyTypes.includes(t))) : []
   const list = sortPlans(
@@ -92,9 +95,23 @@ export function ShopView({ type }: { type: PlanType | null }) {
             })}
           </div>
         )}
+        {teacher && (
+          <div className={cn("flex px-4 pb-3 md:px-7", buyTypes.length === 0 && "pt-3")}>
+            <Link
+              href={TABS.find((t) => t.type === type)?.href ?? "/shop"}
+              replace
+              scroll={false}
+              aria-label={`取消老師篩選：${teacher.name}`}
+              className="flex h-8 min-w-0 items-center gap-1 rounded-full bg-neutral-100 pr-2 pl-3 text-sm hover:bg-neutral-200"
+            >
+              <span className="truncate">老師：{teacher.name}</span>
+              <X aria-hidden className="size-4 shrink-0" strokeWidth={1.75} />
+            </Link>
+          </div>
+        )}
       </div>
       {list.length > 0 ? (
-        <ul className={cn("flex flex-col gap-3 px-4 pb-6 md:px-7", buyTypes.length > 0 ? "pt-0" : "pt-4")}>
+        <ul className={cn("flex flex-col gap-3 px-4 pb-6 md:px-7", buyTypes.length > 0 || teacher ? "pt-0" : "pt-4")}>
           {list.map((plan) => (
             <li key={plan.id}>
               <PlanListCard plan={plan} href={`/shop/${plan.id}`} showType={!type} />

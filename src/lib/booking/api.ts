@@ -1,4 +1,4 @@
-import type { GymClass, Teacher, ClassCategory } from "@/lib/booking/types"
+import type { GymClass, Teacher } from "@/lib/booking/types"
 import { mockBookingApi } from "@/lib/booking/mock-api"
 
 /** Everything the booking page needs from the backend. Swap the implementation below for the real API. */
@@ -8,7 +8,7 @@ export interface BookingApi {
   /** One class by id, or `null` if there's no such class. */
   fetchClass(classId: string): Promise<GymClass | null>
   /** Filter options for the booking page. */
-  fetchFilterOptions(): Promise<{ venues: string[]; categories: ClassCategory[]; teachers: Teacher[] }>
+  fetchFilterOptions(): Promise<{ venues: string[]; courses: { id: string; title: string }[]; teachers: Teacher[] }>
   book(classId: string): Promise<GymClass>
   cancelBooking(classId: string): Promise<GymClass>
   joinWaitlist(classId: string): Promise<GymClass>

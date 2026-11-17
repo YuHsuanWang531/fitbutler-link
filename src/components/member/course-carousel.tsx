@@ -30,12 +30,7 @@ export function CourseCarousel() {
           </ul>
         </>
       ) : (
-        <EmptyFeatureBanner
-          href="/courses"
-          title="探索多元課程"
-          description="找到你的運動節奏"
-          action="看全部"
-        />
+        <EmptyFeatureBanner href="/courses" title="探索多元課程" description="找到你的運動節奏" action="看全部" />
       )}
     </section>
   )

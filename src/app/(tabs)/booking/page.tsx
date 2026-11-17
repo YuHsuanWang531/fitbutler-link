@@ -13,7 +13,7 @@ export default async function MemberBookingPage({ searchParams }: Props) {
   const { teacher, course } = await searchParams
   const teacherId = teacher && getTeacher(teacher) ? teacher : undefined
   const courseId = course && getCourse(course) ? course : undefined
-  const initialFilters = { ...(teacherId && { teacherIds: [teacherId] }), ...(courseId && { courseId }) }
+  const initialFilters = { ...(teacherId && { teacherIds: [teacherId] }), ...(courseId && { courseIds: [courseId] }) }
   // Keyed so following a filtered link (or the plain tab) starts the view fresh.
   return <BookingView key={`${teacherId ?? ""}|${courseId ?? ""}`} initialFilters={initialFilters} />
 }

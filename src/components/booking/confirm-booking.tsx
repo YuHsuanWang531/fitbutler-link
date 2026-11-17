@@ -110,7 +110,7 @@ export function ConfirmBooking({ open, onOpenChange, gymClass, onConfirm }: Conf
                   setError(false)
                 }}
                 className={cn(
-                  "h-12 w-full appearance-none rounded-[10px] border bg-white pr-11 pl-4 text-[15px] outline-none focus-visible:border-black",
+                  "h-11 w-full appearance-none rounded-[10px] border bg-white pr-11 pl-4 text-[15px] outline-none focus-visible:border-black",
                   error ? "border-red-600" : membership ? "border-black" : "border-neutral-200",
                   !membership && "text-neutral-500"
                 )}

@@ -66,9 +66,7 @@ export function NewsSection({ items }: { items: NewsItem[] }) {
                 <NewsTag>{item.tag}</NewsTag>
                 <div className="flex flex-col gap-0.5">
                   <h3 className="truncate text-base font-medium leading-6 text-black">{item.title}</h3>
-                  <p className="line-clamp-2 text-sm leading-5 text-muted-foreground">
-                    {item.description}
-                  </p>
+                  <p className="line-clamp-2 text-sm leading-5 text-muted-foreground">{item.description}</p>
                 </div>
               </div>
               <Image

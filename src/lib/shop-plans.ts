@@ -33,6 +33,8 @@ export type Plan = {
   buyTypes: BuyType[]
   title: string
   payment: Payment
+  /** 定期定額 plans that can also be paid in full: the 一次付清 price. */
+  onceTotal?: number
   /** 每人限購數量. */
   perPersonLimit?: number
   /** 限制銷售數量, and how many have sold. */
@@ -41,6 +43,8 @@ export type Plan = {
   gifts?: string[]
   /** 回饋金 (儲值金). */
   reward?: number
+  /** 私教課: the teachers who teach it (老師介紹's 購買私教課 lists a teacher's plans by this). */
+  teacherIds?: string[]
   /** Venues selling this plan; omitted = every venue. */
   venues?: string[]
   /** 銷售期間 (yyyy-mm-dd, inclusive); no end = open-ended. */
@@ -72,6 +76,7 @@ export const plans: Plan[] = [
     title: "單日體驗入場",
     payment: { kind: "once", total: 0 },
     perPersonLimit: 1,
+    venues: ["市府館", "中山旗艦館", "信義館"],
     saleStart: "2026-11-01",
     online: true,
     tradeId: 1001,
@@ -83,6 +88,7 @@ export const plans: Plan[] = [
     title: "月費訂閱制",
     payment: { kind: "subscription", period: "月", first: 1188, each: 888 },
     gifts: ["教練課體驗 1 堂"],
+    venues: ["中山旗艦館", "信義館", "大安館"],
     saleStart: "2026-10-15",
     online: true,
     tradeId: 1002,
@@ -104,6 +110,7 @@ export const plans: Plan[] = [
     buyTypes: ["定期制"],
     title: "年約會籍",
     payment: { kind: "installment", first: 888, each: 888, count: 12 },
+    onceTotal: 9990,
     gifts: ["置物櫃月租", "毛巾租借"],
     venues: ["市府館", "中山旗艦館", "信義館"],
     saleStart: "2026-09-01",
@@ -129,6 +136,7 @@ export const plans: Plan[] = [
     buyTypes: ["定期制"],
     title: "暑期三個月會籍",
     payment: { kind: "once", total: 3600 },
+    venues: ["信義館", "大安館", "內湖館"],
     saleStart: "2026-06-01",
     saleEnd: "2026-09-30",
     online: true,
@@ -143,6 +151,7 @@ export const plans: Plan[] = [
     title: "團課體驗 1 堂",
     payment: { kind: "once", total: 199 },
     perPersonLimit: 1,
+    venues: ["市府館", "大安館", "內湖館"],
     saleStart: "2026-10-20",
     online: true,
     tradeId: 1007,
@@ -155,6 +164,7 @@ export const plans: Plan[] = [
     payment: { kind: "once", total: 4500 },
     perPersonLimit: 2,
     stock: { limit: 50, sold: 38 },
+    venues: ["市府館", "中山旗艦館", "信義館"],
     saleStart: "2026-11-08",
     online: true,
     tradeId: 1008,
@@ -165,7 +175,7 @@ export const plans: Plan[] = [
     buyTypes: ["堂數制"],
     title: "器械皮拉提斯 8 堂",
     payment: { kind: "once", total: 6400 },
-    venues: ["中山旗艦館", "大安館"],
+    venues: ["中山旗艦館", "大安館", "內湖館"],
     saleStart: "2026-10-01",
     online: true,
     tradeId: 1009,
@@ -176,6 +186,7 @@ export const plans: Plan[] = [
     buyTypes: ["定期制"],
     title: "團課暢上 3 個月",
     payment: { kind: "installment", first: 2980, each: 2980, count: 3 },
+    onceTotal: 8500,
     gifts: ["瑜珈墊"],
     venues: ["市府館", "信義館", "內湖館"],
     saleStart: "2026-10-01",
@@ -189,6 +200,7 @@ export const plans: Plan[] = [
     buyTypes: ["堂數制"],
     title: "櫃台限定團課 20 堂",
     payment: { kind: "once", total: 8000 },
+    venues: ["中山旗艦館", "信義館", "大安館"],
     saleStart: "2026-10-01",
     online: false,
     tradeId: 1011,
@@ -198,10 +210,12 @@ export const plans: Plan[] = [
   {
     id: "pt-trial",
     type: "私教課",
+    teacherIds: ["andy", "sandy", "chris", "lin"],
     buyTypes: ["體驗", "堂數制"],
     title: "一對一教練課首堂體驗",
     payment: { kind: "once", total: 999 },
     perPersonLimit: 1,
+    venues: ["信義館", "大安館", "內湖館"],
     saleStart: "2026-10-01",
     online: true,
     tradeId: 1012,
@@ -209,10 +223,13 @@ export const plans: Plan[] = [
   {
     id: "pt-12",
     type: "私教課",
+    teacherIds: ["andy", "chris"],
     buyTypes: ["堂數制"],
     title: "一對一教練課 12 堂（含體態評估、飲食建議與每月體組成追蹤報告）",
     payment: { kind: "installment", first: 2800, each: 2800, count: 6 },
+    onceTotal: 15800,
     gifts: ["體組成量測 2 次", "伸展放鬆 1 堂"],
+    venues: ["市府館", "大安館", "內湖館"],
     saleStart: "2026-10-25",
     online: true,
     tradeId: 1013,
@@ -220,9 +237,11 @@ export const plans: Plan[] = [
   {
     id: "pt-duo-8",
     type: "私教課",
+    teacherIds: ["sandy", "lin"],
     buyTypes: ["堂數制"],
     title: "一對二教練課 8 堂",
     payment: { kind: "once", total: 14400 },
+    venues: ["市府館", "中山旗艦館", "信義館"],
     saleStart: "2026-10-25",
     online: true,
     tradeId: 1014,
@@ -231,10 +250,12 @@ export const plans: Plan[] = [
     // 已售完: not listed.
     id: "pt-flash",
     type: "私教課",
+    teacherIds: ["andy"],
     buyTypes: ["堂數制"],
     title: "雙 11 私教 5 堂快閃",
     payment: { kind: "once", total: 4999 },
     stock: { limit: 10, sold: 10 },
+    venues: ["中山旗艦館", "信義館", "大安館"],
     saleStart: "2026-11-01",
     online: true,
     tradeId: 1015,
@@ -247,6 +268,7 @@ export const plans: Plan[] = [
     buyTypes: ["堂數制"],
     title: "InBody 體組成量測 3 次",
     payment: { kind: "once", total: 600 },
+    venues: ["信義館", "大安館", "內湖館"],
     saleStart: "2026-10-10",
     online: true,
     tradeId: 1016,
@@ -257,6 +279,7 @@ export const plans: Plan[] = [
     buyTypes: ["訂閱制"],
     title: "訓練數據追蹤月訂閱",
     payment: { kind: "subscription", period: "月", first: 199, each: 199 },
+    venues: ["市府館", "大安館", "內湖館"],
     saleStart: "2026-11-02",
     online: true,
     tradeId: 1017,
@@ -310,6 +333,10 @@ export function isOnSale(plan: Plan, today = todayKey()) {
   const inStock = !plan.stock || plan.stock.sold < plan.stock.limit
   return inPeriod && plan.online && inStock
 }
+
+/** 私教課 plans on sale that the teacher teaches; 老師介紹 hides 購買私教課 without any. */
+export const teacherPrivatePlans = (teacherId: string) =>
+  plans.filter((p) => p.type === "私教課" && isOnSale(p) && p.teacherIds?.includes(teacherId))
 
 export const planInVenue = (plan: Plan, venue: string | null) =>
   venue === null || !plan.venues || plan.venues.includes(venue)

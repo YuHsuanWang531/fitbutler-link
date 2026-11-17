@@ -32,11 +32,10 @@ export function matchesFilters(c: GymClass, filters: ClassFilters) {
   // `HH:mm` strings compare correctly as text.
   return (
     (filters.venues.length === 0 || filters.venues.includes(c.venue)) &&
-    (filters.categories.length === 0 || filters.categories.includes(c.category)) &&
+    (filters.courseIds.length === 0 || filters.courseIds.includes(c.courseId)) &&
     (filters.teacherIds.length === 0 || c.teachers.some((t) => filters.teacherIds.includes(t.id))) &&
     (!filters.timeFrom || c.start >= filters.timeFrom) &&
-    (!filters.timeTo || c.start < filters.timeTo) &&
-    (!filters.courseId || c.courseId === filters.courseId)
+    (!filters.timeTo || c.start < filters.timeTo)
   )
 }
 
@@ -44,10 +43,9 @@ export function matchesFilters(c: GymClass, filters: ClassFilters) {
 export function countActiveFilters(filters: ClassFilters) {
   return (
     Number(filters.venues.length > 0) +
-    Number(filters.categories.length > 0) +
+    Number(filters.courseIds.length > 0) +
     Number(filters.teacherIds.length > 0) +
-    Number(filters.timeFrom !== null || filters.timeTo !== null) +
-    Number(filters.courseId !== null)
+    Number(filters.timeFrom !== null || filters.timeTo !== null)
   )
 }
 

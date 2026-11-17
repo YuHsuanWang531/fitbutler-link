@@ -8,6 +8,7 @@ import { ImageCarousel } from "@/components/member/image-carousel"
 import { MemberMain } from "@/components/member/member-main"
 import { MemberPageHeader } from "@/components/member/member-page-header"
 import { getTeacher, getTeacherProfile, teachers } from "@/lib/member-teachers"
+import { teacherPrivatePlans } from "@/lib/shop-plans"
 import type { SocialPlatform } from "@/lib/member-venues"
 import { toTelHref } from "@/lib/phone"
 
@@ -48,10 +49,11 @@ export default async function TeacherPage({ params }: Props) {
   if (!teacher) notFound()
   const profile = getTeacherProfile(teacher)
   const teachesGroupClasses = teacher.role?.includes("團課") ?? false
+  const hasPrivatePlans = teacherPrivatePlans(teacher.id).length > 0
 
   return (
     <>
-      <MemberPageHeader title={teacher.name} />
+      <MemberPageHeader title={teacher.name} fallbackHref="/teachers" />
       <MemberMain className="pb-[env(safe-area-inset-bottom)] md:pb-0">
         <article className="flex flex-col gap-6 py-4 md:pt-3">
           {profile.photos.length > 0 && (
@@ -74,13 +76,25 @@ export default async function TeacherPage({ params }: Props) {
               <h1 className="text-2xl leading-8 font-medium">{teacher.name}</h1>
               {teacher.role && <p className="text-base leading-6 text-muted-foreground">{teacher.role}</p>}
             </div>
-            {teachesGroupClasses && (
-              <Link
-                href={`/booking?teacher=${teacher.id}`}
-                className="flex h-11 items-center justify-center rounded-[10px] bg-black text-base font-medium text-white hover:bg-neutral-800"
-              >
-                團課內容
-              </Link>
+            {(teachesGroupClasses || hasPrivatePlans) && (
+              <div className="flex flex-col gap-2">
+                {teachesGroupClasses && (
+                  <Link
+                    href={`/booking?teacher=${teacher.id}`}
+                    className="flex h-11 items-center justify-center rounded-[10px] bg-black text-sm font-medium text-white hover:bg-neutral-800"
+                  >
+                    團課內容
+                  </Link>
+                )}
+                {hasPrivatePlans && (
+                  <Link
+                    href={`/shop?type=private&teacher=${teacher.id}`}
+                    className="flex h-11 items-center justify-center rounded-[10px] border border-neutral-200 text-sm font-medium text-black hover:bg-neutral-50"
+                  >
+                    購買私教課
+                  </Link>
+                )}
+              </div>
             )}
           </div>
 

@@ -30,7 +30,7 @@ export default async function CoursePage({ params }: Props) {
 
   return (
     <>
-      <MemberPageHeader title="課程資訊" />
+      <MemberPageHeader title="課程資訊" fallbackHref="/courses" />
       <MemberMain className="pb-[env(safe-area-inset-bottom)] md:pb-0">
         <article className="flex flex-col gap-6 py-4 md:pt-3">
           <div className="px-4 lg:px-6">
@@ -58,7 +58,7 @@ export default async function CoursePage({ params }: Props) {
 
             <Link
               href={`/booking?course=${course.id}`}
-              className="flex h-11 items-center justify-center rounded-[10px] bg-black text-base font-medium text-white hover:bg-neutral-800"
+              className="flex h-11 items-center justify-center rounded-[10px] bg-black text-sm font-medium text-white hover:bg-neutral-800"
             >
               預約
             </Link>

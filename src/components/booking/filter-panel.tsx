@@ -10,13 +10,13 @@ import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { matchesFilters, TIME_FILTER_OPTIONS } from "@/lib/booking/classes"
-import { NO_FILTERS, type ClassCategory, type ClassFilters, type GymClass, type Teacher } from "@/lib/booking/types"
+import { NO_FILTERS, type ClassFilters, type GymClass, type Teacher } from "@/lib/booking/types"
 
 type FilterPanelProps = {
   open: boolean
   onOpenChange(open: boolean): void
   applied: ClassFilters
-  categories: ClassCategory[]
+  courses: { id: string; title: string }[]
   teachers: Teacher[]
   /** Classes in the current month (or week), used for the 「顯示 N 堂課」 count. */
   rangeClasses: GymClass[]
@@ -55,7 +55,7 @@ type FilterFormProps = Omit<FilterPanelProps, "open" | "onOpenChange"> & {
   Footer: typeof SheetFooter
 }
 
-function FilterForm({ applied, categories, teachers, rangeClasses, onApply, Header, Title, Footer }: FilterFormProps) {
+function FilterForm({ applied, courses, teachers, rangeClasses, onApply, Header, Title, Footer }: FilterFormProps) {
   const [draft, setDraft] = useState(applied)
   const count = rangeClasses.filter((c) => matchesFilters(c, draft)).length
 
@@ -67,10 +67,11 @@ function FilterForm({ applied, categories, teachers, rangeClasses, onApply, Head
       {/* Only the options scroll; the title and the 清除 / 顯示 N 堂課 bar stay put. */}
       <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overscroll-contain px-4 py-2">
         <OptionGroup
-          label="課程類別"
-          options={categories.map((c) => ({ value: c, label: c }))}
-          value={draft.categories}
-          onChange={(categories) => setDraft((d) => ({ ...d, categories: categories as ClassCategory[] }))}
+          label="課程名稱"
+          options={courses.map((c) => ({ value: c.id, label: c.title }))}
+          value={draft.courseIds}
+          onChange={(courseIds) => setDraft((d) => ({ ...d, courseIds }))}
+          limit={4}
         />
         <OptionGroup
           label="授課老師"
@@ -103,7 +104,7 @@ type OptionGroupProps = {
   options: { value: string; label: string; avatar?: string }[]
   value: string[]
   onChange(value: string[]): void
-  /** Show only this many options besides 全部 (plus any already picked, e.g. from a teacher page). */
+  /** Show exactly this many options besides 全部; picked ones past the cut replace the last of them. */
   limit?: number
 }
 
@@ -112,7 +113,12 @@ type OptionGroupProps = {
  * group, and picking every option collapses back to 全部.
  */
 function OptionGroup({ label, options, value, onChange, limit }: OptionGroupProps) {
-  const shown = limit === undefined ? options : options.filter((o, i) => i < limit || value.includes(o.value))
+  // Exactly `limit` options after 全部: picked ones past the cut take the last slots, so a choice is never hidden.
+  const pickedLater = limit === undefined ? [] : options.filter((o, i) => i >= limit && value.includes(o.value))
+  const shown =
+    limit === undefined
+      ? options
+      : options.filter((o, i) => i < limit - pickedLater.length || pickedLater.includes(o)).slice(0, limit)
   const all: { value: string | null; label: string; avatar?: string }[] = [{ value: null, label: "全部" }, ...shown]
   const toggle = (option: string | null) => {
     if (option === null) return onChange([])
@@ -204,7 +210,7 @@ function TimeSelect({ label, value, options, onChange }: TimeSelectProps) {
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value || null)}
         className={cn(
-          "h-10 w-full cursor-pointer appearance-none rounded-[10px] border bg-white pr-9 pl-4 text-sm hover:bg-neutral-100",
+          "h-11 w-full cursor-pointer appearance-none rounded-[10px] border bg-white pr-9 pl-4 text-sm hover:bg-neutral-100",
           value ? "border-black" : "border-neutral-200 text-muted-foreground"
         )}
       >

@@ -1,46 +1,67 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { CalendarDays, Check, ChevronDown, ChevronRight } from "lucide-react"
+import { CalendarDays, Check, ChevronDown, Lock } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogFooter, DialogTitle } from "@/components/ui/dialog"
 import { PlanCard } from "@/components/shop/plan-card"
 import type { Plan } from "@/lib/shop-plans"
-import { INVOICE_TYPE_LABELS, useInvoiceSetting } from "@/lib/invoice-setting"
+import { getTeacher } from "@/lib/member-teachers"
+import { useLoggedIn } from "@/lib/auth"
+import { clearPlanDraft, getPlanDraft, savePlanDraft } from "@/lib/plan-draft"
+import { InvoiceFields, useInvoiceForm } from "@/components/shop/invoice-form"
+import { CreditCardField } from "@/components/shop/credit-card-field"
+import { dropUnsavedCards } from "@/lib/credit-cards"
+import { saveInvoiceSetting, useInvoiceSetting } from "@/lib/invoice-setting"
 import {
   formatMoney,
   getPaymentOptions,
   isStoredShort,
-  MOCK_MEMBER,
   paymentTotal,
   type Activation,
   type PaymentOption,
   type PlanDetail,
 } from "@/lib/shop-plan-detail"
 
-const VENUES_COLLAPSED = 3
-
 /**
- * 方案內容 (spec 6.2): A｜一般方案 shows 方案內容 / 會籍啟用日 / 可使用場館; B｜儲值方案 shows 儲值內容.
- * Both: 付款方式 (live 明細 and total), 發票開立方式, and 結帳, which runs the checkout checks in order:
- * 登入 → 啟用日 → 付款方式 → (儲值金不足 disables the button) → 合約 or 付款頁.
+ * 方案內容: A｜一般方案 shows 方案資訊 / 購買內容 / 可使用場館 / 開始使用日; B｜儲值方案 keeps the plan card and 儲值內容.
+ * Both: 付款方式 (live 明細 and total), 發票開立方式 (inline radio cards), and 結帳, which checks in order:
+ * Signed out: only 方案資訊 and 購買內容, with 登入購買 in the bar. Signed in, 結帳 checks: 授課老師 (私教課) → 啟用日 → 付款方式 → 信用卡 (一次付清／定期定額) → 發票資料 → 合約已簽署 → (儲值金不足 disables the button) → 付款頁; the 發票 setting is saved for next time.
  */
 export function PlanCheckout({ plan, detail }: { plan: Plan; detail: PlanDetail }) {
   const router = useRouter()
+  const loggedIn = useLoggedIn()
   const options = getPaymentOptions(plan, detail)
   const general = detail.kind === "general" ? detail : null
 
-  const [paymentId, setPaymentId] = useState<string | null>(null)
-  const [date, setDate] = useState<string | null>(() => initialDate(general?.activation))
-  const [venues, setVenues] = useState<string[]>(() =>
-    general?.venueRule.selectable ? general.venues.slice(0, 1) : (general?.venues ?? [])
-  )
+  // Back from signing the 合約, the page picks up where the member left off.
+  const [draft] = useState(() => getPlanDraft(plan.id))
+  const [paymentId, setPaymentId] = useState<string | null>(draft?.paymentId ?? null)
+  const [date, setDate] = useState<string | null>(() => draft?.date ?? initialDate(general?.activation))
+  const [venues, setVenues] = useState<string[]>(() => draft?.venues ?? general?.venues.slice(0, 1) ?? [])
+  // 授課老師: only 私教課 plans ask for one, from the teachers who teach the plan.
+  const teachers = plan.type === "私教課" ? (plan.teacherIds ?? []).flatMap((id) => getTeacher(id) ?? []) : []
+  const [teacherId, setTeacherId] = useState(draft?.teacherId ?? "")
+  const signed = draft?.signed ?? false
+  const [cardId, setCardId] = useState<string | null>(draft?.cardId ?? null)
   const [alert, setAlert] = useState<string | null>(null)
-  const invoice = useInvoiceSetting()
+  const invoice = useInvoiceForm(useInvoiceSetting(), draft?.invoice)
+  const { type: invoiceType, fields: invoiceFields } = invoice
+  useEffect(() => {
+    savePlanDraft(plan.id, {
+      paymentId,
+      date,
+      venues,
+      teacherId,
+      cardId,
+      invoice: { type: invoiceType, fields: invoiceFields },
+      signed,
+    })
+  }, [plan.id, paymentId, date, venues, teacherId, cardId, invoiceType, invoiceFields, signed])
 
   const payment = options.find((o) => o.id === paymentId) ?? null
   const total = payment ? paymentTotal(payment) : null
@@ -48,107 +69,208 @@ export function PlanCheckout({ plan, detail }: { plan: Plan; detail: PlanDetail 
 
   const checkout = () => {
     const here = `/shop/${plan.id}`
-    if (!MOCK_MEMBER.loggedIn) return router.push(`/login?next=${encodeURIComponent(here)}`)
-    if (general?.activation.kind === "member" && !date) return setAlert("請選擇會籍啟用日")
+    if (teachers.length > 0 && !teacherId) return setAlert("請選擇授課老師")
+    if (general?.activation.kind === "member" && !date) return setAlert("請選擇開始使用日")
     if (!payment) return setAlert("請選擇付款方式")
+    if (payment.method === "card" && !cardId) return setAlert("請選擇信用卡")
+    const invoiceSetting = invoice.validate()
+    if (invoiceSetting === "none") return setAlert("請選擇發票開立方式")
+    if (!invoiceSetting) return setAlert("請輸入正確的發票資料")
+    if (general?.contract && !signed) return setAlert("請先簽署合約")
     if (storedShort) return
+    saveInvoiceSetting(invoiceSetting)
     const query = new URLSearchParams({ pay: payment.id })
     if (date) query.set("date", date)
-    if (general?.venueRule.selectable) query.set("venues", venues.join(","))
-    router.push(`${here}/${general?.contract ? "contract" : "payment"}?${query}`)
+    if (general) query.set("venues", venues.join(","))
+    if (teacherId) query.set("teacher", teacherId)
+    clearPlanDraft(plan.id)
+    dropUnsavedCards()
+    router.push(`${here}/payment?${query}`)
   }
 
   return (
     // Fills the screen (or the md+ card) so the checkout bar sits at the bottom even when the content is short.
     <div className="flex min-h-[calc(100dvh-61px-env(safe-area-inset-top))] flex-col md:min-h-full">
-      <div className="flex flex-1 flex-col divide-y divide-neutral-200 px-4 lg:px-6 *:py-6 *:first:pt-4">
-        <div>
-          <PlanCard plan={plan} />
-        </div>
-
+      <div className="flex flex-1 flex-col gap-6 px-4 pt-4 pb-8 lg:px-6">
         {general ? (
           <>
-            <Section title="方案內容">
-              <dl className="flex flex-col gap-3 text-[15px] leading-6">
-                <Row label="會籍名稱">{plan.title}</Row>
-                <Row label="使用時間">{general.usage}</Row>
-                {general.benefits.length > 0 && (
-                  <Row label="權益">
-                    <ul className="flex list-disc flex-col gap-0.5 pl-4 marker:text-neutral-400">
-                      {general.benefits.map((b) => (
-                        <li key={b}>{b}</li>
-                      ))}
-                    </ul>
-                  </Row>
+            {/* 方案資訊 as plain text: name and 方案說明. */}
+            <section aria-label="方案資訊" className="flex flex-col gap-2">
+              <div className="flex flex-col gap-1">
+                <h2 className="text-lg leading-7 font-medium">{plan.title}</h2>
+                {general.description && <p className="text-base leading-6 text-neutral-600">{general.description}</p>}
+              </div>
+            </section>
+
+            {general.content.length > 0 && (
+              <Field label="購買內容" id="plan-content" group required={false}>
+                <ul className="flex flex-col gap-2">
+                  {general.content.map((item) => (
+                    <li
+                      key={item.name}
+                      className="flex min-h-11 items-center justify-between gap-3 rounded-[10px] border border-neutral-200 px-4 py-2.5 text-[15px]"
+                    >
+                      <span className="min-w-0">{item.name}</span>
+                      <span className="shrink-0 text-sm text-neutral-500">{item.usage}</span>
+                    </li>
+                  ))}
+                </ul>
+              </Field>
+            )}
+
+            {loggedIn && (
+              <div className="flex flex-col gap-6">
+                <Field label="可使用場館" id="plan-venues" group>
+                  <VenuePicker options={general.venues} value={venues} onChange={setVenues} />
+                </Field>
+
+                {teachers.length > 0 && (
+                  <Field label="授課老師" id="plan-teacher">
+                    <div className="relative">
+                      <select
+                        id="plan-teacher"
+                        required
+                        value={teacherId}
+                        onChange={(e) => setTeacherId(e.target.value)}
+                        className={cn(
+                          "h-11 w-full appearance-none rounded-[10px] border border-neutral-200 bg-white pr-11 pl-4 text-[15px] outline-none focus-visible:border-black",
+                          !teacherId && "text-neutral-500"
+                        )}
+                      >
+                        <option value="" disabled>
+                          請選擇授課老師
+                        </option>
+                        {teachers.map((t) => (
+                          <option key={t.id} value={t.id} className="text-black">
+                            {t.name}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown
+                        aria-hidden
+                        className="pointer-events-none absolute top-1/2 right-4 size-5 -translate-y-1/2 text-neutral-500"
+                        strokeWidth={1.5}
+                      />
+                    </div>
+                  </Field>
                 )}
-              </dl>
-            </Section>
 
-            <Section title="會籍啟用日">
-              <ActivationField activation={general.activation} value={date} onChange={setDate} />
-            </Section>
+                <Field label="開始使用日" id="plan-date" required={general.activation.kind === "member"}>
+                  <ActivationField activation={general.activation} value={date} onChange={setDate} />
+                </Field>
 
-            <Section title="可使用場館">
-              {general.venueRule.selectable ? (
-                <VenuePicker options={general.venues} max={general.venueRule.max} value={venues} onChange={setVenues} />
-              ) : (
-                <VenueList venues={general.venues} />
-              )}
-            </Section>
+                {general.contract && (
+                  <Field label="合約簽署" id="plan-contract" group>
+                    {signed ? (
+                      <div className="flex h-11 items-center justify-between rounded-[10px] border border-neutral-200 px-4 text-[15px]">
+                        <span className="flex items-center gap-2">
+                          <Check aria-hidden className="size-4" strokeWidth={2} />
+                          已簽署合約
+                        </span>
+                        <Link
+                          href={`/shop/${plan.id}/contract`}
+                          className="text-sm text-neutral-500 underline underline-offset-[3px]"
+                        >
+                          查看
+                        </Link>
+                      </div>
+                    ) : (
+                      <Link
+                        href={`/shop/${plan.id}/contract`}
+                        className="flex h-11 items-center justify-center rounded-[10px] border border-neutral-200 text-sm font-medium text-black hover:bg-neutral-50"
+                      >
+                        簽署合約
+                      </Link>
+                    )}
+                  </Field>
+                )}
+              </div>
+            )}
           </>
         ) : (
           detail.kind === "stored" && (
-            <Section title="方案內容">
-              <dl className="flex flex-col gap-3 text-[15px] leading-6">
-                <Row label="方案名稱">{plan.title}</Row>
-                {detail.items.map((item) => (
-                  <Row key={item.label} label={item.label}>
-                    {formatMoney(item.amount)}
-                  </Row>
-                ))}
-                {detail.validity && <Row label="使用期限">{detail.validity}</Row>}
-              </dl>
-            </Section>
+            <>
+              <div>
+                <PlanCard plan={plan} />
+              </div>
+              <Section title="方案內容">
+                <dl className="flex flex-col gap-3 text-[15px] leading-6">
+                  <Row label="方案名稱">{plan.title}</Row>
+                  {detail.items.map((item) => (
+                    <Row key={item.label} label={item.label}>
+                      {formatMoney(item.amount)}
+                    </Row>
+                  ))}
+                  {detail.validity && <Row label="使用期限">{detail.validity}</Row>}
+                </dl>
+              </Section>
+            </>
           )
         )}
 
-        <Section title="付款方式">
-          <div role="radiogroup" aria-label="付款方式" className="flex flex-col gap-2">
-            {options.map((option) => (
-              <PaymentRow
-                key={option.id}
-                option={option}
-                selected={option.id === paymentId}
-                onSelect={() => setPaymentId(option.id)}
-              />
-            ))}
-          </div>
-        </Section>
+        {!loggedIn && (
+          <p className="flex items-start gap-2 text-sm leading-5 text-neutral-500">
+            <Lock aria-hidden className="mt-0.5 size-4 shrink-0" strokeWidth={1.5} />
+            登入會員後，即可選擇場館、付款方式並完成購買
+          </p>
+        )}
 
-        <Section title="發票開立方式">
-          <Link
-            href={`/invoice?next=${encodeURIComponent(`/shop/${plan.id}`)}`}
-            className="flex h-12 items-center justify-between rounded-[10px] border border-neutral-200 px-4 text-[15px] hover:bg-neutral-50"
-          >
-            {INVOICE_TYPE_LABELS[invoice.type]}
-            <ChevronRight aria-hidden className="size-5 text-neutral-400" strokeWidth={1.5} />
-          </Link>
-        </Section>
+        {loggedIn && (
+          <>
+            <Field label="付款方式" id="plan-payment" group>
+              <div role="radiogroup" aria-labelledby="plan-payment-label" className="flex flex-col gap-2">
+                {options.map((option) => (
+                  <PaymentRow
+                    key={option.id}
+                    option={option}
+                    selected={option.id === paymentId}
+                    onSelect={() => setPaymentId(option.id)}
+                  />
+                ))}
+              </div>
+            </Field>
+
+            {/* 一次付清 and 定期定額 are charged to a card; 儲值金 isn't. */}
+            {payment?.method === "card" && (
+              <Field label="信用卡資訊" id="plan-card" group>
+                <CreditCardField value={cardId} onChange={setCardId} />
+              </Field>
+            )}
+
+            <Field label="發票開立方式" id="plan-invoice" group>
+              <InvoiceFields form={invoice} />
+            </Field>
+          </>
+        )}
       </div>
 
       {/* Checkout bar: pinned to the bottom of the window (phones) or of the card (md+). */}
       <div className="sticky bottom-0 z-10 flex items-center gap-4 border-t border-neutral-200 bg-white px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))] md:pb-3 lg:px-6">
-        <div className="flex min-w-0 flex-1 flex-col">
-          <span className="text-xs leading-4 text-neutral-500">總計</span>
-          {total !== null ? (
-            <span className="text-xl leading-7 font-semibold">{formatMoney(total)}</span>
-          ) : (
-            <span className="text-sm leading-7 text-neutral-500">請選擇付款方式</span>
-          )}
-        </div>
-        <Button className="h-11 w-36 rounded-[10px] text-base" disabled={storedShort} onClick={checkout}>
-          結帳
-        </Button>
+        {loggedIn ? (
+          <>
+            <div className="flex min-w-0 flex-1 flex-col">
+              <span className="text-xs leading-4 text-neutral-500">總計</span>
+              {total !== null ? (
+                <span className="text-xl leading-7 font-semibold">{formatMoney(total)}</span>
+              ) : (
+                <span className="text-sm leading-7 text-neutral-500">請選擇付款方式</span>
+              )}
+            </div>
+            <Button className="h-11 w-36 rounded-[10px] text-sm" disabled={storedShort} onClick={checkout}>
+              結帳
+            </Button>
+          </>
+        ) : (
+          <>
+            <span className="min-w-0 flex-1 text-sm leading-5 text-neutral-500">登入後即可購買</span>
+            <Link
+              href={`/login?next=${encodeURIComponent(`/shop/${plan.id}`)}`}
+              className="flex h-11 w-36 items-center justify-center rounded-[10px] bg-black text-sm font-medium text-white hover:bg-neutral-800"
+            >
+              登入購買
+            </Link>
+          </>
+        )}
       </div>
 
       <Dialog open={alert !== null} onOpenChange={(open) => !open && setAlert(null)}>
@@ -161,6 +283,39 @@ export function PlanCheckout({ plan, detail }: { plan: Plan; detail: PlanDetail 
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+  )
+}
+
+/**
+ * A form field inside 方案內容: small label with a red * when required, then the control. `group` labels a set of
+ * chips (aria-labelledby on the label) instead of a single input (htmlFor).
+ */
+function Field({
+  label,
+  id,
+  group,
+  required = true,
+  children,
+}: {
+  label: string
+  id: string
+  group?: boolean
+  required?: boolean
+  children: React.ReactNode
+}) {
+  const Label = group ? "p" : "label"
+  return (
+    <div className="flex flex-col gap-2" {...(group && { role: "group", "aria-labelledby": `${id}-label` })}>
+      <Label id={`${id}-label`} {...(!group && { htmlFor: id })} className="text-sm font-medium">
+        {label}
+        {required && (
+          <span className="ml-0.5 text-red-600" aria-hidden>
+            *
+          </span>
+        )}
+      </Label>
+      {children}
     </div>
   )
 }
@@ -183,7 +338,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   )
 }
 
-// ——— 會籍啟用日 ———
+// ——— 開始使用日 ———
 
 const pad = (n: number) => String(n).padStart(2, "0")
 /** yyyy-mm-dd (the date input's value). */
@@ -222,127 +377,69 @@ function ActivationField({
   const min = isoDate(today)
   const max = isoDate(addDays(today, activation.days))
   return (
-    <div className="flex flex-col gap-1.5">
-      <label
-        className={cn(
-          "relative flex h-12 items-center justify-between rounded-[10px] border px-4 text-[15px]",
-          value ? "border-black" : "border-neutral-200 text-neutral-500"
-        )}
-      >
-        {value ? slashed(value) : "請選擇日期"}
-        <CalendarDays aria-hidden className="size-5 text-neutral-500" strokeWidth={1.5} />
-        {/* The native picker, stretched invisibly over the field so tapping anywhere opens it. */}
-        <input
-          type="date"
-          required
-          aria-label="會籍啟用日"
-          min={min}
-          max={max}
-          value={value ?? ""}
-          onChange={(e) => e.target.value && onChange(e.target.value)}
-          onClick={(e) => {
-            try {
-              e.currentTarget.showPicker()
-            } catch {}
-          }}
-          className="absolute inset-0 cursor-pointer opacity-0"
-        />
-      </label>
-      <p className="text-sm leading-5 text-neutral-500">
-        可選 {slashed(min)}–{slashed(max)}
-      </p>
-    </div>
+    <label
+      className={cn(
+        "relative flex h-11 items-center justify-between rounded-[10px] border border-neutral-200 px-4 text-[15px]",
+        !value && "text-neutral-500"
+      )}
+    >
+      {value ? slashed(value) : "請選擇日期"}
+      <CalendarDays aria-hidden className="size-5 text-neutral-500" strokeWidth={1.5} />
+      {/* The native picker, stretched invisibly over the field so tapping anywhere opens it. */}
+      <input
+        id="plan-date"
+        type="date"
+        required
+        min={min}
+        max={max}
+        value={value ?? ""}
+        onChange={(e) => e.target.value && onChange(e.target.value)}
+        onClick={(e) => {
+          try {
+            e.currentTarget.showPicker()
+          } catch {}
+        }}
+        className="absolute inset-0 cursor-pointer opacity-0"
+      />
+    </label>
   )
 }
 
 // ——— 可使用場館 ———
 
-/** Not selectable: the first three, the rest behind a V toggle. */
-function VenueList({ venues }: { venues: string[] }) {
-  const [expanded, setExpanded] = useState(false)
-  const shown = expanded ? venues : venues.slice(0, VENUES_COLLAPSED)
-  const hidden = venues.length - VENUES_COLLAPSED
-  return (
-    <div className="flex flex-col">
-      <ul className="flex flex-col text-[15px] leading-6">
-        {shown.map((v) => (
-          <li key={v} className="border-b border-neutral-100 py-2.5 last:border-0">
-            {v}
-          </li>
-        ))}
-      </ul>
-      {hidden > 0 && (
-        <button
-          type="button"
-          aria-expanded={expanded}
-          onClick={() => setExpanded((e) => !e)}
-          className="flex h-10 items-center justify-center gap-1 text-sm text-neutral-600"
-        >
-          {expanded ? "收合" : `展開其餘 ${hidden} 間`}
-          <ChevronDown aria-hidden className={cn("size-4 transition-transform", expanded && "rotate-180")} />
-        </button>
-      )}
-    </div>
-  )
-}
-
-/** Selectable: pick 1 to `max`; the last one can't be unpicked, and the rest lock once `max` is reached. */
+/** Pick any number of venues; the last one can't be unpicked. */
 function VenuePicker({
   options,
-  max,
   value,
   onChange,
 }: {
   options: string[]
-  max: number
   value: string[]
   onChange(value: string[]): void
 }) {
-  const full = value.length >= max
   const toggle = (v: string) => {
-    if (value.includes(v)) {
-      if (value.length > 1) onChange(value.filter((x) => x !== v))
-    } else if (max === 1) onChange([v])
-    else if (!full) onChange([...value, v])
+    if (!value.includes(v)) onChange([...value, v])
+    else if (value.length > 1) onChange(value.filter((x) => x !== v))
   }
   return (
-    <div className="flex flex-col gap-1">
-      <p className="text-sm leading-5 text-neutral-500">
-        {max === 1 ? "請選擇 1 間場館" : `可選 1–${max} 間，已選 ${value.length} 間`}
-      </p>
-      <ul className="flex flex-col">
-        {options.map((v) => {
-          const selected = value.includes(v)
-          // max 1 behaves like a radio: picking another one swaps.
-          const locked = !selected && full && max > 1
-          return (
-            <li key={v} className="border-b border-neutral-100 last:border-0">
-              <button
-                type="button"
-                role="checkbox"
-                aria-checked={selected}
-                aria-disabled={locked || (selected && value.length === 1)}
-                onClick={() => toggle(v)}
-                className={cn(
-                  "flex h-12 w-full items-center gap-3 text-left text-[15px]",
-                  locked && "cursor-not-allowed text-neutral-400"
-                )}
-              >
-                <span
-                  aria-hidden
-                  className={cn(
-                    "flex size-5 shrink-0 items-center justify-center rounded-full border",
-                    selected ? "border-black bg-black text-white" : "border-neutral-300"
-                  )}
-                >
-                  {selected && <Check className="size-3.5" strokeWidth={3} />}
-                </span>
-                {v}
-              </button>
-            </li>
-          )
-        })}
-      </ul>
+    <div className="flex flex-wrap gap-2">
+      {options.map((v) => {
+        const selected = value.includes(v)
+        return (
+          <button
+            key={v}
+            type="button"
+            aria-pressed={selected}
+            onClick={() => toggle(v)}
+            className={cn(
+              "flex h-8 items-center rounded-[10px] border px-3.5 text-sm",
+              selected ? "border-black bg-black text-white" : "border-neutral-200 text-black hover:bg-neutral-100"
+            )}
+          >
+            {v}
+          </button>
+        )
+      })}
     </div>
   )
 }
@@ -359,13 +456,13 @@ function PaymentRow({ option, selected, onSelect }: { option: PaymentOption; sel
         role="radio"
         aria-checked={selected}
         onClick={onSelect}
-        className="flex min-h-12 w-full items-center gap-3 px-4 py-3 text-left text-[15px]"
+        className="flex min-h-11 w-full items-center gap-3 px-4 py-2.5 text-left text-[15px]"
       >
         <span
           aria-hidden
           className={cn(
-            "flex size-5 shrink-0 items-center justify-center rounded-full border",
-            selected ? "border-[6px] border-black" : "border-neutral-300"
+            "flex size-4 shrink-0 items-center justify-center rounded-full border",
+            selected ? "border-[5px] border-black" : "border-neutral-300"
           )}
         />
         <span className="flex-1">{option.label}</span>
