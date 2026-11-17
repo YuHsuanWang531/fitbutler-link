@@ -30,7 +30,7 @@ import {
 /**
  * 方案內容: A｜一般方案 shows 方案資訊 / 購買內容 / 可使用場館 / 開始使用日; B｜儲值方案 keeps the plan card and 儲值內容.
  * Both: 付款方式 (live 明細 and total), 發票開立方式 (inline radio cards), and 結帳, which checks in order:
- * Signed out: only 方案資訊 and 購買內容, with 登入購買 in the bar. Signed in, 結帳 checks: 授課老師 (私教課) → 啟用日 → 付款方式 → 信用卡 (一次付清／定期定額) → 發票資料 → 合約已簽署 → (儲值金不足 disables the button) → 付款頁; the 發票 setting is saved for next time.
+ * Signed out: only 方案資訊 and 購買內容, with a dashed 登入購買 box and no checkout bar. Signed in, 結帳 checks: 授課老師 (私教課) → 啟用日 → 付款方式 → 信用卡 (一次付清／定期定額) → 發票資料 → 合約已簽署 → (儲值金不足 disables the button) → 付款頁; the 發票 setting is saved for next time.
  */
 export function PlanCheckout({ plan, detail }: { plan: Plan; detail: PlanDetail }) {
   const router = useRouter()
@@ -97,7 +97,7 @@ export function PlanCheckout({ plan, detail }: { plan: Plan; detail: PlanDetail 
             {/* 方案資訊 as plain text: name and 方案說明. */}
             <section aria-label="方案資訊" className="flex flex-col gap-2">
               <div className="flex flex-col gap-1">
-                <h2 className="text-lg leading-7 font-medium">{plan.title}</h2>
+                <h2 className="text-xl leading-7 font-medium">{plan.title}</h2>
                 {general.description && <p className="text-base leading-6 text-neutral-600">{general.description}</p>}
               </div>
             </section>
@@ -209,10 +209,19 @@ export function PlanCheckout({ plan, detail }: { plan: Plan; detail: PlanDetail 
         )}
 
         {!loggedIn && (
-          <p className="flex items-start gap-2 text-sm leading-5 text-neutral-500">
-            <Lock aria-hidden className="mt-0.5 size-4 shrink-0" strokeWidth={1.5} />
-            登入會員後，即可選擇場館、付款方式並完成購買
-          </p>
+          <div className="flex flex-col items-center gap-4 rounded-[10px] border border-dashed border-neutral-300 px-4 py-6 text-center">
+            <div className="flex flex-col items-center gap-1">
+              <Lock aria-hidden className="mb-1 size-6 text-neutral-500" strokeWidth={1.5} />
+              <p className="text-base leading-6 font-medium">登入會員即可購買</p>
+              <p className="text-sm leading-5 text-neutral-500">登入後即可選擇場館、付款方式並完成購買</p>
+            </div>
+            <Link
+              href={`/login?next=${encodeURIComponent(`/shop/${plan.id}`)}`}
+              className="flex h-11 w-36 items-center justify-center rounded-[10px] bg-black text-sm font-medium text-white hover:bg-neutral-800"
+            >
+              登入購買
+            </Link>
+          </div>
         )}
 
         {loggedIn && (
@@ -244,34 +253,22 @@ export function PlanCheckout({ plan, detail }: { plan: Plan; detail: PlanDetail 
         )}
       </div>
 
-      {/* Checkout bar: pinned to the bottom of the window (phones) or of the card (md+). */}
-      <div className="sticky bottom-0 z-10 flex items-center gap-4 border-t border-neutral-200 bg-white px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))] md:pb-3 lg:px-6">
-        {loggedIn ? (
-          <>
-            <div className="flex min-w-0 flex-1 flex-col">
-              <span className="text-xs leading-4 text-neutral-500">總計</span>
-              {total !== null ? (
-                <span className="text-xl leading-7 font-semibold">{formatMoney(total)}</span>
-              ) : (
-                <span className="text-sm leading-7 text-neutral-500">請選擇付款方式</span>
-              )}
-            </div>
-            <Button className="h-11 w-36 rounded-[10px] text-sm" disabled={storedShort} onClick={checkout}>
-              結帳
-            </Button>
-          </>
-        ) : (
-          <>
-            <span className="min-w-0 flex-1 text-sm leading-5 text-neutral-500">登入後即可購買</span>
-            <Link
-              href={`/login?next=${encodeURIComponent(`/shop/${plan.id}`)}`}
-              className="flex h-11 w-36 items-center justify-center rounded-[10px] bg-black text-sm font-medium text-white hover:bg-neutral-800"
-            >
-              登入購買
-            </Link>
-          </>
-        )}
-      </div>
+      {/* Checkout bar: pinned to the bottom of the window (phones) or of the card (md+); signed out has none. */}
+      {loggedIn && (
+        <div className="sticky bottom-0 z-10 flex items-center gap-4 border-t border-neutral-200 bg-white px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))] md:pb-3 lg:px-6">
+          <div className="flex min-w-0 flex-1 flex-col">
+            <span className="text-xs leading-4 text-neutral-500">總計</span>
+            {total !== null ? (
+              <span className="text-xl leading-7 font-semibold">{formatMoney(total)}</span>
+            ) : (
+              <span className="text-sm leading-7 text-neutral-500">請選擇付款方式</span>
+            )}
+          </div>
+          <Button className="h-11 w-36 rounded-[10px] text-sm" disabled={storedShort} onClick={checkout}>
+            結帳
+          </Button>
+        </div>
+      )}
 
       <Dialog open={alert !== null} onOpenChange={(open) => !open && setAlert(null)}>
         <DialogContent showCloseButton={false} className="gap-4 p-5 sm:max-w-xs">
