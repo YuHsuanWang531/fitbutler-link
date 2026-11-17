@@ -149,7 +149,7 @@ export function PlanCheckout({ plan, detail }: { plan: Plan; detail: PlanDetail 
                 </div>
               ) : (
                 <Link
-                  href={`/shop/${plan.id}/contract`}
+                  href={`/shop/${plan.id}/contract/info`}
                   className="flex h-11 items-center justify-center rounded-[10px] border border-neutral-200 text-sm font-medium text-black hover:bg-neutral-50"
                 >
                   簽署合約
@@ -276,7 +276,7 @@ export function PlanCheckout({ plan, detail }: { plan: Plan; detail: PlanDetail 
               <span className="text-sm leading-7 text-neutral-500">請選擇付款方式</span>
             )}
           </div>
-          <Button className="h-11 w-36 rounded-[10px] text-sm" disabled={storedShort} onClick={checkout}>
+          <Button className="h-11 w-48 rounded-[10px] text-sm" disabled={storedShort} onClick={checkout}>
             結帳
           </Button>
         </div>

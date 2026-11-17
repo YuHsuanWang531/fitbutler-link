@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "合約" }
 
 type Props = { params: Promise<{ id: string }> }
 
-/** 合約 (placeholder): opened from the plan page's 簽署合約; 同意並簽署 goes back to the plan page as signed. */
+/** 合約 (placeholder): after 合約文件資料補件's 下一步; 同意並簽署 goes back to the plan page as signed. */
 export default async function ContractPage({ params }: Props) {
   const { id } = await params
   const plan = getPlan(id)

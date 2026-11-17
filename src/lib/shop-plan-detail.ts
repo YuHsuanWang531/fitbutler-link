@@ -64,7 +64,6 @@ const GENERAL: Record<string, GeneralOverrides> = {
     content: [
       { name: "年約會籍", usage: "不限次數／每期／12 月" },
       { name: "置物櫃月租", usage: "不限次數／每期／12 月" },
-      { name: "毛巾租借", usage: "不限次數／每期／12 月" },
     ],
     description: "全日自由進出場館，免費使用置物櫃與淋浴間，合約期間可暫停會籍 1 次，最長 30 天。",
     activation: { kind: "fixed", date: "2026/12/01" },
@@ -104,7 +103,6 @@ const GENERAL: Record<string, GeneralOverrides> = {
     content: [
       { name: "一對一教練課", usage: "12 堂／180 天" },
       { name: "體組成量測", usage: "2 次／180 天" },
-      { name: "伸展放鬆", usage: "1 堂／180 天" },
     ],
     description: "可指定教練，每堂附體組成量測，教練依你的目標安排課表，並提供飲食建議與每月進度追蹤。",
     activation: { kind: "member", days: 8 },

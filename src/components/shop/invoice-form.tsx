@@ -144,7 +144,7 @@ export function InvoiceFields({ form }: { form: InvoiceForm }) {
                     "email",
                     "電子信箱",
                     { type: "email", inputMode: "email", autoComplete: "email", placeholder: "請輸入你的電子信箱" },
-                    "＊發票中獎時會寄至您的信箱"
+                    "發票中獎時會寄至您的信箱"
                   )}
                 {t === "mobile" &&
                   field("barcode", "手機條碼載具", { placeholder: "/ABC123", autoCapitalize: "characters" })}
