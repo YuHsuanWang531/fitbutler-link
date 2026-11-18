@@ -104,7 +104,8 @@ const GENERAL: Record<string, GeneralOverrides> = {
       { name: "一對一教練課", usage: "12 堂／180 天" },
       { name: "體組成量測", usage: "2 次／180 天" },
     ],
-    description: "可指定教練，每堂附體組成量測，教練依你的目標安排課表，並提供飲食建議與每月進度追蹤。",
+    description:
+      "可指定教練，每堂附體組成量測，教練依你的目標安排課表，並提供飲食建議與每月進度追蹤。課程可依你的時間彈性預約，開課前 12 小時可免費改期，180 天內使用完畢即可。",
     activation: { kind: "member", days: 8 },
     contract: true,
   },

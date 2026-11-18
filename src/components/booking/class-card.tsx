@@ -68,12 +68,13 @@ export function ClassCard({ gymClass, status, pending, onAction }: ClassCardProp
   const tag = statusTag(status, gymClass)
   return (
     <div className={cn("rounded-[10px] border border-neutral-200 p-4", closed && "opacity-50")}>
-      <div className="flex gap-3">
+      <div className="flex gap-4">
         <div className="flex shrink-0 flex-col items-center">
           <span className="text-lg leading-7 font-semibold">{gymClass.start}</span>
           <span aria-label="至" className="h-3 w-px bg-neutral-400" />
           <span className="text-base leading-7 text-muted-foreground">{classEndTime(gymClass)}</span>
         </div>
+        <span aria-hidden className="w-px shrink-0 self-stretch bg-neutral-200" />
         <div className="min-w-0 flex-1">
           {/* Venue on the left, the status tag in the card's top-right corner. */}
           <div className="flex items-center justify-between gap-2">
@@ -92,9 +93,10 @@ export function ClassCard({ gymClass, status, pending, onAction }: ClassCardProp
               <TeacherLink key={teacher.id} teacher={teacher} />
             ))}
           </div>
+          {/* Under the text column, so the buttons line up with the venue and course name, not the time. */}
+          {!closed && <CardActions gymClass={gymClass} status={status} pending={pending} onAction={onAction} />}
         </div>
       </div>
-      {!closed && <CardActions gymClass={gymClass} status={status} pending={pending} onAction={onAction} />}
     </div>
   )
 }
@@ -132,7 +134,7 @@ function CardActions({ gymClass, status, pending, onAction }: ClassCardProps) {
   const action = statusAction(status)
   if (!gymClass.hasInfo && !action) return null
   return (
-    <div className="mt-3 flex gap-2">
+    <div className="mt-4 flex gap-2">
       {gymClass.hasInfo && (
         <Link href={`/courses/${gymClass.courseId}`} className={cn(BUTTON, OUTLINE, "hover:bg-neutral-100")}>
           課程資訊

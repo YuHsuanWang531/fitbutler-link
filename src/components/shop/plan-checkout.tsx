@@ -15,6 +15,7 @@ import { useLoggedIn } from "@/lib/auth"
 import { clearPlanDraft, getPlanDraft, savePlanDraft } from "@/lib/plan-draft"
 import { InvoiceFields, useInvoiceForm } from "@/components/shop/invoice-form"
 import { CreditCardField } from "@/components/shop/credit-card-field"
+import { ClampText } from "@/components/shop/clamp-text"
 import { dropUnsavedCards } from "@/lib/credit-cards"
 import { saveInvoiceSetting, useInvoiceSetting } from "@/lib/invoice-setting"
 import {
@@ -194,9 +195,11 @@ export function PlanCheckout({ plan, detail }: { plan: Plan; detail: PlanDetail 
           <>
             {/* 方案資訊 as plain text: name and 方案說明. */}
             <section aria-label="方案資訊" className="flex flex-col gap-2">
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-3">
                 <h2 className="text-xl leading-7 font-medium">{plan.title}</h2>
-                {general.description && <p className="text-base leading-6 text-neutral-600">{general.description}</p>}
+                {general.description && (
+                  <ClampText className="text-base leading-6 text-neutral-600">{general.description}</ClampText>
+                )}
               </div>
             </section>
 
