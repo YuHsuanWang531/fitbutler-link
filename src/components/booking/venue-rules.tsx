@@ -4,10 +4,13 @@ import { useState } from "react"
 import { FileText, XIcon } from "lucide-react"
 
 import { useMediaQuery } from "@/hooks/use-media-query"
-import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 
 const UPDATED_AT = "2026/10/31"
+/** 修改摘要: what changed in this version, shown when the member is asked to agree. */
+const CHANGE_SUMMARY = "取消預約時限由開課前 1 小時調整為 2 小時；新增置物櫃限當日使用、離館前請清空的規定。"
 
 /** Placeholder copy until the gym's own rules come from the API. */
 const SECTIONS: { title: string; items: string[] }[] = [
@@ -56,6 +59,83 @@ const SECTIONS: { title: string; items: string[] }[] = [
   },
 ]
 
+function RulesSections() {
+  return (
+    <>
+      {SECTIONS.map((section) => (
+        <section key={section.title} className="flex flex-col gap-1.5">
+          <h3 className="text-base font-medium text-black">{section.title}</h3>
+          <ol className="flex list-decimal flex-col gap-1 pl-5 marker:text-neutral-500">
+            {section.items.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ol>
+        </section>
+      ))}
+    </>
+  )
+}
+
+/**
+ * Before 預約／候補: the rules with their 修改摘要, then 同意並繼續 (carries on) or 不同意 (closes, nothing
+ * booked). Asked every time for now; nothing is remembered.
+ */
+export function VenueRulesAgreement({
+  open,
+  onOpenChange,
+  onAgree,
+}: {
+  open: boolean
+  onOpenChange(open: boolean): void
+  onAgree(): void
+}) {
+  const isDesktop = useMediaQuery("(min-width: 768px)")
+  const body = (Header: typeof SheetHeader, Title: typeof SheetTitle, Footer: typeof SheetFooter) => (
+    <>
+      <Header className="items-center gap-0.5 px-4 pt-5 pb-4 text-center">
+        <Title className="text-lg leading-7 font-medium">場館使用規範</Title>
+        <p className="text-sm leading-5 text-muted-foreground">最近更新時間 {UPDATED_AT}</p>
+      </Header>
+      <div className="mx-4 flex min-h-0 flex-col gap-5 overflow-y-auto rounded-[10px] border border-neutral-200 p-4 text-[15px] leading-6 text-neutral-800 md:mx-6">
+        <section className="flex flex-col gap-1.5">
+          <h3 className="text-base font-medium text-black">修改摘要</h3>
+          <p>{CHANGE_SUMMARY}</p>
+        </section>
+        <RulesSections />
+      </div>
+      <Footer className="m-0 flex-col gap-2 border-0 bg-white p-4 sm:flex-col md:px-6">
+        <Button className="h-11 w-full rounded-[10px] text-sm" onClick={onAgree}>
+          同意並繼續
+        </Button>
+        <Button variant="outline" className="h-11 w-full rounded-[10px] text-sm" onClick={() => onOpenChange(false)}>
+          不同意
+        </Button>
+      </Footer>
+    </>
+  )
+
+  if (isDesktop) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent showCloseButton={false} className="flex max-h-[80dvh] flex-col gap-0 p-0 sm:max-w-[500px]">
+          {body(DialogHeader, DialogTitle, DialogFooter)}
+        </DialogContent>
+      </Dialog>
+    )
+  }
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent
+        side="bottom"
+        showCloseButton={false}
+        className="max-h-[85dvh] gap-0 rounded-t-[10px] pb-[env(safe-area-inset-bottom)]"
+      >
+        {body(SheetHeader, SheetTitle, SheetFooter)}
+      </SheetContent>
+    </Sheet>
+  )
+}
+
 /** The 預約 header's 場館使用規範 button: a bottom sheet on phones, a centred dialog from md up. */
 export function VenueRules() {
   const [open, setOpen] = useState(false)
@@ -70,16 +150,7 @@ export function VenueRules() {
         </Close>
       </Header>
       <div className="flex min-h-0 flex-col gap-5 overflow-y-auto px-4 pb-6 text-[15px] leading-6 text-neutral-800 md:px-6">
-        {SECTIONS.map((section) => (
-          <section key={section.title} className="flex flex-col gap-1.5">
-            <h3 className="text-base font-medium text-black">{section.title}</h3>
-            <ol className="flex list-decimal flex-col gap-1 pl-5 marker:text-neutral-500">
-              {section.items.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ol>
-          </section>
-        ))}
+        <RulesSections />
       </div>
     </>
   )

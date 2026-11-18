@@ -19,14 +19,17 @@ type ConfirmBookingProps = {
   onOpenChange(open: boolean): void
   /** Kept after closing so the content doesn't vanish mid-animation. */
   gymClass: GymClass | null
+  /** 預約 (default) or 候補: changes the title and the confirm button. */
+  kind?: "book" | "waitlist"
   onConfirm(membershipId: string): void
 }
 
 /**
- * 「要預約課程嗎？」: a bottom sheet on phones, a centred dialog from md up — same as the filter panel.
+ * 「要預約課程嗎？」／「要候補課程嗎？」: a bottom sheet on phones, a centred dialog from md up — same as the filter panel.
  * 取消限制時段 reminder (only inside the window), the class card with 老師叮嚀, then 使用會籍 (必填).
  */
-export function ConfirmBooking({ open, onOpenChange, gymClass, onConfirm }: ConfirmBookingProps) {
+export function ConfirmBooking({ open, onOpenChange, gymClass, kind = "book", onConfirm }: ConfirmBookingProps) {
+  const verb = kind === "waitlist" ? "候補" : "預約"
   const isDesktop = useMediaQuery("(min-width: 768px)")
   const [membership, setMembership] = useState("")
   const [error, setError] = useState(false)
@@ -50,7 +53,7 @@ export function ConfirmBooking({ open, onOpenChange, gymClass, onConfirm }: Conf
     gymClass && (
       <>
         <Header className="px-4 pt-5 pb-0">
-          <Title className="text-center text-lg leading-7 font-medium">要預約課程嗎？</Title>
+          <Title className="text-center text-lg leading-7 font-medium">要{verb}課程嗎？</Title>
         </Header>
         <div className="flex max-h-[60vh] flex-col gap-4 overflow-y-auto px-4 pt-4">
           {inCancelLimit(gymClass) && (
@@ -110,8 +113,8 @@ export function ConfirmBooking({ open, onOpenChange, gymClass, onConfirm }: Conf
                   setError(false)
                 }}
                 className={cn(
-                  "h-11 w-full appearance-none rounded-[10px] border bg-white pr-11 pl-4 text-[15px] outline-none focus-visible:border-black",
-                  error ? "border-red-600" : membership ? "border-black" : "border-neutral-200",
+                  "h-11 w-full appearance-none rounded-[10px] border bg-white pr-11 pl-4 text-[15px] outline-none",
+                  error ? "border-red-600" : "border-neutral-200",
                   !membership && "text-neutral-500"
                 )}
               >
@@ -139,7 +142,7 @@ export function ConfirmBooking({ open, onOpenChange, gymClass, onConfirm }: Conf
         </div>
         <Footer className="m-0 flex-col gap-2 border-0 bg-white p-4 sm:flex-col">
           <Button className="h-10 w-full rounded-[10px]" onClick={confirm}>
-            確認預約
+            確認{verb}
           </Button>
           <Button variant="outline" className="h-10 w-full rounded-[10px]" onClick={() => onOpenChange(false)}>
             取消

@@ -31,6 +31,7 @@ import { NO_FILTERS, type ClassFilters, type GymClass, type Teacher } from "@/li
 import { BookingToolbar, type BookingMode } from "@/components/booking/booking-toolbar"
 import { CalendarGrid } from "@/components/booking/calendar-grid"
 import { ConfirmBooking } from "@/components/booking/confirm-booking"
+import { VenueRulesAgreement } from "@/components/booking/venue-rules"
 import { Toast } from "@/components/booking/toast"
 import { FilterPanel } from "@/components/booking/filter-panel"
 import { TimelineDay } from "@/components/booking/timeline-day"
@@ -313,19 +314,30 @@ function BookingScreen({ initialFilters }: { initialFilters?: Partial<ClassFilte
     []
   )
 
-  // 預約 asks first: the card opens 確認預約, and only its confirm button books.
+  // 預約 and 候補 first ask to agree to the 場館使用規範 (every time for now, nothing is remembered). After
+  // 同意並繼續 comes 確認預約／確認候補, and only its confirm button books or joins the waitlist.
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [confirmClass, setConfirmClass] = useState<GymClass | null>(null)
+  const [confirmKind, setConfirmKind] = useState<"book" | "waitlist">("book")
+  const [rulesFor, setRulesFor] = useState<{ gymClass: GymClass; action: "book" | "waitlist" } | null>(null)
+  const [rulesOpen, setRulesOpen] = useState(false)
   const onCardAction = (gymClass: GymClass, action: ClassAction) => {
-    if (action !== "book") return runAction(gymClass, action)
-    setConfirmClass(gymClass)
+    if (action !== "book" && action !== "waitlist") return runAction(gymClass, action)
+    setRulesFor({ gymClass, action })
+    setRulesOpen(true)
+  }
+  const afterRules = () => {
+    setRulesOpen(false)
+    if (!rulesFor) return
+    setConfirmClass(rulesFor.gymClass)
+    setConfirmKind(rulesFor.action)
     setConfirmOpen(true)
   }
   const confirmBooking = async () => {
     setConfirmOpen(false)
     if (!confirmClass) return
-    await runAction(confirmClass, "book")
-    showToast("預約成功")
+    await runAction(confirmClass, confirmKind)
+    showToast(confirmKind === "waitlist" ? "候補成功" : "預約成功")
   }
 
   // Toast: the message stays set while it fades out; a new one restarts the 2-second timer.
@@ -477,10 +489,12 @@ function BookingScreen({ initialFilters }: { initialFilters?: Partial<ClassFilte
         rangeClasses={rangeClasses}
         onApply={applyFilters}
       />
+      <VenueRulesAgreement open={rulesOpen} onOpenChange={setRulesOpen} onAgree={afterRules} />
       <ConfirmBooking
         open={confirmOpen}
         onOpenChange={setConfirmOpen}
         gymClass={confirmClass}
+        kind={confirmKind}
         onConfirm={confirmBooking}
       />
       <Toast message={toast.message} visible={toast.visible} />

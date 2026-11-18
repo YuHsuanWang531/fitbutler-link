@@ -210,8 +210,8 @@ function TimeSelect({ label, value, options, onChange }: TimeSelectProps) {
         value={value ?? ""}
         onChange={(e) => onChange(e.target.value || null)}
         className={cn(
-          "h-11 w-full cursor-pointer appearance-none rounded-[10px] border bg-white pr-9 pl-4 text-sm hover:bg-neutral-100",
-          value ? "border-black" : "border-neutral-200 text-muted-foreground"
+          "h-11 w-full cursor-pointer appearance-none rounded-[10px] border border-neutral-200 bg-white pr-9 pl-4 text-sm hover:bg-neutral-100",
+          !value && "text-muted-foreground"
         )}
       >
         <option value="">不限</option>

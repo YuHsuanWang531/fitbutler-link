@@ -107,7 +107,7 @@ export function PlanCheckout({ plan, detail }: { plan: Plan; detail: PlanDetail 
                   value={teacherId}
                   onChange={(e) => setTeacherId(e.target.value)}
                   className={cn(
-                    "h-11 w-full appearance-none rounded-[10px] border border-neutral-200 bg-white pr-11 pl-4 text-[15px] outline-none focus-visible:border-black",
+                    "h-11 w-full appearance-none rounded-[10px] border border-neutral-200 bg-white pr-11 pl-4 text-[15px] outline-none",
                     !teacherId && "text-neutral-500"
                   )}
                 >

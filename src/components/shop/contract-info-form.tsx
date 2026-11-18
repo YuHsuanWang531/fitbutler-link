@@ -395,7 +395,7 @@ function Select({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className={cn(
-          "h-11 w-full appearance-none rounded-[10px] border bg-white pr-10 pl-4 text-[15px] outline-none focus-visible:border-black disabled:bg-neutral-50",
+          "h-11 w-full appearance-none rounded-[10px] border bg-white pr-10 pl-4 text-[15px] outline-none disabled:bg-neutral-50",
           invalid ? "border-red-600" : "border-neutral-200",
           !value && "text-neutral-500"
         )}
