@@ -67,17 +67,24 @@ export function ClassCard({ gymClass, status, pending, onAction }: ClassCardProp
   const closed = status === "close"
   const tag = statusTag(status, gymClass)
   return (
-    <div className={cn("rounded-[10px] border border-neutral-200 p-4", closed && "opacity-50")}>
-      <div className="flex gap-4">
-        <div className="flex shrink-0 flex-col items-center">
-          <span className="text-lg leading-7 font-semibold">{gymClass.start}</span>
-          <span aria-label="至" className="h-3 w-px bg-neutral-400" />
-          <span className="text-base leading-7 text-muted-foreground">{classEndTime(gymClass)}</span>
-        </div>
-        <span aria-hidden className="w-px shrink-0 self-stretch bg-neutral-200" />
-        <div className="min-w-0 flex-1">
+    // Figma classlist card: one flex row (time | divider | info), padding 16, gap 16, top-aligned.
+    <div
+      className={cn(
+        "flex items-start gap-4 rounded-[10px] border border-neutral-200 bg-white p-4",
+        closed && "opacity-50"
+      )}
+    >
+      <div className="flex shrink-0 flex-col items-center">
+        <span className="text-lg leading-7 font-semibold">{gymClass.start}</span>
+        <span aria-label="至" className="h-3 w-px bg-neutral-400" />
+        <span className="text-base leading-7 text-muted-foreground">{classEndTime(gymClass)}</span>
+      </div>
+      <span aria-hidden className="w-px shrink-0 self-stretch bg-neutral-200" />
+      <div className="flex min-w-0 flex-1 flex-col items-start gap-6">
+        {/* Figma: venue, course name and teachers stack with 4px between them. */}
+        <div className="flex flex-col items-start gap-1 self-stretch">
           {/* Venue on the left, the status tag in the card's top-right corner. */}
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex w-full items-center justify-between gap-2">
             <p className="truncate text-sm leading-6 text-muted-foreground">
               {gymClass.venue}｜{gymClass.room}
             </p>
@@ -87,15 +94,15 @@ export function ClassCard({ gymClass, status, pending, onAction }: ClassCardProp
               </span>
             )}
           </div>
-          <p className="truncate text-xl leading-7 font-medium">{gymClass.title}</p>
-          <div className="mt-2 flex min-w-0 items-center gap-4 text-sm leading-5">
+          <p className="max-w-full truncate text-xl leading-7 font-medium">{gymClass.title}</p>
+          <div className="flex max-w-full min-w-0 items-center gap-4 text-sm leading-5">
             {gymClass.teachers.map((teacher) => (
               <TeacherLink key={teacher.id} teacher={teacher} />
             ))}
           </div>
-          {/* Under the text column, so the buttons line up with the venue and course name, not the time. */}
-          {!closed && <CardActions gymClass={gymClass} status={status} pending={pending} onAction={onAction} />}
         </div>
+        {/* Under the text column, so the buttons line up with the venue and course name, not the time. */}
+        {!closed && <CardActions gymClass={gymClass} status={status} pending={pending} onAction={onAction} />}
       </div>
     </div>
   )
@@ -134,7 +141,7 @@ function CardActions({ gymClass, status, pending, onAction }: ClassCardProps) {
   const action = statusAction(status)
   if (!gymClass.hasInfo && !action) return null
   return (
-    <div className="mt-4 flex gap-2">
+    <div className="flex gap-2 self-stretch">
       {gymClass.hasInfo && (
         <Link href={`/courses/${gymClass.courseId}`} className={cn(BUTTON, OUTLINE, "hover:bg-neutral-100")}>
           課程資訊
