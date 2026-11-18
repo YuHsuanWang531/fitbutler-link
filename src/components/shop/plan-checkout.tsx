@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { CalendarDays, Check, ChevronDown, Lock } from "lucide-react"
+import { CalendarDays, ChevronRight, Lock } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { DropdownSelect } from "@/components/ui/dropdown-select"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogFooter, DialogTitle } from "@/components/ui/dialog"
 import { PlanCard } from "@/components/shop/plan-card"
@@ -14,8 +15,8 @@ import { getTeacher } from "@/lib/member-teachers"
 import { useLoggedIn } from "@/lib/auth"
 import { clearPlanDraft, getPlanDraft, savePlanDraft } from "@/lib/plan-draft"
 import { InvoiceFields, useInvoiceForm } from "@/components/shop/invoice-form"
-import { CreditCardField } from "@/components/shop/credit-card-field"
 import { ClampText } from "@/components/shop/clamp-text"
+import { TeacherSheet } from "@/components/shop/teacher-sheet"
 import { dropUnsavedCards } from "@/lib/credit-cards"
 import { saveInvoiceSetting, useInvoiceSetting } from "@/lib/invoice-setting"
 import {
@@ -31,7 +32,9 @@ import {
 /**
  * 方案內容: A｜一般方案 shows 方案資訊 / 購買內容 / 可使用場館 / 開始使用日; B｜儲值方案 keeps the plan card and 儲值內容.
  * Both: 付款方式 (live 明細 and total), 發票開立方式 (inline radio cards), and 結帳, which checks in order:
- * Signed out: only 方案資訊 and 購買內容, the top of the form blurred and faded under a 登入購買 box, and no checkout bar. Signed in, 結帳 checks: 授課老師 (私教課) → 啟用日 → 付款方式 → 信用卡 (一次付清／定期定額) → 發票資料 → 合約已簽署 → (儲值金不足 disables the button) → 付款頁; the 發票 setting is saved for next time.
+ * Signed out: only 方案資訊 and 購買內容, the top of the form blurred and faded under a 登入購買 box, and no checkout bar.
+ * Signed in, 結帳 checks: 授課老師 (私教課) → 啟用日 → 付款方式 → 發票資料 → (儲值金不足 disables the button), saves the
+ * 發票 setting, then goes to the 下一步 page (合約簽署／信用卡資訊) when either is needed, else straight to 付款頁.
  */
 export function PlanCheckout({ plan, detail }: { plan: Plan; detail: PlanDetail }) {
   const router = useRouter()
@@ -47,8 +50,10 @@ export function PlanCheckout({ plan, detail }: { plan: Plan; detail: PlanDetail 
   // 授課老師: only 私教課 plans ask for one, from the teachers who teach the plan.
   const teachers = plan.type === "私教課" ? (plan.teacherIds ?? []).flatMap((id) => getTeacher(id) ?? []) : []
   const [teacherId, setTeacherId] = useState(draft?.teacherId ?? "")
+  const [profileOpen, setProfileOpen] = useState(false)
+  // 合約 and 信用卡 are on the 下一步 page; kept here so coming back doesn't lose them.
   const signed = draft?.signed ?? false
-  const [cardId, setCardId] = useState<string | null>(draft?.cardId ?? null)
+  const cardId = draft?.cardId ?? null
   const [alert, setAlert] = useState<string | null>(null)
   const invoice = useInvoiceForm(useInvoiceSetting(), draft?.invoice)
   const { type: invoiceType, fields: invoiceFields } = invoice
@@ -73,17 +78,17 @@ export function PlanCheckout({ plan, detail }: { plan: Plan; detail: PlanDetail 
     if (teachers.length > 0 && !teacherId) return setAlert("請選擇授課老師")
     if (general?.activation.kind === "member" && !date) return setAlert("請選擇開始使用日")
     if (!payment) return setAlert("請選擇付款方式")
-    if (payment.method === "card" && !cardId) return setAlert("請選擇信用卡")
     const invoiceSetting = invoice.validate()
     if (invoiceSetting === "none") return setAlert("請選擇發票開立方式")
     if (!invoiceSetting) return setAlert("請輸入正確的發票資料")
-    if (general?.contract && !signed) return setAlert("請先簽署合約")
     if (storedShort) return
     saveInvoiceSetting(invoiceSetting)
     const query = new URLSearchParams({ pay: payment.id })
     if (date) query.set("date", date)
     if (general) query.set("venues", venues.join(","))
     if (teacherId) query.set("teacher", teacherId)
+    // 下一步 (合約簽署／信用卡資訊) only when the plan needs a contract or the payment goes on a card.
+    if (general?.contract || payment.method === "card") return router.push(`${here}/checkout?${query}`)
     clearPlanDraft(plan.id)
     dropUnsavedCards()
     router.push(`${here}/payment?${query}`)
@@ -100,64 +105,29 @@ export function PlanCheckout({ plan, detail }: { plan: Plan; detail: PlanDetail 
 
           {teachers.length > 0 && (
             <Field label="授課老師" id="plan-teacher">
-              <div className="relative">
-                <select
-                  id="plan-teacher"
-                  required
-                  value={teacherId}
-                  onChange={(e) => setTeacherId(e.target.value)}
-                  className={cn(
-                    "h-11 w-full appearance-none rounded-[10px] border border-neutral-200 bg-white pr-11 pl-4 text-[15px] outline-none",
-                    !teacherId && "text-neutral-500"
-                  )}
-                >
-                  <option value="" disabled>
-                    請選擇授課老師
-                  </option>
-                  {teachers.map((t) => (
-                    <option key={t.id} value={t.id} className="text-black">
-                      {t.name}
-                    </option>
-                  ))}
-                </select>
-                <ChevronDown
-                  aria-hidden
-                  className="pointer-events-none absolute top-1/2 right-4 size-5 -translate-y-1/2 text-neutral-500"
-                  strokeWidth={1.5}
-                />
-              </div>
+              <DropdownSelect
+                id="plan-teacher"
+                placeholder="請選擇授課老師"
+                options={teachers.map((t) => ({ value: t.id, label: t.name }))}
+                value={teacherId}
+                onChange={setTeacherId}
+              />
+              {/* No teacher picked yet: the 老師介紹 list. Picked: that teacher's profile. Both in a bottom sheet. */}
+              <button
+                type="button"
+                onClick={() => setProfileOpen(true)}
+                className="flex w-fit items-center gap-0.5 text-sm text-neutral-600 hover:text-black"
+              >
+                查看老師介紹
+                <ChevronRight aria-hidden className="size-4" strokeWidth={1.5} />
+              </button>
+              <TeacherSheet teacherId={teacherId} open={profileOpen} onOpenChange={setProfileOpen} />
             </Field>
           )}
 
           <Field label="開始使用日" id="plan-date" required={general.activation.kind === "member"}>
             <ActivationField activation={general.activation} value={date} onChange={setDate} />
           </Field>
-
-          {general.contract && (
-            <Field label="合約簽署" id="plan-contract" group>
-              {signed ? (
-                <div className="flex h-11 items-center justify-between rounded-[10px] border border-neutral-200 px-4 text-[15px]">
-                  <span className="flex items-center gap-2">
-                    <Check aria-hidden className="size-4" strokeWidth={2} />
-                    已簽署合約
-                  </span>
-                  <Link
-                    href={`/shop/${plan.id}/contract`}
-                    className="text-sm text-neutral-500 underline underline-offset-[3px]"
-                  >
-                    查看
-                  </Link>
-                </div>
-              ) : (
-                <Link
-                  href={`/shop/${plan.id}/contract/info`}
-                  className="flex h-11 items-center justify-center rounded-[10px] border border-neutral-200 text-sm font-medium text-black hover:bg-neutral-50"
-                >
-                  簽署合約
-                </Link>
-              )}
-            </Field>
-          )}
         </div>
       )}
 
@@ -173,13 +143,6 @@ export function PlanCheckout({ plan, detail }: { plan: Plan; detail: PlanDetail 
           ))}
         </div>
       </Field>
-
-      {/* 一次付清 and 定期定額 are charged to a card; 儲值金 isn't. */}
-      {payment?.method === "card" && (
-        <Field label="信用卡資訊" id="plan-card" group>
-          <CreditCardField value={cardId} onChange={setCardId} />
-        </Field>
-      )}
 
       <Field label="發票開立方式" id="plan-invoice" group>
         <InvoiceFields form={invoice} />
@@ -209,7 +172,7 @@ export function PlanCheckout({ plan, detail }: { plan: Plan; detail: PlanDetail 
                   {general.content.map((item) => (
                     <li
                       key={item.name}
-                      className="flex min-h-11 items-center justify-between gap-3 rounded-[10px] border border-neutral-200 px-4 py-2.5 text-[15px]"
+                      className="flex min-h-11 items-center justify-between gap-3 rounded-[10px] border border-neutral-200 px-4 py-2.5 text-sm"
                     >
                       <span className="min-w-0">{item.name}</span>
                       <span className="shrink-0 text-sm text-neutral-500">{item.usage}</span>
@@ -226,7 +189,7 @@ export function PlanCheckout({ plan, detail }: { plan: Plan; detail: PlanDetail 
                 <PlanCard plan={plan} />
               </div>
               <Section title="方案內容">
-                <dl className="flex flex-col gap-3 text-[15px] leading-6">
+                <dl className="flex flex-col gap-3 text-sm leading-6">
                   <Row label="方案名稱">{plan.title}</Row>
                   {detail.items.map((item) => (
                     <Row key={item.label} label={item.label}>
@@ -303,7 +266,7 @@ export function PlanCheckout({ plan, detail }: { plan: Plan; detail: PlanDetail 
  * A form field inside 方案內容: small label with a red * when required, then the control. `group` labels a set of
  * chips (aria-labelledby on the label) instead of a single input (htmlFor).
  */
-function Field({
+export function Field({
   label,
   id,
   group,
@@ -322,7 +285,7 @@ function Field({
       <Label id={`${id}-label`} {...(!group && { htmlFor: id })} className="text-sm font-medium">
         {label}
         {required && (
-          <span className="ml-0.5 text-red-600" aria-hidden>
+          <span className="ml-0.5 text-destructive" aria-hidden>
             *
           </span>
         )}
@@ -378,7 +341,7 @@ function ActivationField({
   if (activation.kind !== "member") {
     return (
       <div className="flex flex-col gap-1">
-        <p className="text-[15px] leading-6">{value && slashed(value)}</p>
+        <p className="text-sm leading-6">{value && slashed(value)}</p>
         <p className="text-sm leading-5 text-neutral-500">
           {activation.kind === "immediate" ? "購買後立即啟用" : "於此日期（含）以後生效"}
         </p>
@@ -391,7 +354,7 @@ function ActivationField({
   return (
     <label
       className={cn(
-        "relative flex h-11 items-center justify-between rounded-[10px] border border-neutral-200 px-4 text-[15px]",
+        "relative flex h-11 items-center justify-between rounded-[10px] border border-neutral-200 px-4 text-sm",
         !value && "text-neutral-500"
       )}
     >
@@ -458,7 +421,15 @@ function VenuePicker({
 
 // ——— 付款方式 ———
 
-function PaymentRow({ option, selected, onSelect }: { option: PaymentOption; selected: boolean; onSelect(): void }) {
+export function PaymentRow({
+  option,
+  selected,
+  onSelect,
+}: {
+  option: PaymentOption
+  selected: boolean
+  onSelect(): void
+}) {
   const total = paymentTotal(option)
   const short = isStoredShort(option)
   return (
@@ -468,7 +439,7 @@ function PaymentRow({ option, selected, onSelect }: { option: PaymentOption; sel
         role="radio"
         aria-checked={selected}
         onClick={onSelect}
-        className="flex min-h-11 w-full items-center gap-3 px-4 py-2.5 text-left text-[15px]"
+        className="flex min-h-11 w-full items-center gap-3 px-4 py-2.5 text-left text-sm"
       >
         <span
           aria-hidden
@@ -493,12 +464,12 @@ function PaymentRow({ option, selected, onSelect }: { option: PaymentOption; sel
               <span>−{formatMoney(line.amount)}</span>
             </p>
           ))}
-          <p className="mt-1 flex justify-between border-t border-neutral-100 pt-2.5 text-[15px] font-medium">
+          <p className="mt-1 flex justify-between border-t border-neutral-100 pt-2.5 text-sm font-medium">
             <span>總計</span>
             <span>{formatMoney(total)}</span>
           </p>
           {option.hint && <p className="text-neutral-500">{option.hint}</p>}
-          {short && <p className="font-medium text-red-600">儲值金不足</p>}
+          {short && <p className="font-medium text-destructive">儲值金不足</p>}
         </div>
       )}
     </div>

@@ -42,10 +42,13 @@ export function TeacherCarousel() {
   )
 }
 
-/** Square portrait (a silhouette when there's no photo) + name + role; opens the teacher's page. */
-export function TeacherTile({ teacher, sizes }: { teacher: Teacher; sizes: string }) {
-  return (
-    <Link href={`/teachers/${teacher.id}`} className="group flex flex-col gap-2">
+/**
+ * Square portrait (a silhouette when there's no photo) + name + role; opens the teacher's page, or calls `onSelect`
+ * instead (the plan page's 老師介紹 sheet).
+ */
+export function TeacherTile({ teacher, sizes, onSelect }: { teacher: Teacher; sizes: string; onSelect?: () => void }) {
+  const content = (
+    <>
       <div className="relative flex aspect-square items-center justify-center overflow-hidden rounded-[10px] bg-neutral-200">
         {teacher.avatar ? (
           <Image src={teacher.avatar} alt="" fill sizes={sizes} className="object-cover" />
@@ -59,6 +62,16 @@ export function TeacherTile({ teacher, sizes }: { teacher: Teacher; sizes: strin
         </span>
         {teacher.role && <span className="truncate text-sm leading-5 text-muted-foreground">{teacher.role}</span>}
       </div>
+    </>
+  )
+  const className = "group flex w-full flex-col gap-2"
+  return onSelect ? (
+    <button type="button" onClick={onSelect} className={className}>
+      {content}
+    </button>
+  ) : (
+    <Link href={`/teachers/${teacher.id}`} className={className}>
+      {content}
     </Link>
   )
 }

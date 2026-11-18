@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { Camera, CalendarDays, ChevronDown, UserRound } from "lucide-react"
+import { Camera, CalendarDays, UserRound } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { DropdownSelect } from "@/components/ui/dropdown-select"
 import { Button } from "@/components/ui/button"
 import { markReplace } from "@/components/member/nav-depth"
 import { isEmail } from "@/lib/invoice-setting"
@@ -45,7 +46,7 @@ const CHECKS: Record<Key, (v: string) => string | null> = {
 }
 
 const INPUT =
-  "h-11 w-full rounded-[10px] border bg-white px-4 text-[15px] outline-none placeholder:text-neutral-400 focus:border-black"
+  "h-11 w-full rounded-[10px] border bg-white px-4 text-sm outline-none placeholder:text-neutral-400 focus:border-black"
 
 /**
  * 合約文件資料補件: 基本資料 and 緊急聯絡人, all required. 下一步 checks every field, saves them (mock 更新個人資料
@@ -94,7 +95,7 @@ export function ContractInfoForm({ planId }: { planId: string }) {
 
   const error = (key: Key) =>
     errors[key] && (
-      <p id={`profile-${key}-error`} className="text-sm leading-5 text-red-600">
+      <p id={`profile-${key}-error`} className="text-sm leading-5 text-destructive">
         {errors[key]}
       </p>
     )
@@ -104,7 +105,7 @@ export function ContractInfoForm({ planId }: { planId: string }) {
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => set(key, e.target.value),
     "aria-invalid": !!errors[key],
     "aria-describedby": errors[key] ? `profile-${key}-error` : undefined,
-    className: cn(INPUT, errors[key] ? "border-red-600" : "border-neutral-200"),
+    className: cn(INPUT, errors[key] ? "border-destructive" : "border-neutral-200"),
   })
 
   return (
@@ -145,7 +146,7 @@ export function ContractInfoForm({ planId }: { planId: string }) {
               tabIndex={-1}
               className={cn(
                 "grid h-11 grid-cols-2 rounded-[10px] border p-1 outline-none",
-                errors.gender ? "border-red-600" : "border-neutral-200"
+                errors.gender ? "border-destructive" : "border-neutral-200"
               )}
             >
               {(
@@ -269,7 +270,7 @@ function FormField({
     <div className="flex flex-col gap-2">
       <Label {...(!group && { htmlFor })} className="text-sm font-medium">
         {label}
-        <span className="ml-0.5 text-red-600" aria-hidden>
+        <span className="ml-0.5 text-destructive" aria-hidden>
           *
         </span>
       </Label>
@@ -293,7 +294,7 @@ function AvatarUpload({
       <span
         className={cn(
           "flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-full border bg-neutral-100",
-          invalid ? "border-red-600" : "border-neutral-200"
+          invalid ? "border-destructive" : "border-neutral-200"
         )}
       >
         {value ? (
@@ -338,8 +339,8 @@ function BirthdayPicker({
   return (
     <label
       className={cn(
-        "relative flex h-11 items-center justify-between rounded-[10px] border px-4 text-[15px]",
-        invalid ? "border-red-600" : "border-neutral-200",
+        "relative flex h-11 items-center justify-between rounded-[10px] border px-4 text-sm",
+        invalid ? "border-destructive" : "border-neutral-200",
         !value && "text-neutral-500"
       )}
     >
@@ -386,34 +387,15 @@ function Select({
   disabled?: boolean
 }) {
   return (
-    <div className="relative">
-      <select
-        id={id}
-        aria-label={label}
-        required
-        disabled={disabled}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={cn(
-          "h-11 w-full appearance-none rounded-[10px] border bg-white pr-10 pl-4 text-[15px] outline-none disabled:bg-neutral-50",
-          invalid ? "border-red-600" : "border-neutral-200",
-          !value && "text-neutral-500"
-        )}
-      >
-        <option value="" disabled>
-          {placeholder}
-        </option>
-        {options.map((o) => (
-          <option key={o} value={o} className="text-black">
-            {o}
-          </option>
-        ))}
-      </select>
-      <ChevronDown
-        aria-hidden
-        className="pointer-events-none absolute top-1/2 right-3.5 size-5 -translate-y-1/2 text-neutral-500"
-        strokeWidth={1.5}
-      />
-    </div>
+    <DropdownSelect
+      id={id}
+      label={label}
+      placeholder={placeholder}
+      options={options.map((o) => ({ value: o, label: o }))}
+      value={value}
+      onChange={onChange}
+      invalid={invalid}
+      disabled={disabled}
+    />
   )
 }

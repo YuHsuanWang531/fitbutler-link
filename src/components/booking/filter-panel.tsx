@@ -2,9 +2,9 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { ChevronDown } from "lucide-react"
 
 import { cn } from "@/lib/utils"
+import { DropdownSelect } from "@/components/ui/dropdown-select"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -201,29 +201,15 @@ type TimeSelectProps = {
   onChange(value: string | null): void
 }
 
-/** Native select (the phone's own picker), styled like the option chips. */
+/** 時間 select: 不限 or one of the times. */
 function TimeSelect({ label, value, options, onChange }: TimeSelectProps) {
   return (
-    <div className="relative flex-1">
-      <select
-        aria-label={label}
+    <div className="flex-1">
+      <DropdownSelect
+        label={label}
+        options={[{ value: "", label: "不限" }, ...options.map((time) => ({ value: time, label: time }))]}
         value={value ?? ""}
-        onChange={(e) => onChange(e.target.value || null)}
-        className={cn(
-          "h-11 w-full cursor-pointer appearance-none rounded-[10px] border border-neutral-200 bg-white pr-9 pl-4 text-sm hover:bg-neutral-100",
-          !value && "text-muted-foreground"
-        )}
-      >
-        <option value="">不限</option>
-        {options.map((time) => (
-          <option key={time} value={time}>
-            {time}
-          </option>
-        ))}
-      </select>
-      <ChevronDown
-        aria-hidden
-        className="pointer-events-none absolute top-1/2 right-3.5 size-4 -translate-y-1/2 text-neutral-500"
+        onChange={(v) => onChange(v || null)}
       />
     </div>
   )

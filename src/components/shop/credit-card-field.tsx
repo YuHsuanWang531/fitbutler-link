@@ -26,7 +26,7 @@ export function CreditCardField({ value, onChange }: { value: string | null; onC
               aria-checked={selected}
               onClick={() => onChange(card.id)}
               className={cn(
-                "flex min-h-11 w-full items-center gap-3 rounded-[10px] border px-4 py-2.5 text-left text-[15px]",
+                "flex min-h-11 w-full items-center gap-3 rounded-[10px] border px-4 py-2.5 text-left text-sm",
                 selected ? "border-black" : "border-neutral-200"
               )}
             >
@@ -121,7 +121,7 @@ function AddCardDialog({
     <div className="flex flex-col gap-1.5">
       <label htmlFor={`card-${key}`} className="text-sm font-medium">
         {label}
-        <span className="ml-0.5 text-red-600" aria-hidden>
+        <span className="ml-0.5 text-destructive" aria-hidden>
           *
         </span>
       </label>
@@ -144,12 +144,12 @@ function AddCardDialog({
         aria-describedby={errors[key] ? `card-${key}-error` : undefined}
         className={cn(
           "h-11 w-full rounded-[10px] border px-3.5 text-base outline-none placeholder:text-neutral-400 focus:border-black",
-          errors[key] ? "border-red-600" : "border-neutral-200"
+          errors[key] ? "border-destructive" : "border-neutral-200"
         )}
         {...props}
       />
       {errors[key] && (
-        <p id={`card-${key}-error`} className="text-sm leading-5 text-red-600">
+        <p id={`card-${key}-error`} className="text-sm leading-5 text-destructive">
           {errors[key]}
         </p>
       )}
@@ -195,11 +195,7 @@ function AddCardDialog({
           <Button className="h-11 w-full rounded-[10px] text-sm" onClick={submit}>
             新增
           </Button>
-          <Button
-            variant="outline"
-            className="h-11 w-full rounded-[10px] text-sm"
-            onClick={() => onOpenChange(false)}
-          >
+          <Button variant="outline" className="h-11 w-full rounded-[10px] text-sm" onClick={() => onOpenChange(false)}>
             取消
           </Button>
         </DialogFooter>

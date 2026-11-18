@@ -2,9 +2,9 @@
 
 import { useState } from "react"
 import Image from "next/image"
-import { CalendarDays, ChevronDown, MapPin } from "lucide-react"
+import { CalendarDays, MapPin } from "lucide-react"
 
-import { cn } from "@/lib/utils"
+import { DropdownSelect } from "@/components/ui/dropdown-select"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -97,44 +97,24 @@ export function ConfirmBooking({ open, onOpenChange, gymClass, kind = "book", on
           <div className="flex flex-col gap-1.5">
             <label htmlFor="booking-membership" className="text-sm font-medium">
               使用會籍
-              <span className="ml-0.5 text-red-600" aria-hidden>
+              <span className="ml-0.5 text-destructive" aria-hidden>
                 *
               </span>
             </label>
-            <div className="relative">
-              <select
-                id="booking-membership"
-                required
-                value={membership}
-                aria-invalid={error || undefined}
-                aria-describedby={error ? "booking-membership-error" : undefined}
-                onChange={(e) => {
-                  setMembership(e.target.value)
-                  setError(false)
-                }}
-                className={cn(
-                  "h-11 w-full appearance-none rounded-[10px] border bg-white pr-11 pl-4 text-[15px] outline-none",
-                  error ? "border-red-600" : "border-neutral-200",
-                  !membership && "text-neutral-500"
-                )}
-              >
-                <option value="" disabled>
-                  請選擇會籍
-                </option>
-                {myMemberships.map((m) => (
-                  <option key={m.id} value={m.id} className="text-black">
-                    {m.name}（{m.detail}）
-                  </option>
-                ))}
-              </select>
-              <ChevronDown
-                aria-hidden
-                className="pointer-events-none absolute top-1/2 right-4 size-5 -translate-y-1/2 text-neutral-500"
-                strokeWidth={1.5}
-              />
-            </div>
+            <DropdownSelect
+              id="booking-membership"
+              placeholder="請選擇會籍"
+              options={myMemberships.map((m) => ({ value: m.id, label: `${m.name}（${m.detail}）` }))}
+              value={membership}
+              invalid={error}
+              describedBy={error ? "booking-membership-error" : undefined}
+              onChange={(v) => {
+                setMembership(v)
+                setError(false)
+              }}
+            />
             {error && (
-              <p id="booking-membership-error" className="text-sm leading-5 text-red-600">
+              <p id="booking-membership-error" className="text-sm leading-5 text-destructive">
                 請選擇使用會籍
               </p>
             )}

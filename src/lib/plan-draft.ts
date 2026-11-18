@@ -9,7 +9,8 @@ export type PlanDraft = {
   venues: string[]
   teacherId: string
   cardId: string | null
-  invoice: InvoiceDraft
+  /** Missing when the 下一步 page was opened directly (reload, shared link). */
+  invoice?: InvoiceDraft
   /** 合約 signed on the contract page. */
   signed: boolean
 }

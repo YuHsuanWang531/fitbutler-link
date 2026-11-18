@@ -96,7 +96,7 @@ export function VenueRulesAgreement({
         <Title className="text-lg leading-7 font-medium">場館使用規範</Title>
         <p className="text-sm leading-5 text-muted-foreground">最近更新時間 {UPDATED_AT}</p>
       </Header>
-      <div className="mx-4 flex min-h-0 flex-col gap-5 overflow-y-auto rounded-[10px] border border-neutral-200 p-4 text-[15px] leading-6 text-neutral-800 md:mx-6">
+      <div className="mx-4 flex min-h-0 flex-col gap-5 overflow-y-auto rounded-[10px] border border-neutral-200 p-4 text-sm leading-6 text-neutral-800 md:mx-6">
         <section className="flex flex-col gap-1.5">
           <h3 className="text-base font-medium text-black">修改摘要</h3>
           <p>{CHANGE_SUMMARY}</p>
@@ -149,7 +149,7 @@ export function VenueRules() {
           <XIcon className="size-6" strokeWidth={1.5} />
         </Close>
       </Header>
-      <div className="mx-4 mb-6 flex min-h-0 flex-col gap-5 overflow-y-auto rounded-[10px] border border-neutral-200 p-4 text-[15px] leading-6 text-neutral-800 md:mx-6">
+      <div className="mx-4 mb-6 flex min-h-0 flex-col gap-5 overflow-y-auto rounded-[10px] border border-neutral-200 p-4 text-sm leading-6 text-neutral-800 md:mx-6">
         <RulesSections />
       </div>
     </>

@@ -126,7 +126,7 @@ export function InvoiceFields({ form }: { form: InvoiceForm }) {
               role="radio"
               aria-checked={selected}
               onClick={() => form.pick(t)}
-              className="flex min-h-11 w-full items-center gap-3 px-4 py-2.5 text-left text-[15px]"
+              className="flex min-h-11 w-full items-center gap-3 px-4 py-2.5 text-left text-sm"
             >
               <span
                 aria-hidden
@@ -185,7 +185,7 @@ function TextField({ id, label, value, onChange, error, hint, ...props }: TextFi
     <div className="flex flex-col gap-1.5">
       <label htmlFor={id} className="text-sm font-medium">
         {label}
-        <span className="ml-0.5 text-red-600" aria-hidden>
+        <span className="ml-0.5 text-destructive" aria-hidden>
           *
         </span>
       </label>
@@ -198,12 +198,12 @@ function TextField({ id, label, value, onChange, error, hint, ...props }: TextFi
         aria-describedby={error || hint ? `${id}-note` : undefined}
         className={cn(
           "h-11 rounded-[10px] border px-3.5 text-base outline-none placeholder:text-neutral-400 focus:border-black",
-          error ? "border-red-600" : "border-neutral-200"
+          error ? "border-destructive" : "border-neutral-200"
         )}
         {...props}
       />
       {(error || hint) && (
-        <p id={`${id}-note`} className={cn("text-sm leading-5", error ? "text-red-600" : "text-neutral-500")}>
+        <p id={`${id}-note`} className={cn("text-sm leading-5", error ? "text-destructive" : "text-neutral-500")}>
           {error ?? hint}
         </p>
       )}

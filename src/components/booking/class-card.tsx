@@ -23,7 +23,7 @@ const ACTION_STYLE: Record<ClassAction, string> = {
 }
 
 const GREY = "bg-neutral-100 text-neutral-500"
-const RED = "bg-red-50 text-red-600"
+const RED = "bg-destructive/10 text-destructive"
 const BLUE = "bg-sky-50 text-sky-600"
 const GREEN = "bg-emerald-50 text-emerald-700"
 
