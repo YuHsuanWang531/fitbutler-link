@@ -149,7 +149,7 @@ export function VenueRules() {
           <XIcon className="size-6" strokeWidth={1.5} />
         </Close>
       </Header>
-      <div className="flex min-h-0 flex-col gap-5 overflow-y-auto px-4 pb-6 text-[15px] leading-6 text-neutral-800 md:px-6">
+      <div className="mx-4 mb-6 flex min-h-0 flex-col gap-5 overflow-y-auto rounded-[10px] border border-neutral-200 p-4 text-[15px] leading-6 text-neutral-800 md:mx-6">
         <RulesSections />
       </div>
     </>
