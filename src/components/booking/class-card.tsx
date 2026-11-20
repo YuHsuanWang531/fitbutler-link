@@ -116,14 +116,14 @@ function TeacherLink({ teacher }: { teacher: Teacher }) {
         <Image
           src={teacher.avatar}
           alt=""
-          width={24}
-          height={24}
-          className="size-6 shrink-0 rounded-full object-cover"
+          width={20}
+          height={20}
+          className="size-5 shrink-0 rounded-full object-cover"
         />
       ) : (
         <span
           aria-hidden
-          className="flex size-6 shrink-0 items-center justify-center rounded-full bg-neutral-200 text-xs text-neutral-700"
+          className="flex size-5 shrink-0 items-center justify-center rounded-full bg-neutral-200 text-xs text-neutral-700"
         >
           {teacher.name[0]}
         </span>
