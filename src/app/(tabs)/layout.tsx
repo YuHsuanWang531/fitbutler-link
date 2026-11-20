@@ -7,7 +7,7 @@ export default function MemberTabsLayout({ children }: { children: React.ReactNo
   return (
     <>
       <MemberHeader />
-      <MemberMain className="pb-[calc(72px+max(8px,env(safe-area-inset-bottom)))] md:pb-0">{children}</MemberMain>
+      <MemberMain className="pb-[calc(68px+max(8px,calc(env(safe-area-inset-bottom)_-_16px)))] md:pb-0">{children}</MemberMain>
       <MemberTabBar />
     </>
   )

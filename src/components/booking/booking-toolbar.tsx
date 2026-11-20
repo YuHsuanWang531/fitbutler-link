@@ -45,8 +45,8 @@ export function BookingToolbar({ mode, title, onPrev, onNext, onModeChange, onTo
                 aria-checked={mode === value}
                 onClick={() => onModeChange(value)}
                 className={cn(
-                  "h-9 rounded-full px-4 text-sm",
-                  mode === value ? "bg-white font-medium shadow-sm" : "text-neutral-500 hover:text-black"
+                  "h-9 rounded-full px-3 text-sm",
+                  mode === value ? "bg-white shadow-sm" : "text-neutral-500 hover:text-black"
                 )}
               >
                 {value === "month" ? "月" : "週"}
@@ -56,7 +56,7 @@ export function BookingToolbar({ mode, title, onPrev, onNext, onModeChange, onTo
           <button
             type="button"
             onClick={onToday}
-            className="h-9 shrink-0 rounded-full border border-neutral-300 px-3 text-sm hover:bg-neutral-100"
+            className="h-9 shrink-0 rounded-full border border-neutral-200 px-3 text-sm hover:bg-neutral-100"
           >
             今天
           </button>

@@ -62,7 +62,7 @@ export function VenuePill({
         type="button"
         onClick={() => setOpen(true)}
         aria-label={`場館：${value ?? "全部場館"}`}
-        className="flex h-8 max-w-[180px] items-center gap-1 rounded-[10px] border border-neutral-200 pr-2.5 pl-3.5 text-sm text-black hover:bg-neutral-100"
+        className="flex h-7 max-w-[180px] items-center gap-0.5 rounded-full border border-neutral-200 px-2 text-sm text-black hover:bg-neutral-100"
       >
         <span className="truncate">{value ?? "全部場館"}</span>
         <ChevronDown aria-hidden className="size-4 shrink-0" strokeWidth={2} />

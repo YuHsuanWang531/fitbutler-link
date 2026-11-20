@@ -35,14 +35,14 @@ export function MemberHeader({ className }: { className?: string }) {
     >
       <div
         className={cn(
-          "flex h-15 items-center justify-between px-6 md:h-auto md:justify-center",
-          hasTitleRow && "md:px-0"
+          "flex h-15 items-center justify-between md:h-auto md:justify-center",
+          hasTitleRow ? "px-4 md:px-0" : "px-6"
         )}
       >
         {hasTitleRow ? (
           // md+: the title row lines up with the content card below it (same width and offset as MemberMain).
           <div className="flex w-full items-center justify-between md:mx-auto md:w-[500px] md:px-7 lg:mr-auto lg:ml-[max(174px,calc((100%-740px)/2))] lg:w-[740px]">
-            <div className="flex min-w-0 items-center gap-3">
+            <div className="flex min-w-0 items-center gap-2">
               <h1 className="shrink-0 text-2xl leading-8 font-medium">{isShop ? "購買" : "預約"}</h1>
               {isShop ? <ShopVenuePicker /> : isBooking && <BookingVenuePicker />}
             </div>

@@ -7,13 +7,14 @@ import { cn } from "@/lib/utils"
 import { MemberNavIcon } from "@/components/member/member-nav-icon"
 import { isNavItemActive, memberNavItems } from "@/components/member/member-nav-items"
 
-// Floating pill bar: 16px from the screen sides; 8px from the bottom, or just above the home indicator on phones that have one.
+// Floating pill bar: 16px from the screen sides, 8px from the bottom, or on phones with a home indicator
+// 16px into its inset, just above the indicator line. The tabs pages' padding, the home FAB and the toast follow it.
 export function MemberTabBar() {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed inset-x-4 bottom-[max(8px,env(safe-area-inset-bottom))] z-20 rounded-full border border-[#e4e4e4] bg-white shadow-[0_4px_16px_-2px_rgb(0_0_0/0.12)] md:hidden">
-      <ul className="flex h-[70px] p-[5px]">
+    <nav className="fixed inset-x-4 bottom-[max(8px,calc(env(safe-area-inset-bottom)_-_16px))] z-20 rounded-full border border-neutral-200 bg-white md:hidden">
+      <ul className="flex p-1.5">
         {memberNavItems.map(({ href, label, icon }) => {
           const active = isNavItemActive(href, pathname)
           return (
@@ -25,8 +26,8 @@ export function MemberTabBar() {
               >
                 <span
                   className={cn(
-                    // Fills its slot, 6px inside the 72px bar's outer edge.
-                    "flex h-15 w-full flex-col items-center justify-center gap-0.5 rounded-full group-focus-visible:ring-2 group-focus-visible:ring-ring/50",
+                    // Figma: 6px 28px around a 24px icon over its 12px label; the bar is 6px around it (68px tall).
+                    "flex w-full flex-col items-center justify-center rounded-full px-7 py-1.5 group-focus-visible:ring-2 group-focus-visible:ring-ring/50",
                     active ? "bg-(--brand-tint) text-(--brand-on-tint)" : "text-[#bebebe]"
                   )}
                 >
