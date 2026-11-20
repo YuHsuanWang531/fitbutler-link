@@ -34,7 +34,7 @@ export function PlanListCard({ plan, href, showType }: { plan: Plan; href: strin
           </ul>
         )}
         <div className="flex flex-col gap-1">
-          <h2 className="line-clamp-2 text-base leading-6 font-medium text-black">{plan.title}</h2>
+          <h2 className="line-clamp-2 text-lg leading-7 font-medium text-black">{plan.title}</h2>
           {hint && <p className="truncate text-sm leading-5 text-muted-foreground">{hint}</p>}
         </div>
         {tags.length > 0 && (
