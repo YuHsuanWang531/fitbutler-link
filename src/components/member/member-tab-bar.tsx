@@ -7,12 +7,12 @@ import { cn } from "@/lib/utils"
 import { MemberNavIcon } from "@/components/member/member-nav-icon"
 import { isNavItemActive, memberNavItems } from "@/components/member/member-nav-items"
 
-// Floating pill bar: 16px from the screen sides, 8px from the bottom (plus the home-indicator inset).
+// Floating pill bar: 16px from the screen sides; 8px from the bottom, or just above the home indicator on phones that have one.
 export function MemberTabBar() {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed inset-x-4 bottom-[calc(8px+env(safe-area-inset-bottom))] z-20 rounded-full border border-[#e4e4e4] bg-white shadow-[0_4px_16px_-2px_rgb(0_0_0/0.12)] md:hidden">
+    <nav className="fixed inset-x-4 bottom-[max(8px,env(safe-area-inset-bottom))] z-20 rounded-full border border-[#e4e4e4] bg-white shadow-[0_4px_16px_-2px_rgb(0_0_0/0.12)] md:hidden">
       <ul className="flex h-[70px] p-[5px]">
         {memberNavItems.map(({ href, label, icon }) => {
           const active = isNavItemActive(href, pathname)
