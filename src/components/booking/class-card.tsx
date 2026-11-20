@@ -12,7 +12,7 @@ const ACTION_LABEL: Record<ClassAction, string> = {
   waitlisted: "取消候補",
 }
 
-const OUTLINE = "border border-neutral-300 text-black"
+const OUTLINE = "border border-neutral-200 bg-white text-black"
 
 /** 預約 and 候補 are filled; cancelling and 課程資訊 are outlined. */
 const ACTION_STYLE: Record<ClassAction, string> = {
@@ -25,7 +25,7 @@ const ACTION_STYLE: Record<ClassAction, string> = {
 const GREY = "bg-neutral-100 text-neutral-500"
 const RED = "bg-destructive/10 text-destructive"
 const BLUE = "bg-sky-50 text-sky-600"
-const GREEN = "bg-emerald-50 text-emerald-700"
+const GREEN = "bg-green-600/10 text-teal-600"
 
 /** The top-right tag for each status (none once the class is over). */
 function statusTag(status: ClassStatus, gymClass: GymClass): { label: string; style: string } | null {
@@ -54,7 +54,7 @@ function statusTag(status: ClassStatus, gymClass: GymClass): { label: string; st
   }
 }
 
-const BUTTON = "flex h-9 flex-1 items-center justify-center rounded-[10px] px-3 text-sm font-medium"
+const BUTTON = "flex h-9 flex-1 items-center justify-center rounded-[10px] px-4 text-sm"
 
 type ClassCardProps = {
   gymClass: GymClass
@@ -75,30 +75,32 @@ export function ClassCard({ gymClass, status, pending, onAction }: ClassCardProp
       )}
     >
       <div className="flex shrink-0 flex-col items-center">
-        <span className="text-lg leading-7 font-semibold">{gymClass.start}</span>
-        <span aria-label="至" className="h-3 w-px bg-neutral-400" />
-        <span className="text-base leading-7 text-muted-foreground">{classEndTime(gymClass)}</span>
+        <span className="text-lg leading-7 font-medium">{gymClass.start}</span>
+        <span aria-label="至" className="h-3 w-px bg-muted-foreground" />
+        <span className="text-sm leading-5 text-muted-foreground">{classEndTime(gymClass)}</span>
       </div>
       <span aria-hidden className="w-px shrink-0 self-stretch bg-neutral-200" />
       <div className="flex min-w-0 flex-1 flex-col items-start gap-4">
-        {/* Figma: venue, course name and teachers stack with 4px between them. */}
-        <div className="flex flex-col items-start gap-1 self-stretch">
+        {/* Figma: venue row, 2px, then course name and teachers 4px apart. */}
+        <div className="flex flex-col items-start gap-0.5 self-stretch">
           {/* Venue on the left, the status tag in the card's top-right corner. */}
-          <div className="flex w-full items-center justify-between gap-2">
-            <p className="truncate text-sm leading-6 text-muted-foreground">
+          <div className="flex h-6 w-full items-center justify-between gap-1">
+            <p className="truncate text-sm leading-5 text-muted-foreground">
               {gymClass.venue}｜{gymClass.room}
             </p>
             {tag && (
-              <span className={cn("flex h-6 shrink-0 items-center rounded-full px-2.5 text-sm", tag.style)}>
+              <span className={cn("flex h-6 shrink-0 items-center rounded-full px-1.5 text-sm leading-5", tag.style)}>
                 {tag.label}
               </span>
             )}
           </div>
-          <p className="max-w-full truncate text-lg leading-7 font-medium">{gymClass.title}</p>
-          <div className="flex max-w-full min-w-0 items-center gap-4 text-sm leading-5">
-            {gymClass.teachers.map((teacher) => (
-              <TeacherLink key={teacher.id} teacher={teacher} />
-            ))}
+          <div className="flex max-w-full min-w-0 flex-col gap-1 self-stretch">
+            <p className="truncate text-lg leading-7 font-medium">{gymClass.title}</p>
+            <div className="flex min-w-0 items-center gap-1.5 text-sm leading-5">
+              {gymClass.teachers.map((teacher) => (
+                <TeacherLink key={teacher.id} teacher={teacher} />
+              ))}
+            </div>
           </div>
         </div>
         {/* Under the text column, so the buttons line up with the venue and course name, not the time. */}
