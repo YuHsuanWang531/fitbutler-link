@@ -43,9 +43,7 @@ export function MemberHeader({ className }: { className?: string }) {
           // md+: the title row lines up with the content card below it (same width and offset as MemberMain).
           <div className="flex w-full items-center justify-between md:mx-auto md:w-[500px] md:px-7 lg:mr-auto lg:ml-[max(174px,calc((100%-740px)/2))] lg:w-[740px]">
             <div className="flex min-w-0 items-center gap-3">
-              <h1 className="shrink-0 text-2xl leading-8 font-medium md:text-[28px] md:leading-9">
-                {isShop ? "購買" : "預約"}
-              </h1>
+              <h1 className="shrink-0 text-2xl leading-8 font-medium">{isShop ? "購買" : "預約"}</h1>
               {isShop ? <ShopVenuePicker /> : isBooking && <BookingVenuePicker />}
             </div>
             <div className="flex items-center gap-5 text-neutral-950 md:gap-6">
@@ -61,7 +59,7 @@ export function MemberHeader({ className }: { className?: string }) {
                   >
                     <SlidersHorizontal className="size-6 md:size-7" strokeWidth={1.5} />
                     {filterCount > 0 && (
-                      <span className="absolute -top-1.5 -right-1.5 flex size-4 items-center justify-center rounded-full bg-black text-[10px] leading-none text-white">
+                      <span className="absolute -top-2 -right-2 flex size-5 items-center justify-center rounded-full bg-black text-xs leading-none text-white">
                         {filterCount}
                       </span>
                     )}

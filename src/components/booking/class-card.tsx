@@ -80,7 +80,7 @@ export function ClassCard({ gymClass, status, pending, onAction }: ClassCardProp
         <span className="text-base leading-7 text-muted-foreground">{classEndTime(gymClass)}</span>
       </div>
       <span aria-hidden className="w-px shrink-0 self-stretch bg-neutral-200" />
-      <div className="flex min-w-0 flex-1 flex-col items-start gap-6">
+      <div className="flex min-w-0 flex-1 flex-col items-start gap-4">
         {/* Figma: venue, course name and teachers stack with 4px between them. */}
         <div className="flex flex-col items-start gap-1 self-stretch">
           {/* Venue on the left, the status tag in the card's top-right corner. */}
@@ -94,7 +94,7 @@ export function ClassCard({ gymClass, status, pending, onAction }: ClassCardProp
               </span>
             )}
           </div>
-          <p className="max-w-full truncate text-xl leading-7 font-medium">{gymClass.title}</p>
+          <p className="max-w-full truncate text-lg leading-7 font-medium">{gymClass.title}</p>
           <div className="flex max-w-full min-w-0 items-center gap-4 text-sm leading-5">
             {gymClass.teachers.map((teacher) => (
               <TeacherLink key={teacher.id} teacher={teacher} />
@@ -123,7 +123,7 @@ function TeacherLink({ teacher }: { teacher: Teacher }) {
       ) : (
         <span
           aria-hidden
-          className="flex size-6 shrink-0 items-center justify-center rounded-full bg-neutral-200 text-[11px] text-neutral-700"
+          className="flex size-6 shrink-0 items-center justify-center rounded-full bg-neutral-200 text-xs text-neutral-700"
         >
           {teacher.name[0]}
         </span>

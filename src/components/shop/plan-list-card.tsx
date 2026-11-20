@@ -1,7 +1,6 @@
 import Link from "next/link"
 import { ChevronRight, Gift } from "lucide-react"
 
-import { cn } from "@/lib/utils"
 import { planInfoTags, priceHint, priceLabel, type Plan } from "@/lib/shop-plans"
 
 /**
@@ -43,12 +42,7 @@ export function PlanListCard({ plan, href, showType }: { plan: Plan; href: strin
             {tags.map((tag) => (
               <li
                 key={tag.kind}
-                className={cn(
-                  "flex h-6 items-center gap-1 rounded-full border px-2.5 text-sm",
-                  tag.kind === "stock"
-                    ? "border-[#f3c2ad] bg-[#fdf1ec] text-[#c2410c]"
-                    : "border-neutral-200 bg-white text-neutral-800"
-                )}
+                className="flex h-6 items-center gap-1 rounded-full border border-neutral-200 bg-white px-2.5 text-sm text-neutral-800"
               >
                 {tag.kind === "gift" && <Gift aria-hidden className="size-3.5" strokeWidth={2} />}
                 {tag.label}

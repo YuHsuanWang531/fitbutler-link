@@ -29,12 +29,12 @@ export function PlanCard({ plan, href }: { plan: Plan; href?: string }) {
         </ul>
       )}
       <h2 className="text-base leading-6 font-medium text-black">{plan.title}</h2>
-      {scarcity && <p className="mt-0.5 text-sm leading-5 text-[#c2410c]">{scarcity}</p>}
+      {scarcity && <p className="mt-0.5 text-sm leading-5 text-orange-700">{scarcity}</p>}
       <div className="mt-4 flex items-end justify-between gap-3">
         <div className="flex min-w-0 flex-col gap-1">
           <p className="text-2xl leading-8 font-semibold text-black">{priceLabel(plan)}</p>
           {hint && <p className="text-sm leading-5 text-neutral-500">{hint}</p>}
-          {gift && <p className="text-sm leading-5 text-[#c2410c]">{gift}</p>}
+          {gift && <p className="text-sm leading-5 text-orange-700">{gift}</p>}
         </div>
         {href && (
           <span

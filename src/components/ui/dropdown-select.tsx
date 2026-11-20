@@ -22,6 +22,7 @@ export function DropdownSelect({
   invalid,
   disabled,
   describedBy,
+  size = "default",
   className,
 }: {
   id?: string
@@ -34,6 +35,8 @@ export function DropdownSelect({
   invalid?: boolean
   disabled?: boolean
   describedBy?: string
+  /** "sm": 32px tall, for compact headers like the calendar's 月／年. */
+  size?: "default" | "sm"
   className?: string
 }) {
   const picked = options.find((o) => o.value === value)
@@ -50,7 +53,8 @@ export function DropdownSelect({
         aria-invalid={invalid || undefined}
         aria-describedby={describedBy}
         className={cn(
-          "flex h-11 w-full items-center gap-2 rounded-[10px] border bg-white pr-4 pl-4 text-left text-sm outline-none disabled:bg-neutral-50",
+          "flex w-full items-center rounded-[10px] border bg-white text-left text-sm outline-none disabled:bg-neutral-50",
+          size === "sm" ? "h-8 gap-1.5 px-2" : "h-11 gap-2 px-4",
           invalid ? "border-destructive" : "border-neutral-200",
           !picked && "text-neutral-500",
           className
@@ -58,7 +62,7 @@ export function DropdownSelect({
       >
         <Select.Value className="min-w-0 flex-1 truncate">{() => picked?.label ?? placeholder}</Select.Value>
         <Select.Icon className="shrink-0 text-neutral-500">
-          <ChevronDown aria-hidden className="size-5" strokeWidth={1.5} />
+          <ChevronDown aria-hidden className={size === "sm" ? "size-4" : "size-5"} strokeWidth={1.5} />
         </Select.Icon>
       </Select.Trigger>
       <Select.Portal>

@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { CalendarDays, ChevronRight, Lock } from "lucide-react"
+import { ChevronRight, Lock } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { DropdownSelect } from "@/components/ui/dropdown-select"
+import { DatePicker } from "@/components/ui/date-picker"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogFooter, DialogTitle } from "@/components/ui/dialog"
 import { PlanCard } from "@/components/shop/plan-card"
@@ -351,33 +352,7 @@ function ActivationField({
   const today = new Date()
   const min = isoDate(today)
   const max = isoDate(addDays(today, activation.days))
-  return (
-    <label
-      className={cn(
-        "relative flex h-11 items-center justify-between rounded-[10px] border border-neutral-200 px-4 text-sm",
-        !value && "text-neutral-500"
-      )}
-    >
-      {value ? slashed(value) : "請選擇日期"}
-      <CalendarDays aria-hidden className="size-5 text-neutral-500" strokeWidth={1.5} />
-      {/* The native picker, stretched invisibly over the field so tapping anywhere opens it. */}
-      <input
-        id="plan-date"
-        type="date"
-        required
-        min={min}
-        max={max}
-        value={value ?? ""}
-        onChange={(e) => e.target.value && onChange(e.target.value)}
-        onClick={(e) => {
-          try {
-            e.currentTarget.showPicker()
-          } catch {}
-        }}
-        className="absolute inset-0 cursor-pointer opacity-0"
-      />
-    </label>
-  )
+  return <DatePicker id="plan-date" value={value} onChange={onChange} min={min} max={max} format={slashed} />
 }
 
 // ——— 可使用場館 ———
@@ -459,7 +434,7 @@ export function PaymentRow({
             </p>
           ))}
           {option.discounts.map((line) => (
-            <p key={line.label} className="flex justify-between text-[#c2410c]">
+            <p key={line.label} className="flex justify-between text-orange-700">
               <span>{line.label}</span>
               <span>−{formatMoney(line.amount)}</span>
             </p>
