@@ -14,7 +14,7 @@ export function Toast({ message, visible }: { message: string; visible: boolean 
       role="status"
       aria-live="polite"
       className={cn(
-        "pointer-events-none fixed inset-x-0 bottom-[calc(96px+env(safe-area-inset-bottom))] z-50 flex justify-center px-4 transition duration-200 motion-reduce:transition-none md:bottom-8",
+        "pointer-events-none fixed inset-x-0 bottom-[calc(88px+max(8px,env(safe-area-inset-bottom)))] z-50 flex justify-center px-4 transition duration-200 motion-reduce:transition-none md:bottom-8",
         visible ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
       )}
     >

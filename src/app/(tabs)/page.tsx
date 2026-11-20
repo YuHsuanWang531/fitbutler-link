@@ -44,7 +44,7 @@ export default function MemberHomePage() {
       <button
         type="button"
         aria-label="進出場條碼"
-        className="fixed right-4 bottom-[calc(96px+env(safe-area-inset-bottom))] z-10 flex size-16 items-center justify-center rounded-full bg-(--brand-accent) text-(--brand-on-accent) shadow-[0_10px_15px_-3px_rgb(0_0_0/0.1)] md:hidden"
+        className="fixed right-4 bottom-[calc(88px+max(8px,env(safe-area-inset-bottom)))] z-10 flex size-16 items-center justify-center rounded-full bg-(--brand-accent) text-(--brand-on-accent) shadow-[0_10px_15px_-3px_rgb(0_0_0/0.1)] md:hidden"
       >
         <ScanLine className="size-6" strokeWidth={1.5} />
       </button>

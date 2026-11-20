@@ -67,10 +67,10 @@ export function ClassCard({ gymClass, status, pending, onAction }: ClassCardProp
   const closed = status === "close"
   const tag = statusTag(status, gymClass)
   return (
-    // Figma classlist card: one flex row (time | divider | info), padding 16, gap 16, top-aligned.
+    // Figma classlist card: one flex row (time | divider | info), padding 12 16, gap 16, top-aligned.
     <div
       className={cn(
-        "flex items-start gap-4 rounded-[10px] border border-neutral-200 bg-white p-4",
+        "flex items-start gap-4 rounded-[10px] border border-neutral-200 bg-white px-4 py-3",
         closed && "opacity-50"
       )}
     >
