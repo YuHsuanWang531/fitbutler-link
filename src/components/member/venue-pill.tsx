@@ -1,11 +1,10 @@
 "use client"
 
-import { useState } from "react"
-import { ChevronDown } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { useMediaQuery } from "@/hooks/use-media-query"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { DropdownSelect } from "@/components/ui/dropdown-select"
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 
 /** Bottom sheet on phones, dialog from md up (same as 預約's popups). */
@@ -43,8 +42,8 @@ export function Popup({
 }
 
 /**
- * 場館: a pill next to the page title (購買, 預約) showing the picked venue, or 全部場館. Picking one in its popup
- * applies it right away.
+ * 場館: a pill next to the page title (購買, 預約) showing the picked venue, or 全部場館; tapping it drops a list of
+ * the venues 4px below (✓ on the picked one). Picking one applies it right away.
  */
 export function VenuePill({
   venues,
@@ -55,31 +54,14 @@ export function VenuePill({
   value: string | null
   onChange(venue: string | null): void
 }) {
-  const [open, setOpen] = useState(false)
   return (
-    <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-label={`場館：${value ?? "全部場館"}`}
-        className="flex h-7 max-w-[180px] items-center gap-0.5 rounded-full border border-neutral-200 px-2 text-sm text-black hover:bg-neutral-100"
-      >
-        <span className="truncate">{value ?? "全部場館"}</span>
-        <ChevronDown aria-hidden className="size-4 shrink-0" strokeWidth={2} />
-      </button>
-      <Popup open={open} onOpenChange={setOpen} title="選擇場館">
-        <ChipGroup
-          label="場館"
-          hideLabel
-          options={[{ value: null, label: "全部場館" }, ...venues.map((v) => ({ value: v, label: v }))]}
-          value={value}
-          onChange={(next) => {
-            onChange(next)
-            setOpen(false)
-          }}
-        />
-      </Popup>
-    </>
+    <DropdownSelect
+      size="pill"
+      label="場館"
+      options={[{ value: "", label: "全部場館" }, ...venues.map((v) => ({ value: v, label: v }))]}
+      value={value ?? ""}
+      onChange={(next) => onChange(next || null)}
+    />
   )
 }
 

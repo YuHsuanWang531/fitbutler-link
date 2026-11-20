@@ -94,7 +94,7 @@ export function ConfirmBooking({ open, onOpenChange, gymClass, kind = "book", on
               </p>
             )}
           </div>
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1">
             <label htmlFor="booking-membership" className="text-sm font-medium">
               使用會籍
               <span className="ml-0.5 text-destructive" aria-hidden>
@@ -104,7 +104,7 @@ export function ConfirmBooking({ open, onOpenChange, gymClass, kind = "book", on
             <DropdownSelect
               id="booking-membership"
               placeholder="請選擇會籍"
-              options={myMemberships.map((m) => ({ value: m.id, label: `${m.name}（${m.detail}）` }))}
+              options={myMemberships.map((m) => ({ value: m.id, label: m.name, description: m.detail }))}
               value={membership}
               invalid={error}
               describedBy={error ? "booking-membership-error" : undefined}
