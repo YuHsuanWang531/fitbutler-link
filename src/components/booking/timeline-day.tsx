@@ -31,7 +31,7 @@ export function TimelineDay({ day, classes, emptyText, pendingId, anchorId, onAc
       {classes.length === 0 ? (
         <p className="pb-4 text-sm text-muted-foreground">{emptyText}</p>
       ) : (
-        <ol className="pb-2">
+        <ol className="pb-1">
           {classes.map(({ gymClass, status }) => (
             <li key={gymClass.id} className="pb-3" data-scroll-anchor={gymClass.id === anchorId || undefined}>
               <ClassCard
