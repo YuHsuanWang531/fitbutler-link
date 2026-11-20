@@ -28,10 +28,10 @@ export function MemberTabBar() {
                   className={cn(
                     // Figma: 6px 28px around a 24px icon over its 12px label; the bar is 6px around it (68px tall).
                     "flex w-full flex-col items-center justify-center rounded-full px-7 py-1.5 group-focus-visible:ring-2 group-focus-visible:ring-ring/50",
-                    active ? "bg-(--brand-tint) text-(--brand-on-tint)" : "text-[#bebebe]"
+                    active ? "bg-(--brand-tint) text-(--brand-on-tint)" : "text-muted-foreground"
                   )}
                 >
-                  <MemberNavIcon name={icon} active={active} className={cn("size-6", !active && "text-[#a3a3a3]")} />
+                  <MemberNavIcon name={icon} active={active} className="size-6" />
                   {label}
                 </span>
               </Link>
