@@ -216,6 +216,15 @@ export function useCalendarScroll(options: Options) {
     scrollTo(Math.max(0, m.stuckAt), false)
   }, [measure, scrollTo])
 
+  /** Fold the open month away from where it is (the 收合月曆 handle): the same scroll a swipe up would settle on. */
+  const collapse = useCallback(() => {
+    measure({ skipActiveDay: true })
+    const m = metrics.current
+    if (!m?.collapseDistance) return
+    const origin = collapseOrigin.current ?? m.stuckAt
+    scrollTo(Math.min(origin + m.collapseDistance, m.maxScroll), true)
+  }, [measure, scrollTo])
+
   /**
    * Show `key` right under the fully open month: collapsing then starts from here, so scrolling down still
    * folds the month away 1:1 and scrolling up keeps it open.
@@ -316,5 +325,5 @@ export function useCalendarScroll(options: Options) {
     }
   }, [apply, endProgrammatic, getTarget, measure, scrollTo])
 
-  return { collapsed, scrollToDay, scrollToDayExpanded, scrollToTop, measure }
+  return { collapsed, collapse, scrollToDay, scrollToDayExpanded, scrollToTop, measure }
 }

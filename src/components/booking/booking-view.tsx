@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from "react"
 
-import { cn } from "@/lib/utils"
 import { useCalendarScroll } from "@/hooks/use-calendar-scroll"
 import { useHorizontalSwipe } from "@/hooks/use-horizontal-swipe"
 import { bookingApi } from "@/lib/booking/api"
@@ -166,7 +165,7 @@ function BookingScreen({ initialFilters }: { initialFilters?: Partial<ClassFilte
   const swipeTrack = useRef<HTMLDivElement>(null)
   const closeOverlay = useCallback(() => setOverlayOpen(false), [])
 
-  const { collapsed, scrollToDay, scrollToDayExpanded, scrollToTop } = useCalendarScroll({
+  const { collapsed, collapse, scrollToDay, scrollToDayExpanded, scrollToTop } = useCalendarScroll({
     root,
     zone,
     calendarViewport,
@@ -376,11 +375,11 @@ function BookingScreen({ initialFilters }: { initialFilters?: Partial<ClassFilte
   }
 
   return (
-    // --booking-top: where the sticky zone sits — under the mobile header, or the top of the md+ card.
+    // --booking-top: where the sticky zone sits — under the header (61px on phones, 72px from md up).
     // overflow-anchor: none — the zone/spacer swap keeps layout stable; browser scroll anchoring would fight it.
     <div
       ref={root}
-      className="relative [overflow-anchor:none] [--booking-top:calc(61px+env(safe-area-inset-top))] md:[--booking-top:0px]"
+      className="relative [overflow-anchor:none] [--booking-top:calc(61px+env(safe-area-inset-top))] md:[--booking-top:72px]"
     >
       <div ref={zone} className="sticky top-(--booking-top) z-20 border-b border-neutral-200 bg-white">
         <BookingToolbar
@@ -418,19 +417,18 @@ function BookingScreen({ initialFilters }: { initialFilters?: Partial<ClassFilte
 
         {/* Week view has no handle row, so give its dots some room above the zone's bottom border. */}
         {mode === "week" && <div aria-hidden className="h-3" />}
-        {mode === "month" && (
-          <div
-            className={cn("transition-opacity motion-reduce:transition-none", !collapsed && "pointer-events-none")}
-            style={{ opacity: "var(--collapse, 0)" }}
-            aria-hidden={!collapsed}
-          >
+        {/* Always under the month (Figma). Open: tap or swipe up folds it to a week. Collapsed: tap
+            or swipe down opens the whole month over the timeline. */}
+        {mode === "month" &&
+          (collapsed ? (
             <CollapseHandle
               label="展開月曆"
               onClick={() => setOverlayOpen((open) => !open)}
               onSwipe={(dir) => setOverlayOpen(dir === "down")}
             />
-          </div>
-        )}
+          ) : (
+            <CollapseHandle label="收合月曆" onClick={collapse} onSwipe={(dir) => dir === "up" && collapse()} />
+          ))}
 
         {overlayOpen && (
           <button

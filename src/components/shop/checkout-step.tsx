@@ -70,7 +70,7 @@ export function CheckoutStep({ plan, detail, query }: { plan: Plan; detail: Plan
   }
 
   return (
-    <div className="flex min-h-[calc(100dvh-61px-env(safe-area-inset-top))] flex-col md:min-h-full">
+    <div className="flex min-h-[calc(100dvh-61px-env(safe-area-inset-top))] flex-col md:min-h-[calc(100dvh-106px)]">
       <div className="flex flex-1 flex-col gap-6 px-4 pt-4 pb-8 lg:px-6">
         <Field label="訂單資訊" id="checkout-order" group required={false}>
           <OrderSummary plan={plan} query={query} />
@@ -109,7 +109,7 @@ export function CheckoutStep({ plan, detail, query }: { plan: Plan; detail: Plan
         )}
       </div>
 
-      <div className="sticky bottom-0 z-10 flex items-center gap-4 border-t border-neutral-200 bg-white px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))] md:pb-3 lg:px-6">
+      <div className="sticky bottom-0 z-10 md:bottom-[25px] flex items-center gap-4 border-t border-neutral-200 bg-white px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))] md:pb-3 lg:px-6">
         <div className="flex min-w-0 flex-1 flex-col">
           <span className="text-xs leading-4 text-neutral-500">總計</span>
           <span className="text-xl leading-7 font-semibold">{formatMoney(paymentTotal(payment))}</span>

@@ -25,7 +25,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="zh-TW" className={cn(notoSansTC.variable, geist.variable, "h-full antialiased")}>
       <body className="flex min-h-full flex-col">
-        <BrandProvider className="flex min-h-dvh w-full flex-col bg-white font-[family-name:var(--font-geist),var(--font-sans)] text-black md:h-dvh md:overflow-hidden">
+        <BrandProvider className="flex min-h-dvh w-full flex-col md:[--header-h:72px] md:has-[[data-tall-header]]:[--header-h:80px] bg-white font-[family-name:var(--font-geist),var(--font-sans)] text-black">
           <NavDepthTracker />
           <MemberSideNav />
           {children}

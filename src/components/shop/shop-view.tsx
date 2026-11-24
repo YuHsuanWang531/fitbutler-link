@@ -43,7 +43,7 @@ export function ShopView({ type, teacher }: { type: PlanType | null; teacher: { 
   )
 
   return (
-    <div className="[--shop-top:calc(61px+env(safe-area-inset-top))] md:[--shop-top:0px]">
+    <div className="[--shop-top:calc(61px+env(safe-area-inset-top))] md:[--shop-top:72px]">
       <div className="sticky top-(--shop-top) z-10 bg-white">
         <nav
           aria-label="方案類型"

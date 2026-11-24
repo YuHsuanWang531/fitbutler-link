@@ -28,8 +28,10 @@ export function MemberHeader({ className }: { className?: string }) {
   const filterCount = useActiveFilterCount()
   return (
     <header
+      // md+: the logo row makes this header 80px tall (72px with the 預約／購買 title row); the card outline pins under it.
+      data-tall-header={hasTitleRow ? undefined : ""}
       className={cn(
-        "sticky top-0 z-20 border-b border-[#e4e4e4] bg-white pt-[env(safe-area-inset-top)] md:static md:border-0 md:pt-6 md:pb-4",
+        "sticky top-0 z-30 border-b border-[#e4e4e4] bg-white pt-[env(safe-area-inset-top)] md:border-0 md:pt-6 md:pb-4",
         className
       )}
     >
@@ -43,7 +45,8 @@ export function MemberHeader({ className }: { className?: string }) {
           // md+: the title row lines up with the content card below it (same width and offset as MemberMain).
           <div className="flex w-full items-center justify-between md:mx-auto md:w-[500px] md:px-7 lg:mr-auto lg:ml-[max(174px,calc((100%-740px)/2))] lg:w-[740px]">
             <div className="flex min-w-0 items-center gap-2">
-              <h1 className="shrink-0 text-2xl leading-8 font-medium">{isShop ? "購買" : "預約"}</h1>
+              {/* Nudged 1px down so the CJK glyphs centre on the 場館 pill (they sit high in their 32px line). */}
+              <h1 className="shrink-0 translate-y-px text-2xl leading-8 font-medium">{isShop ? "購買" : "預約"}</h1>
               {isShop ? <ShopVenuePicker /> : isBooking && <BookingVenuePicker />}
             </div>
             <div className="flex items-center gap-5 text-neutral-950 md:gap-6">

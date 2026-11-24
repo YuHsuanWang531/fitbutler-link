@@ -109,7 +109,7 @@ export function ContractInfoForm({ planId }: { planId: string }) {
   })
 
   return (
-    <div className="flex min-h-[calc(100dvh-61px-env(safe-area-inset-top))] flex-col md:min-h-full">
+    <div className="flex min-h-[calc(100dvh-61px-env(safe-area-inset-top))] flex-col md:min-h-[calc(100dvh-106px)]">
       <div className="flex flex-1 flex-col gap-8 px-4 pt-4 pb-8 lg:px-6">
         <section className="flex flex-col gap-6">
           <h2 className="text-xl leading-7 font-medium">基本資料</h2>
@@ -244,7 +244,7 @@ export function ContractInfoForm({ planId }: { planId: string }) {
         </section>
       </div>
 
-      <div className="sticky bottom-0 z-10 border-t border-neutral-200 bg-white px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))] md:pb-3 lg:px-6">
+      <div className="sticky bottom-0 z-10 md:bottom-[25px] border-t border-neutral-200 bg-white px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))] md:pb-3 lg:px-6">
         <Button className="h-11 w-full rounded-[10px] text-sm" disabled={saving} onClick={next}>
           下一步
         </Button>
