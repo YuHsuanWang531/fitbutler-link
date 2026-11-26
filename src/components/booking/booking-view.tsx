@@ -5,6 +5,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, use
 import { useCalendarScroll } from "@/hooks/use-calendar-scroll"
 import { useHorizontalSwipe } from "@/hooks/use-horizontal-swipe"
 import { bookingApi } from "@/lib/booking/api"
+import { cn } from "@/lib/utils"
 import {
   onOpenFiltersRequest,
   onSetVenueRequest,
@@ -381,7 +382,15 @@ function BookingScreen({ initialFilters }: { initialFilters?: Partial<ClassFilte
       ref={root}
       className="relative [overflow-anchor:none] [--booking-top:calc(61px+env(safe-area-inset-top))] md:[--booking-top:72px]"
     >
-      <div ref={zone} className="sticky top-(--booking-top) z-20 border-b border-neutral-200 bg-white">
+      {/* While the month is open over the timeline, the zone (and its dimmed backdrop) sits above the tab bar (z-20),
+          so the bar is dimmed too and a tap on it just folds the month. */}
+      <div
+        ref={zone}
+        className={cn(
+          "sticky top-(--booking-top) border-b border-neutral-200 bg-white",
+          overlayOpen ? "z-[35]" : "z-20"
+        )}
+      >
         <BookingToolbar
           mode={mode}
           title={title}
